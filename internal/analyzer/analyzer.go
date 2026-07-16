@@ -17,12 +17,13 @@ func AnalyzeProject(root string) (*project.Info, error) {
 
 	case Gradle:
 
-		framework, database, err := AnalyzeGradle(buildFile.Path)
+		framework, dependency, database, err := AnalyzeGradle(buildFile.Path)
 		if err != nil {
 			return nil, err
 		}
 
 		info.Framework = *framework
+		info.Dependencies = *dependency
 		info.Database = *database
 
 		profiles, err := FindProfiles(root)

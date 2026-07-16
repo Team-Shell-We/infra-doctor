@@ -2,6 +2,7 @@ package project
 
 type Info struct {
 	Framework      FrameworkInfo
+	Dependencies   DependencyInfo
 	Database       DatabaseInfo
 	Infrastructure InfrastructureInfo
 	Github         GithubInfo
@@ -13,7 +14,10 @@ type FrameworkInfo struct {
 	BuildTool  BuildToolInfo
 	SpringBoot SpringBootInfo
 	Java       JavaInfo
+}
 
+// DependencyInfo : 프로젝트에서 사용하는 주요 Dependency 정보
+type DependencyInfo struct {
 	Security SecurityInfo
 	JPA      JPAInfo
 	Kafka    KafkaInfo
@@ -121,6 +125,14 @@ type DockerInfo struct {
 // KubernetesInfo : 프로젝트에서 사용하는 Kubernetes 정보
 type KubernetesInfo struct {
 	Enabled bool
+
+	Files []KubernetesFileInfo
+}
+
+// KubernetesFileInfo : 프로젝트에서 사용하는 Kubernetes 파일 정보
+type KubernetesFileInfo struct {
+	File string
+	Path string
 }
 
 // DockerfileInfo : 프로젝트에서 사용하는 Dockerfile 정보

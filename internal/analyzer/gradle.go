@@ -9,11 +9,16 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 )
 
-func AnalyzeGradle(buildFile string) (*project.FrameworkInfo, *project.DatabaseInfo, error) {
+func AnalyzeGradle(buildFile string) (
+	*project.FrameworkInfo,
+	*project.DependencyInfo,
+	*project.DatabaseInfo,
+	error,
+) {
 
 	content, err := os.ReadFile(buildFile)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	text := string(content)
@@ -30,6 +35,8 @@ func AnalyzeGradle(buildFile string) (*project.FrameworkInfo, *project.DatabaseI
 		},
 		Java: project.JavaInfo{},
 	}
+
+	dependency := &project.DependencyInfo{}
 
 	database := &project.DatabaseInfo{}
 
@@ -57,32 +64,32 @@ func AnalyzeGradle(buildFile string) (*project.FrameworkInfo, *project.DatabaseI
 	// --------------------------------------------------------
 
 	if strings.Contains(text, "spring-boot-starter-security") {
-		framework.Security.Enabled = true
+		dependency.Security.Enabled = true
 	}
 
 	if strings.Contains(text, "spring-boot-starter-data-jpa") {
-		framework.JPA.Enabled = true
+		dependency.JPA.Enabled = true
 	}
 
 	if strings.Contains(text, "spring-kafka") {
-		framework.Kafka.Enabled = true
+		dependency.Kafka.Enabled = true
 	}
 
 	if strings.Contains(text, "software.amazon.awssdk") ||
 		strings.Contains(text, "spring-cloud-starter-aws") {
-		framework.AWS.Enabled = true
+		dependency.AWS.Enabled = true
 	}
 
 	if strings.Contains(lowerText, "lombok") {
-		framework.Lombok.Enabled = true
+		dependency.Lombok.Enabled = true
 	}
 
 	if strings.Contains(text, "spring-boot-starter-actuator") {
-		framework.Actuator.Enabled = true
+		dependency.Actuator.Enabled = true
 	}
 
 	if strings.Contains(text, "springdoc-openapi") {
-		framework.OpenAPI.Enabled = true
+		dependency.OpenAPI.Enabled = true
 	}
 
 	// --------------------------------------------------------
@@ -111,5 +118,5 @@ func AnalyzeGradle(buildFile string) (*project.FrameworkInfo, *project.DatabaseI
 		}
 	}
 
-	return framework, database, nil
+	return framework, dependency, database, nil
 }

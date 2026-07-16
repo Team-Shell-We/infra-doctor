@@ -22,10 +22,6 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 		// --------------------------------------------------------
 
 		if fileInfo.IsDir() {
-
-			// TODO: Kubernetes 디렉터리 탐지
-			// ex) k8s/, helm/
-
 			return nil
 		}
 
@@ -70,13 +66,24 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 		// Kubernetes
 		// ----------------------------
 
-		// TODO: 다음 단계에서 구현
-		// case "Chart.yaml":
-		// case "deployment.yaml":
-		// case "service.yaml":
-		// case "ingress.yaml":
-		// case "kustomization.yaml":
-		//     info.Kubernetes.Enabled = true
+		case "Chart.yaml",
+			"deployment.yaml",
+			"deployment.yml",
+			"service.yaml",
+			"service.yml",
+			"ingress.yaml",
+			"ingress.yml",
+			"kustomization.yaml":
+
+			info.Kubernetes.Enabled = true
+
+			info.Kubernetes.Files = append(
+				info.Kubernetes.Files,
+				project.KubernetesFileInfo{
+					File: fileInfo.Name(),
+					Path: path,
+				},
+			)
 		}
 
 		return nil

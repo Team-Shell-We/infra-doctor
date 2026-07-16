@@ -49,31 +49,38 @@ var scanCmd = &cobra.Command{
 			fmt.Printf("   ✓ Java %s\n", info.Framework.Java.Version)
 		}
 
-		if info.Framework.Security.Enabled {
+		// ---------------------------------------------------------------------
+		// Dependencies
+		// ---------------------------------------------------------------------
+
+		fmt.Println()
+		fmt.Println(" Dependencies")
+
+		if info.Dependencies.Security.Enabled {
 			fmt.Println("   ✓ Spring Security")
 		}
 
-		if info.Framework.JPA.Enabled {
+		if info.Dependencies.JPA.Enabled {
 			fmt.Println("   ✓ Spring Data JPA")
 		}
 
-		if info.Framework.Kafka.Enabled {
+		if info.Dependencies.Kafka.Enabled {
 			fmt.Println("   ✓ Kafka")
 		}
 
-		if info.Framework.AWS.Enabled {
+		if info.Dependencies.AWS.Enabled {
 			fmt.Println("   ✓ AWS SDK")
 		}
 
-		if info.Framework.Lombok.Enabled {
+		if info.Dependencies.Lombok.Enabled {
 			fmt.Println("   ✓ Lombok")
 		}
 
-		if info.Framework.Actuator.Enabled {
+		if info.Dependencies.Actuator.Enabled {
 			fmt.Println("   ✓ Spring Boot Actuator")
 		}
 
-		if info.Framework.OpenAPI.Enabled {
+		if info.Dependencies.OpenAPI.Enabled {
 			fmt.Println("   ✓ SpringDoc OpenAPI")
 		}
 
@@ -128,8 +135,15 @@ var scanCmd = &cobra.Command{
 
 		// Kubernetes
 		if info.Infrastructure.Kubernetes.Enabled {
+
 			fmt.Println("   ✓ Kubernetes")
+
+			for _, file := range info.Infrastructure.Kubernetes.Files {
+				fmt.Printf("      └─ %s\n", file.File)
+			}
+
 		} else {
+
 			fmt.Println("   ✗ Kubernetes")
 		}
 
@@ -180,11 +194,24 @@ var scanCmd = &cobra.Command{
 		// Profiles
 		// ---------------------------------------------------------------------
 
+		// ---------------------------------------------------------------------
+		// Profiles
+		// ---------------------------------------------------------------------
+
 		fmt.Println()
 		fmt.Println(" Profiles")
 
-		for _, profile := range info.Profiles {
-			fmt.Printf("   ✓ %-8s %s\n", profile.Name, profile.File)
+		if len(info.Profiles) > 0 {
+
+			for _, profile := range info.Profiles {
+
+				fmt.Printf("   ✓ %s\n", profile.Name)
+				fmt.Printf("      └─ %s\n", profile.File)
+			}
+
+		} else {
+
+			fmt.Println("   ✗ Profiles")
 		}
 
 		fmt.Println()
