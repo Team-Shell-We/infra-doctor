@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Team-Shell-We/infra-doctor/internal/analyzer"
+	"github.com/Team-Shell-We/infra-doctor/internal/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -28,9 +29,7 @@ var scanCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Println("╔════════════════════════════════════════════════════════════╗")
-		fmt.Println("║                     🔍 Project Scan                        ║")
-		fmt.Println("╠════════════════════════════════════════════════════════════╣")
+		ui.Header("🔍 Project Scan")
 
 		// ---------------------------------------------------------------------
 		// Framework
@@ -194,10 +193,6 @@ var scanCmd = &cobra.Command{
 		// Profiles
 		// ---------------------------------------------------------------------
 
-		// ---------------------------------------------------------------------
-		// Profiles
-		// ---------------------------------------------------------------------
-
 		fmt.Println()
 		fmt.Println(" Profiles")
 
@@ -215,7 +210,7 @@ var scanCmd = &cobra.Command{
 		}
 
 		fmt.Println()
-		fmt.Println("╚════════════════════════════════════════════════════════════╝")
+
 	},
 }
 
