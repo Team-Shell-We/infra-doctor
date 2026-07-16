@@ -2,15 +2,16 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Team-Shell-We/infra-doctor/internal/analyzer"
 	"github.com/spf13/cobra"
 )
 
-var doctorCmd = &cobra.Command{
-	Use:   "doctor [path]",
-	Short: "Analyze project deployment readiness",
-	Long:  "Analyze the current project and check deployment readiness.",
+var scanCmd = &cobra.Command{
+	Use:   "scan [path]",
+	Short: "Scan project structure",
+	Long:  "Analyze the project structure and detect technologies in use.",
 	Args:  cobra.MaximumNArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
@@ -28,7 +29,7 @@ var doctorCmd = &cobra.Command{
 		}
 
 		fmt.Println("╔════════════════════════════════════════════════════════════╗")
-		fmt.Println("║                   🔍 Project Analysis                     ║")
+		fmt.Println("║                     🔍 Project Scan                        ║")
 		fmt.Println("╠════════════════════════════════════════════════════════════╣")
 
 		// ---------------------------------------------------------------------
@@ -87,7 +88,32 @@ var doctorCmd = &cobra.Command{
 		fmt.Println(" CI/CD")
 
 		for _, workflow := range info.Github.Workflows {
-			fmt.Printf("   ✓ %s\n", workflow.File)
+
+			fmt.Printf("   ✓ %s\n", workflow.Name)
+
+			if len(workflow.Triggers) > 0 {
+
+				for _, trigger := range workflow.Triggers {
+
+					fmt.Printf("     Trigger : %s\n", trigger.Event)
+
+					if len(trigger.Branches) > 0 {
+						fmt.Printf("     Branch  : %s\n",
+							strings.Join(trigger.Branches, ", "))
+					}
+				}
+			}
+
+			if len(workflow.Jobs) > 0 {
+
+				var jobs []string
+
+				for _, job := range workflow.Jobs {
+					jobs = append(jobs, job.Name)
+				}
+
+				fmt.Printf("     Jobs    : %s\n", strings.Join(jobs, ", "))
+			}
 		}
 
 		// ---------------------------------------------------------------------
@@ -107,5 +133,5 @@ var doctorCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(scanCmd)
+	rootCmd.AddCommand(doctorCmd)
 }

@@ -8,7 +8,6 @@ func AnalyzeProject(root string) (*project.Info, error) {
 
 	info := &project.Info{}
 
-	// Repository에서 build.gradle 또는 pom.xml을 찾음
 	buildFile, err := FindBuildFile(root)
 	if err != nil {
 		return nil, err
@@ -32,7 +31,6 @@ func AnalyzeProject(root string) (*project.Info, error) {
 
 		info.Database = *database
 
-	
 		profiles, err := FindProfiles(root)
 		if err != nil {
 			return nil, err
@@ -40,6 +38,20 @@ func AnalyzeProject(root string) (*project.Info, error) {
 
 		info.Profiles = profiles
 
+		docker, err := AnalyzeDocker(root)
+		if err != nil {
+			return nil, err
+		}
+
+		info.Docker = *docker
+
+		github, err := AnalyzeGitHub(root)
+		if err != nil {
+			return nil, err
+		}
+
+		info.Github = *github
+	
 	case Maven:
 		// TODO: AnalyzeMaven(buildFile.Path)
 	}

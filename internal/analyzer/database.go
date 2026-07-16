@@ -19,22 +19,25 @@ func AnalyzeDatabase(buildFile string) (*project.DatabaseInfo, error) {
 	info := &project.DatabaseInfo{}
 
 	switch {
-	case strings.Contains(text, "postgresql"):
-		info.Type = "PostgreSQL"
+		case strings.Contains(text, "postgresql"):
+			info.Primary.Type = "PostgreSQL"
 
-	case strings.Contains(text, "mysql"):
-		info.Type = "MySQL"
+		case strings.Contains(text, "mysql"):
+			info.Primary.Type = "MySQL"
 
-	case strings.Contains(text, "mariadb"):
-		info.Type = "MariaDB"
+		case strings.Contains(text, "mariadb"):
+			info.Primary.Type = "MariaDB"
 
-	default:
-		info.Type = "Unknown"
+		default:
+			info.Primary.Type = "Unknown"
 	}
 
 	if strings.Contains(text, "spring-boot-starter-data-redis") ||
 		strings.Contains(text, "spring-data-redis") {
-		info.Redis = true
+
+		info.Redis = &project.RedisInfo{
+			Enabled: true,
+		}
 	}
 
 	return info, nil
