@@ -24,7 +24,15 @@ func AnalyzeProject(root string) (*project.Info, error) {
 		}
 
 		info.Framework = *framework
-		
+
+		database, err := AnalyzeDatabase(buildFile.Path)
+		if err != nil {
+			return nil, err
+		}
+
+		info.Database = *database
+
+	
 		profiles, err := FindProfiles(root)
 		if err != nil {
 			return nil, err

@@ -2,6 +2,7 @@ package project
 
 type Info struct {
 	Framework FrameworkInfo
+	Database DatabaseInfo
 	Profiles []ProfileInfo
 }
 
@@ -11,6 +12,12 @@ type FrameworkInfo struct {
 	SpringBoot    bool
 	SpringVersion string
 	JavaVersion   string
+}
+
+// DatabaseInfo : 프로젝트에서 사용하는 데이터베이스 정보
+type DatabaseInfo struct {
+	Type     string
+	Redis	bool
 }
 
 // ProfileInfo : 프로젝트에서 사용하는 프로파일 정보

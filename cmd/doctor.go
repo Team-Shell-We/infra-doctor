@@ -37,6 +37,18 @@ var doctorCmd = &cobra.Command{
 
 		fmt.Println()
 
+		fmt.Println("Database")
+		fmt.Printf("  Primary DB   : %s\n", info.Database.Type)
+
+		if info.Database.Redis {
+			fmt.Println("  Redis        : Enabled")
+		} else {
+			fmt.Println("  Redis        : Disabled")
+		}
+		
+		fmt.Println()
+
+
 		fmt.Println("Profiles")
 
 		if len(info.Profiles) == 0 {
