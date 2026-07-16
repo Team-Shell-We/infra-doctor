@@ -17,41 +17,32 @@ func AnalyzeProject(root string) (*project.Info, error) {
 
 	case Gradle:
 
-		framework, err := AnalyzeGradle(buildFile.Path)
+		framework, database, err := AnalyzeGradle(buildFile.Path)
 		if err != nil {
 			return nil, err
 		}
 
 		info.Framework = *framework
-
-		database, err := AnalyzeDatabase(buildFile.Path)
-		if err != nil {
-			return nil, err
-		}
-
 		info.Database = *database
 
 		profiles, err := FindProfiles(root)
 		if err != nil {
 			return nil, err
 		}
-
 		info.Profiles = profiles
 
 		docker, err := AnalyzeDocker(root)
 		if err != nil {
 			return nil, err
 		}
-
 		info.Docker = *docker
 
 		github, err := AnalyzeGitHub(root)
 		if err != nil {
 			return nil, err
 		}
-
 		info.Github = *github
-	
+
 	case Maven:
 		// TODO: AnalyzeMaven(buildFile.Path)
 	}

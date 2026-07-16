@@ -49,6 +49,34 @@ var scanCmd = &cobra.Command{
 			fmt.Printf("   ✓ Java %s\n", info.Framework.Java.Version)
 		}
 
+		if info.Framework.Security.Enabled {
+			fmt.Println("   ✓ Spring Security")
+		}
+
+		if info.Framework.JPA.Enabled {
+			fmt.Println("   ✓ Spring Data JPA")
+		}
+
+		if info.Framework.Kafka.Enabled {
+			fmt.Println("   ✓ Kafka")
+		}
+
+		if info.Framework.AWS.Enabled {
+			fmt.Println("   ✓ AWS SDK")
+		}
+
+		if info.Framework.Lombok.Enabled {
+			fmt.Println("   ✓ Lombok")
+		}
+
+		if info.Framework.Actuator.Enabled {
+			fmt.Println("   ✓ Spring Boot Actuator")
+		}
+
+		if info.Framework.OpenAPI.Enabled {
+			fmt.Println("   ✓ SpringDoc OpenAPI")
+		}
+
 		// ---------------------------------------------------------------------
 		// Database
 		// ---------------------------------------------------------------------
@@ -66,54 +94,86 @@ var scanCmd = &cobra.Command{
 		}
 
 		// ---------------------------------------------------------------------
-		// Docker
+		// Infrastructure
 		// ---------------------------------------------------------------------
 
 		fmt.Println()
-		fmt.Println(" Docker")
+		fmt.Println(" Infrastructure")
 
-		for _, docker := range info.Docker.Dockerfiles {
-			fmt.Printf("   ✓ %s\n", docker.File)
+		// Docker
+		if info.Docker.Enabled {
+
+			fmt.Println("   ✓ Docker")
+
+			for _, docker := range info.Docker.Dockerfiles {
+				fmt.Printf("      └─ %s\n", docker.File)
+			}
+
+		} else {
+			fmt.Println("   ✗ Docker")
 		}
 
-		for _, compose := range info.Docker.Compose {
-			fmt.Printf("   ✓ %s\n", compose.File)
+		// Docker Compose
+		if len(info.Docker.Compose) > 0 {
+
+			fmt.Println("   ✓ Docker Compose")
+
+			for _, compose := range info.Docker.Compose {
+				fmt.Printf("      └─ %s\n", compose.File)
+			}
+
+		} else {
+			fmt.Println("   ✗ Docker Compose")
+		}
+
+		// Kubernetes
+		if info.Docker.Kubernetes.Enabled {
+			fmt.Println("   ✓ Kubernetes")
+		} else {
+			fmt.Println("   ✗ Kubernetes")
 		}
 
 		// ---------------------------------------------------------------------
-		// GitHub
+		// CI/CD
 		// ---------------------------------------------------------------------
 
 		fmt.Println()
 		fmt.Println(" CI/CD")
 
-		for _, workflow := range info.Github.Workflows {
+		if len(info.Github.Workflows) > 0 {
 
-			fmt.Printf("   ✓ %s\n", workflow.Name)
+			fmt.Println("   ✓ GitHub Actions")
 
-			if len(workflow.Triggers) > 0 {
+			for _, workflow := range info.Github.Workflows {
+
+				fmt.Printf("      └─ %s\n", workflow.Name)
 
 				for _, trigger := range workflow.Triggers {
 
-					fmt.Printf("     Trigger : %s\n", trigger.Event)
+					fmt.Printf("         Trigger : %s\n", trigger.Event)
 
 					if len(trigger.Branches) > 0 {
-						fmt.Printf("     Branch  : %s\n",
+						fmt.Printf("         Branch  : %s\n",
 							strings.Join(trigger.Branches, ", "))
 					}
 				}
-			}
 
-			if len(workflow.Jobs) > 0 {
+				if len(workflow.Jobs) > 0 {
 
-				var jobs []string
+					var jobs []string
 
-				for _, job := range workflow.Jobs {
-					jobs = append(jobs, job.Name)
+					for _, job := range workflow.Jobs {
+						jobs = append(jobs, job.Name)
+					}
+
+					fmt.Printf("         Jobs    : %s\n",
+						strings.Join(jobs, ", "))
 				}
-
-				fmt.Printf("     Jobs    : %s\n", strings.Join(jobs, ", "))
 			}
+
+		} else {
+
+			fmt.Println("   ✗ GitHub Actions")
 		}
 
 		// ---------------------------------------------------------------------

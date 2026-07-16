@@ -21,9 +21,12 @@ func AnalyzeDocker(root string) (*project.DockerInfo, error) {
 			return nil
 		}
 
-	switch fileInfo.Name() {
+		switch fileInfo.Name() {
 
 		case "Dockerfile":
+
+			// Docker를 사용한다고 판단
+			info.Enabled = true
 
 			info.Dockerfiles = append(info.Dockerfiles, project.DockerfileInfo{
 				File: fileInfo.Name(),

@@ -13,6 +13,49 @@ type FrameworkInfo struct {
 	BuildTool  BuildToolInfo
 	SpringBoot SpringBootInfo
 	Java       JavaInfo
+
+	Security SecurityInfo
+	JPA      JPAInfo
+	Kafka    KafkaInfo
+	AWS      AWSInfo
+	Lombok   LombokInfo
+	Actuator ActuatorInfo
+	OpenAPI  OpenAPIInfo
+}
+
+// SecurityInfo : 프로젝트에서 사용하는 Spring Security 정보
+type SecurityInfo struct {
+	Enabled bool
+}
+
+// JPAInfo : 프로젝트에서 사용하는 JPA 정보
+type JPAInfo struct {
+	Enabled bool
+}
+
+// KafkaInfo : 프로젝트에서 사용하는 Kafka 정보
+type KafkaInfo struct {
+	Enabled bool
+}
+
+// AWSInfo : 프로젝트에서 사용하는 AWS 정보
+type AWSInfo struct {
+	Enabled bool
+}
+
+// LombokInfo : 프로젝트에서 사용하는 Lombok 정보
+type LombokInfo struct {
+	Enabled bool
+}
+
+// ActuatorInfo : 프로젝트에서 사용하는 Spring Boot Actuator 정보
+type ActuatorInfo struct {
+	Enabled bool
+}
+
+// OpenAPIInfo : 프로젝트에서 사용하는 OpenAPI 정보
+type OpenAPIInfo struct {
+	Enabled bool
 }
 
 // BuildToolInfo : 프로젝트에서 사용하는 빌드 도구 정보
@@ -51,8 +94,17 @@ type RedisInfo struct {
 
 // DockerInfo : 프로젝트에서 사용하는 도커 정보
 type DockerInfo struct {
+	Enabled bool
+
 	Dockerfiles []DockerfileInfo
 	Compose     []ComposeInfo
+
+	Kubernetes KubernetesInfo
+}
+
+// KubernetesInfo : 프로젝트에서 사용하는 쿠버네티스 정보
+type KubernetesInfo struct {
+	Enabled bool
 }
 
 // DockerfileInfo : 프로젝트에서 사용하는 Dockerfile 정보
@@ -79,7 +131,7 @@ type WorkflowInfo struct {
 	Path string
 
 	Triggers []TriggerInfo
-	Jobs      []JobInfo
+	Jobs     []JobInfo
 }
 
 // TriggerInfo : GitHub Workflow Trigger 정보

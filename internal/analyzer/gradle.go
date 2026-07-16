@@ -4,20 +4,22 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 )
 
-func AnalyzeGradle(buildFile string) (*project.FrameworkInfo, error) {
+func AnalyzeGradle(buildFile string) (*project.FrameworkInfo, *project.DatabaseInfo, error) {
 
 	content, err := os.ReadFile(buildFile)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	text := string(content)
+	lowerText := strings.ToLower(text)
 
-	info := &project.FrameworkInfo{
+	framework := &project.FrameworkInfo{
 		BuildTool: project.BuildToolInfo{
 			Type: "Gradle",
 			File: filepath.Base(buildFile),
@@ -29,18 +31,85 @@ func AnalyzeGradle(buildFile string) (*project.FrameworkInfo, error) {
 		Java: project.JavaInfo{},
 	}
 
-	// Spring Boot Version
+	database := &project.DatabaseInfo{}
+
+	// --------------------------------------------------------
+	// Spring Boot
+	// --------------------------------------------------------
+
 	springRegex := regexp.MustCompile(`org\.springframework\.boot['"]?\s*version\s*['"]([0-9.]+)['"]`)
 	if match := springRegex.FindStringSubmatch(text); len(match) == 2 {
-		info.SpringBoot.Enabled = true
-		info.SpringBoot.Version = match[1]
+		framework.SpringBoot.Enabled = true
+		framework.SpringBoot.Version = match[1]
 	}
 
-	// Java Version
+	// --------------------------------------------------------
+	// Java
+	// --------------------------------------------------------
+
 	javaRegex := regexp.MustCompile(`JavaLanguageVersion\.of\((\d+)\)`)
 	if match := javaRegex.FindStringSubmatch(text); len(match) == 2 {
-		info.Java.Version = match[1]
+		framework.Java.Version = match[1]
 	}
 
-	return info, nil
+	// --------------------------------------------------------
+	// Dependencies
+	// --------------------------------------------------------
+
+	if strings.Contains(text, "spring-boot-starter-security") {
+		framework.Security.Enabled = true
+	}
+
+	if strings.Contains(text, "spring-boot-starter-data-jpa") {
+		framework.JPA.Enabled = true
+	}
+
+	if strings.Contains(text, "spring-kafka") {
+		framework.Kafka.Enabled = true
+	}
+
+	if strings.Contains(text, "software.amazon.awssdk") ||
+		strings.Contains(text, "spring-cloud-starter-aws") {
+		framework.AWS.Enabled = true
+	}
+
+	if strings.Contains(lowerText, "lombok") {
+		framework.Lombok.Enabled = true
+	}
+
+	if strings.Contains(text, "spring-boot-starter-actuator") {
+		framework.Actuator.Enabled = true
+	}
+
+	if strings.Contains(text, "springdoc-openapi") {
+		framework.OpenAPI.Enabled = true
+	}
+
+	// --------------------------------------------------------
+	// Database
+	// --------------------------------------------------------
+
+	switch {
+	case strings.Contains(lowerText, "postgresql"):
+		database.Primary.Type = "PostgreSQL"
+
+	case strings.Contains(lowerText, "mysql"):
+		database.Primary.Type = "MySQL"
+
+	case strings.Contains(lowerText, "mariadb"):
+		database.Primary.Type = "MariaDB"
+
+	default:
+		database.Primary.Type = "Unknown"
+	}
+
+	if strings.Contains(lowerText, "spring-boot-starter-data-redis") ||
+		strings.Contains(lowerText, "spring-data-redis") {
+
+		database.Redis = &project.RedisInfo{
+			Enabled: true,
+		}
+	}
+
+	return framework, database, nil
 }
