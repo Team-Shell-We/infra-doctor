@@ -1,8 +1,6 @@
 package analyzer
 
 import (
-	"fmt"
-
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 )
 
@@ -16,11 +14,20 @@ func AnalyzeProject(root string) (*project.Info, error) {
 		return nil, err
 	}
 
-	// 어떤 빌드 도구를 사용하는지 출력
-	fmt.Printf("✓ %s detected\n", buildFile.Tool)
+	switch buildFile.Tool {
 
-	// 찾은 build 파일 경로를 출력
-	fmt.Printf("✓ Build File : %s\n", buildFile.Path)
+	case Gradle:
+
+		framework, err := AnalyzeGradle(buildFile.Path)
+		if err != nil {
+			return nil, err
+		}
+
+		info.Framework = *framework
+
+	case Maven:
+		// TODO: AnalyzeMaven(buildFile.Path)
+	}
 
 	return info, nil
 }

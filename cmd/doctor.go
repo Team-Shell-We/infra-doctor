@@ -23,13 +23,16 @@ var doctorCmd = &cobra.Command{
 
 		fmt.Printf("Analyzing project: %s\n\n", root)
 
-		_, err := analyzer.AnalyzeProject(root)
+		info, err := analyzer.AnalyzeProject(root)
 		if err != nil {
 			fmt.Printf("Error: %v\n", err)
 			return
 		}
 
-		fmt.Println("\nDone.")
+		fmt.Printf("Build Tool    : %s\n", info.Framework.BuildTool)
+		fmt.Printf("Spring Boot   : %t\n", info.Framework.SpringBoot)
+		fmt.Printf("Spring Version: %s\n", info.Framework.SpringVersion)
+		fmt.Printf("Java Version  : %s\n", info.Framework.JavaVersion)
 	},
 }
 
