@@ -1,40 +1,111 @@
-/*
-Copyright © 2026 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
 	"fmt"
 
+	"github.com/Team-Shell-We/infra-doctor/internal/analyzer"
 	"github.com/spf13/cobra"
 )
 
-// doctorCmd represents the doctor command
 var doctorCmd = &cobra.Command{
-	Use:   "doctor",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "doctor [path]",
+	Short: "Analyze project deployment readiness",
+	Long:  "Analyze the current project and check deployment readiness.",
+	Args:  cobra.MaximumNArgs(1),
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("doctor called")
+
+		root := "."
+
+		if len(args) == 1 {
+			root = args[0]
+		}
+
+		info, err := analyzer.AnalyzeProject(root)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err)
+			return
+		}
+
+		fmt.Println("╔════════════════════════════════════════════════════════════╗")
+		fmt.Println("║                   🔍 Project Analysis                     ║")
+		fmt.Println("╠════════════════════════════════════════════════════════════╣")
+
+		// ---------------------------------------------------------------------
+		// Framework
+		// ---------------------------------------------------------------------
+
+		fmt.Println()
+		fmt.Println(" Framework")
+
+		if info.Framework.SpringBoot.Version != "" {
+			fmt.Printf("   ✓ Spring Boot %s\n", info.Framework.SpringBoot.Version)
+		}
+
+		fmt.Printf("   ✓ %s\n", info.Framework.BuildTool.Type)
+
+		if info.Framework.Java.Version != "" {
+			fmt.Printf("   ✓ Java %s\n", info.Framework.Java.Version)
+		}
+
+		// ---------------------------------------------------------------------
+		// Database
+		// ---------------------------------------------------------------------
+
+		fmt.Println()
+		fmt.Println(" Database")
+
+		if info.Database.Primary.Type != "" &&
+			info.Database.Primary.Type != "Unknown" {
+			fmt.Printf("   ✓ %s\n", info.Database.Primary.Type)
+		}
+
+		if info.Database.Redis != nil {
+			fmt.Println("   ✓ Redis")
+		}
+
+		// ---------------------------------------------------------------------
+		// Docker
+		// ---------------------------------------------------------------------
+
+		fmt.Println()
+		fmt.Println(" Docker")
+
+		for _, docker := range info.Infrastructure.Docker.Dockerfiles {
+			fmt.Printf("   ✓ %s\n", docker.File)
+		}
+
+		for _, compose := range info.Infrastructure.Docker.Compose {
+			fmt.Printf("   ✓ %s\n", compose.File)
+		}
+
+		// ---------------------------------------------------------------------
+		// GitHub
+		// ---------------------------------------------------------------------
+
+		fmt.Println()
+		fmt.Println(" CI/CD")
+
+		for _, workflow := range info.Github.Workflows {
+			fmt.Printf("   ✓ %s\n", workflow.File)
+		}
+
+		// ---------------------------------------------------------------------
+		// Profiles
+		// ---------------------------------------------------------------------
+
+		fmt.Println()
+		fmt.Println(" Profiles")
+
+		for _, profile := range info.Profiles {
+			fmt.Printf("   ✓ %-8s %s\n", profile.Name, profile.File)
+		}
+
+		fmt.Println()
+		fmt.Println("╚════════════════════════════════════════════════════════════╝")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(doctorCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// doctorCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// doctorCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.AddCommand(scanCmd)
 }
