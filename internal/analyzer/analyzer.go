@@ -24,6 +24,13 @@ func AnalyzeProject(root string) (*project.Info, error) {
 		}
 
 		info.Framework = *framework
+		
+		profiles, err := FindProfiles(root)
+		if err != nil {
+			return nil, err
+		}
+
+		info.Profiles = profiles
 
 	case Maven:
 		// TODO: AnalyzeMaven(buildFile.Path)

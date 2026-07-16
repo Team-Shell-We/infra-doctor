@@ -29,13 +29,26 @@ var doctorCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Printf("Build Tool    : %s\n", info.Framework.BuildTool)
-		fmt.Printf("Spring Boot   : %t\n", info.Framework.SpringBoot)
-		fmt.Printf("Spring Version: %s\n", info.Framework.SpringVersion)
-		fmt.Printf("Java Version  : %s\n", info.Framework.JavaVersion)
+		fmt.Println("Framework")
+		fmt.Printf("  Build Tool     : %s\n", info.Framework.BuildTool)
+		fmt.Printf("  Spring Boot    : %t\n", info.Framework.SpringBoot)
+		fmt.Printf("  Spring Version : %s\n", info.Framework.SpringVersion)
+		fmt.Printf("  Java Version   : %s\n", info.Framework.JavaVersion)
+
+		fmt.Println()
+
+		fmt.Println("Profiles")
+
+		if len(info.Profiles) == 0 {
+			fmt.Println("  None")
+		} else {
+			for _, profile := range info.Profiles {
+				fmt.Printf("  ✓ %-8s %s\n", profile.Name, profile.File)
+			}
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(doctorCmd)
-}
+}	
