@@ -1,7 +1,11 @@
+/*
+Copyright © 2026 Shell We? <EMAIL ADDRESS>
+
+*/
 package main
 
-import "fmt"
+import "github.com/Team-Shell-We/infra-doctor/cmd"
 
 func main() {
-	fmt.Println("Hello, Infra Doctor!")
+	cmd.Execute()
 }
