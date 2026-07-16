@@ -71,11 +71,11 @@ var doctorCmd = &cobra.Command{
 		fmt.Println()
 		fmt.Println(" Docker")
 
-		for _, docker := range info.Docker.Dockerfiles {
+		for _, docker := range info.Infrastructure.Docker.Dockerfiles {
 			fmt.Printf("   ✓ %s\n", docker.File)
 		}
 
-		for _, compose := range info.Docker.Compose {
+		for _, compose := range info.Infrastructure.Docker.Compose {
 			fmt.Printf("   ✓ %s\n", compose.File)
 		}
 

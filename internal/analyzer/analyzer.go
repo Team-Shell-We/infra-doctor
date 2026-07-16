@@ -31,11 +31,11 @@ func AnalyzeProject(root string) (*project.Info, error) {
 		}
 		info.Profiles = profiles
 
-		docker, err := AnalyzeDocker(root)
+		infrastructure, err := AnalyzeInfrastructure(root)
 		if err != nil {
 			return nil, err
 		}
-		info.Docker = *docker
+		info.Infrastructure = *infrastructure
 
 		github, err := AnalyzeGitHub(root)
 		if err != nil {

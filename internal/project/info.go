@@ -1,11 +1,11 @@
 package project
 
 type Info struct {
-	Framework FrameworkInfo
-	Database  DatabaseInfo
-	Docker    DockerInfo
-	Github    GithubInfo
-	Profiles  []ProfileInfo
+	Framework      FrameworkInfo
+	Database       DatabaseInfo
+	Infrastructure InfrastructureInfo
+	Github         GithubInfo
+	Profiles       []ProfileInfo
 }
 
 // FrameworkInfo : 프로젝트에서 사용하는 프레임워크 정보
@@ -92,17 +92,33 @@ type RedisInfo struct {
 	Enabled bool
 }
 
-// DockerInfo : 프로젝트에서 사용하는 도커 정보
+// InfrastructureInfo : 프로젝트에서 사용하는 인프라 정보
+type InfrastructureInfo struct {
+	Docker     DockerInfo
+	Kubernetes KubernetesInfo
+	Nginx      NginxInfo
+	Terraform  TerraformInfo
+}
+
+// NginxInfo : 프로젝트에서 사용하는 Nginx 정보
+type NginxInfo struct {
+	Enabled bool
+}
+
+// TerraformInfo : 프로젝트에서 사용하는 Terraform 정보
+type TerraformInfo struct {
+	Enabled bool
+}
+
+// DockerInfo : 프로젝트에서 사용하는 Docker 정보
 type DockerInfo struct {
 	Enabled bool
 
 	Dockerfiles []DockerfileInfo
 	Compose     []ComposeInfo
-
-	Kubernetes KubernetesInfo
 }
 
-// KubernetesInfo : 프로젝트에서 사용하는 쿠버네티스 정보
+// KubernetesInfo : 프로젝트에서 사용하는 Kubernetes 정보
 type KubernetesInfo struct {
 	Enabled bool
 }

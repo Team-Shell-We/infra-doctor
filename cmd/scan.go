@@ -101,11 +101,11 @@ var scanCmd = &cobra.Command{
 		fmt.Println(" Infrastructure")
 
 		// Docker
-		if info.Docker.Enabled {
+		if info.Infrastructure.Docker.Enabled {
 
 			fmt.Println("   ✓ Docker")
 
-			for _, docker := range info.Docker.Dockerfiles {
+			for _, docker := range info.Infrastructure.Docker.Dockerfiles {
 				fmt.Printf("      └─ %s\n", docker.File)
 			}
 
@@ -114,11 +114,11 @@ var scanCmd = &cobra.Command{
 		}
 
 		// Docker Compose
-		if len(info.Docker.Compose) > 0 {
+		if len(info.Infrastructure.Docker.Compose) > 0 {
 
 			fmt.Println("   ✓ Docker Compose")
 
-			for _, compose := range info.Docker.Compose {
+			for _, compose := range info.Infrastructure.Docker.Compose {
 				fmt.Printf("      └─ %s\n", compose.File)
 			}
 
@@ -127,7 +127,7 @@ var scanCmd = &cobra.Command{
 		}
 
 		// Kubernetes
-		if info.Docker.Kubernetes.Enabled {
+		if info.Infrastructure.Kubernetes.Enabled {
 			fmt.Println("   ✓ Kubernetes")
 		} else {
 			fmt.Println("   ✗ Kubernetes")
