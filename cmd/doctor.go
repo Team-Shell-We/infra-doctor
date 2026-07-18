@@ -1,5 +1,10 @@
 package cmd
 
+/*
+doctor 명령을 정의
+사용자로부터 경로인자를 받고, analyzer를 호출해 프로젝트 분석 결과를 받아 터미널에 요약을 출력
+출력내용: 프레임워크, 데이터베이스, docker, docker compose 파일, ci/cd, profiles 등
+*/
 import (
 	"fmt"
 
