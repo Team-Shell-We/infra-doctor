@@ -12,7 +12,7 @@ type Category string
 
 const (
 	Infrastructure Category = "Infrastructure"
-	CICD           Category = "CI/CD"
+	CICD           Category = "CICD"
 	Database       Category = "Database"
 	Monitoring     Category = "Monitoring"
 	Security       Category = "Security"

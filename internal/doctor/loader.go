@@ -3,6 +3,7 @@ package doctor
 import (
 	"embed"
 	"fmt"
+	"strings"
 	"sync"
 
 	"gopkg.in/yaml.v3"
@@ -136,7 +137,7 @@ func toDiagnosis(rule RuleDefinition) Diagnosis {
 
 	return Diagnosis{
 		Category: Category(rule.Category),
-		Level:    Level(rule.Level),
+		Level:    Level(strings.ToUpper(rule.Level)),
 
 		ScoreImpact: rule.Score,
 
