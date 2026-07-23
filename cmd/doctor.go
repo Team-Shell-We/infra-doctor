@@ -2,15 +2,17 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/Team-Shell-We/infra-doctor/internal/analyzer"
+	"github.com/Team-Shell-We/infra-doctor/internal/doctor"
+	"github.com/Team-Shell-We/infra-doctor/internal/ui"
 	"github.com/spf13/cobra"
 )
 
 var doctorCmd = &cobra.Command{
 	Use:   "doctor [path]",
-	Short: "Analyze project deployment readiness",
-	Long:  "Analyze the current project and check deployment readiness.",
+	Short: "Analyze project and provide recommendations",
 	Args:  cobra.MaximumNArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
@@ -23,89 +25,63 @@ var doctorCmd = &cobra.Command{
 
 		info, err := analyzer.AnalyzeProject(root)
 		if err != nil {
-			fmt.Printf("Error: %v\n", err)
+			fmt.Println(err)
 			return
 		}
 
-		fmt.Println("╔════════════════════════════════════════════════════════════╗")
-		fmt.Println("║                   🔍 Project Analysis                     ║")
-		fmt.Println("╠════════════════════════════════════════════════════════════╣")
+		result := doctor.Analyze(info)
 
-		// ---------------------------------------------------------------------
-		// Framework
-		// ---------------------------------------------------------------------
+		ui.Header("🩺 Infrastructure Doctor")
+		ui.Blank()
 
-		fmt.Println()
-		fmt.Println(" Framework")
+		ui.Line("Deployment Readiness")
+		ui.Blank()
+		ui.Line(fmt.Sprintf(" %s %d%%", ui.ProgressBar(result.Score, 30), result.Score))
+		ui.Blank()
 
-		if info.Framework.SpringBoot.Version != "" {
-			fmt.Printf("   ✓ Spring Boot %s\n", info.Framework.SpringBoot.Version)
+		ui.Line("Infrastructure Check")
+		ui.Blank()
+
+		for _, check := range result.Checks {
+
+			mark := "✗"
+			if check.Passed {
+				mark = "✓"
+			}
+
+			ui.Line(fmt.Sprintf(" %s %s", mark, check.Name))
 		}
 
-		fmt.Printf("   ✓ %s\n", info.Framework.BuildTool.Type)
+		ui.Blank()
 
-		if info.Framework.Java.Version != "" {
-			fmt.Printf("   ✓ Java %s\n", info.Framework.Java.Version)
+		ui.Line("Recommendation")
+		ui.Blank()
+
+		if len(result.Diagnoses) == 0 {
+
+			ui.Line(" ✓ No issues found.")
+
+		} else {
+
+			for _, d := range result.Diagnoses {
+
+				wrapped := ui.Wrap(strings.TrimSpace(d.Fix), 56)
+
+				for i, line := range wrapped {
+
+					if i == 0 {
+						ui.Line(fmt.Sprintf(" • %s", line))
+					} else {
+						ui.Line(fmt.Sprintf("   %s", line))
+					}
+				}
+			}
 		}
 
-		// ---------------------------------------------------------------------
-		// Database
-		// ---------------------------------------------------------------------
-
-		fmt.Println()
-		fmt.Println(" Database")
-
-		if info.Database.Primary.Type != "" &&
-			info.Database.Primary.Type != "Unknown" {
-			fmt.Printf("   ✓ %s\n", info.Database.Primary.Type)
-		}
-
-		if info.Database.Redis != nil {
-			fmt.Println("   ✓ Redis")
-		}
-
-		// ---------------------------------------------------------------------
-		// Docker
-		// ---------------------------------------------------------------------
-
-		fmt.Println()
-		fmt.Println(" Docker")
-
-		for _, docker := range info.Infrastructure.Docker.Dockerfiles {
-			fmt.Printf("   ✓ %s\n", docker.File)
-		}
-
-		for _, compose := range info.Infrastructure.Docker.Compose {
-			fmt.Printf("   ✓ %s\n", compose.File)
-		}
-
-		// ---------------------------------------------------------------------
-		// GitHub
-		// ---------------------------------------------------------------------
-
-		fmt.Println()
-		fmt.Println(" CI/CD")
-
-		for _, workflow := range info.Github.Workflows {
-			fmt.Printf("   ✓ %s\n", workflow.File)
-		}
-
-		// ---------------------------------------------------------------------
-		// Profiles
-		// ---------------------------------------------------------------------
-
-		fmt.Println()
-		fmt.Println(" Profiles")
-
-		for _, profile := range info.Profiles {
-			fmt.Printf("   ✓ %-8s %s\n", profile.Name, profile.File)
-		}
-
-		fmt.Println()
-		fmt.Println("╚════════════════════════════════════════════════════════════╝")
+		ui.Footer()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(scanCmd)
+	rootCmd.AddCommand(doctorCmd)
 }

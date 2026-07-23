@@ -98,10 +98,14 @@ type RedisInfo struct {
 
 // InfrastructureInfo : 프로젝트에서 사용하는 인프라 정보
 type InfrastructureInfo struct {
-	Docker     DockerInfo
-	Kubernetes KubernetesInfo
-	Nginx      NginxInfo
-	Terraform  TerraformInfo
+	Docker      DockerInfo
+	Kubernetes  KubernetesInfo
+	Nginx       NginxInfo
+	Terraform   TerraformInfo
+	HealthCheck HealthCheckInfo
+	Monitoring  MonitoringInfo
+	LogRotation LogRotationInfo
+	Backup      BackupInfo
 }
 
 // NginxInfo : 프로젝트에서 사용하는 Nginx 정보
@@ -111,6 +115,26 @@ type NginxInfo struct {
 
 // TerraformInfo : 프로젝트에서 사용하는 Terraform 정보
 type TerraformInfo struct {
+	Enabled bool
+}
+
+// HealthCheckInfo : 프로젝트에서 사용하는 Health Check 정보
+type HealthCheckInfo struct {
+	Enabled bool
+}
+
+// MonitoringInfo : 프로젝트에서 사용하는 모니터링 정보
+type MonitoringInfo struct {
+	Enabled bool
+}
+
+// LogRotationInfo : 프로젝트에서 사용하는 로그 로테이션 정보
+type LogRotationInfo struct {
+	Enabled bool
+}
+
+// BackupInfo : 프로젝트에서 사용하는 DB 백업 정보
+type BackupInfo struct {
 	Enabled bool
 }
 

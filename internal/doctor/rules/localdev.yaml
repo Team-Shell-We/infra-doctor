@@ -1,0 +1,37 @@
+localdev:
+  no_compose_with_dependencies:
+
+    category: Infrastructure
+    level: Warning
+    score: -10
+
+    title: Local dependencies are not containerized
+
+    message: >
+      The project uses a database and/or Redis, but no docker-compose file was found.
+
+    reason: >
+      Without Compose, each developer must install and configure dependencies
+      manually, slowing onboarding and causing environment drift.
+
+    fix: >
+      Add a docker-compose.yml that starts local database/Redis dependencies
+      with one command.
+
+  no_dev_profile:
+
+    category: Infrastructure
+    level: Info
+    score: -5
+
+    title: Dev profile is not configured
+
+    message: >
+      No application-dev.yml/yaml profile was found.
+
+    reason: >
+      Without a dedicated dev profile, local development configuration may be
+      mixed with production settings.
+
+    fix: >
+      Add an application-dev.yml profile for local development settings.
