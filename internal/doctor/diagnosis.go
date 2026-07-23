@@ -33,6 +33,7 @@ type Diagnosis struct {
 }
 
 type Result struct {
-	Score      int
-	Diagnoses  []Diagnosis
+	Score     int
+	Diagnoses []Diagnosis
+	Checks    []Check
 }

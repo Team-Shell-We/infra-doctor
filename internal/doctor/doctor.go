@@ -29,5 +29,7 @@ func Analyze(info *project.Info) *Result {
 		result.Score = 0
 	}
 
+	result.Checks = Checklist(info)
+
 	return result
 }

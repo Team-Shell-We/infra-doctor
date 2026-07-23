@@ -3,6 +3,7 @@ package analyzer
 import (
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 )
@@ -47,6 +48,12 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 				},
 			)
 
+			if data, readErr := os.ReadFile(path); readErr == nil &&
+				strings.Contains(string(data), "HEALTHCHECK") {
+
+				info.HealthCheck.Enabled = true
+			}
+
 		// ----------------------------
 		// Docker Compose
 		// ----------------------------
@@ -61,6 +68,12 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 					Path: path,
 				},
 			)
+
+			if data, readErr := os.ReadFile(path); readErr == nil &&
+				strings.Contains(strings.ToLower(string(data)), "healthcheck:") {
+
+				info.HealthCheck.Enabled = true
+			}
 
 		// ----------------------------
 		// Kubernetes
@@ -84,6 +97,40 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 					Path: path,
 				},
 			)
+
+		// ----------------------------
+		// Nginx
+		// ----------------------------
+
+		case "nginx.conf":
+
+			info.Nginx.Enabled = true
+
+		// ----------------------------
+		// Monitoring
+		// ----------------------------
+
+		case "prometheus.yml",
+			"prometheus.yaml",
+			"grafana.ini":
+
+			info.Monitoring.Enabled = true
+
+		// ----------------------------
+		// Log Rotation
+		// ----------------------------
+
+		case "logrotate.conf":
+
+			info.LogRotation.Enabled = true
+
+		// ----------------------------
+		// DB Backup
+		// ----------------------------
+
+		case "backup.sh":
+
+			info.Backup.Enabled = true
 		}
 
 		return nil
