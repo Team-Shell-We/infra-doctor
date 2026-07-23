@@ -215,5 +215,5 @@ var scanCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(doctorCmd)
+	rootCmd.AddCommand(scanCmd)
 }
