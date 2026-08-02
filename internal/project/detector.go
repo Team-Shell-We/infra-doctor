@@ -89,15 +89,13 @@ func DetectSpringBoot(dir string) (*DetectionResult, error) {
 			if os.IsNotExist(err) { //해당 빌드 파일이 존재하지 않는 경우, 오류 반환
 				continue
 			}
-
+			// 파일은 존재하지만 권한 등의 이유로 읽지 못한 경우 오류 반환
+			return nil, fmt.Errorf(
+				"cannot read build file %q: %w",
+				buildFilePath,
+				err,
+			)
 		}
-
-		// 파일은 존재하지만 권한 등의 이유로 읽지 못한 경우 오류 반환
-		return nil, fmt.Errorf(
-			"cannot read build file %q: %w",
-			buildFilePath,
-			err,
-		)
 
 		//빌드 파일에 spring boot 관련 문자열(Markers)이 포함되어 있는지 확인
 		if containsAnyMarker(string(content), candidate.Markers) {
