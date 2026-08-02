@@ -8,6 +8,9 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/ui"
 	"github.com/spf13/cobra"
 )
+/*
+CLI 명령을 정의하여 지정한 프로젝트 경로를 분석하고 요약 정보를 터미널에 출력
+*/
 
 var scanCmd = &cobra.Command{
 	Use:   "scan [path]",
