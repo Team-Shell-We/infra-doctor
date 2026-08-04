@@ -14,7 +14,7 @@ Built for backend developers.
 
 GitHub
 
-github.com/your-org/infra-doctor
+github.com/Team-Shell-We/infra-doctor
 
 License
 
