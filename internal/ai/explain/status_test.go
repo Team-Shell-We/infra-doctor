@@ -32,11 +32,6 @@ func TestBuildStatusDocker(t *testing.T) {
 }
 
 func TestBuildStatusNeverInventsBeyondItsMapping(t *testing.T) {
-
-	// This is the regression test for the bug that motivated this file:
-	// the AI previously invented items like "Dockerfile.dev" that this
-	// codebase never checks for. BuildStatus must only ever return the
-	// fixed, hardcoded set of labels per topic — nothing dynamic.
 	info := &project.Info{}
 	info.Infrastructure.Docker.Enabled = true
 

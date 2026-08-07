@@ -111,10 +111,8 @@ func loginWithOpenAI(reader *bufio.Reader, out io.Writer) {
 	fmt.Fprintln(out, "OpenAI")
 }
 
-// readAPIKey masks input when stdin is a real interactive terminal
-// (matching the spec's `sk-********` masked example); otherwise it falls
-// back to plain buffered reading so login stays scriptable/testable via
-// piped input.
+// readAPIKey : stdin이 실제 대화형 터미널일 때만 입력을 마스킹
+// 그 외엔 일반 버퍼 읽기로 대체(파이프 입력으로도 스크립팅/테스트 가능)
 func readAPIKey(reader *bufio.Reader) string {
 
 	if term.IsTerminal(int(os.Stdin.Fd())) {

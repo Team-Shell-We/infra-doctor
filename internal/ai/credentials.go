@@ -6,12 +6,8 @@ import (
 	"path/filepath"
 )
 
-// Credentials is stored at ~/.infra-doctor/config.json — the user's home
-// directory, holding AI provider credentials. This is unrelated to the
-// per-project .infra-doctor/config.yaml that `infra-doctor init` creates
-// (internal/utils/init_util.go): that one holds analysis settings for a
-// single project, this one holds global AI login state shared across every
-// project the CLI is run against.
+// Credentials : ~/.infra-doctor/config.json(사용자 홈 디렉터리)에 저장되는 AI provider 자격증명. `infra-doctor init`이 프로젝트 디렉터리에 만드는
+// .infra-doctor/config.yaml(internal/utils/init_util.go, 프로젝트별 분석 설정)과는 별개(어느 프로젝트에서 실행하든 공유되는 전역 로그인 상태)
 type Credentials struct {
 	Provider string `json:"provider"`
 	APIKey   string `json:"apiKey"`
@@ -23,7 +19,7 @@ const (
 	credentialsFileName = "config.json"
 )
 
-// Path returns ~/.infra-doctor/config.json for the current user.
+// Path : 현재 사용자의 ~/.infra-doctor/config.json 경로를 반환
 func Path() (string, error) {
 
 	home, err := os.UserHomeDir()
@@ -34,8 +30,8 @@ func Path() (string, error) {
 	return filepath.Join(home, credentialsDirName, credentialsFileName), nil
 }
 
-// Load reads the current user's stored credentials, returning
-// ErrNotLoggedIn if `infra-doctor login` has never been run successfully.
+// Load : 저장된 자격증명을 읽음. 
+// `infra-doctor login`을 성공적으로 실행한 적이 없으면 ErrNotLoggedIn을 반환
 func Load() (*Credentials, error) {
 
 	path, err := Path()
@@ -46,7 +42,7 @@ func Load() (*Credentials, error) {
 	return LoadFrom(path)
 }
 
-// Save persists creds to ~/.infra-doctor/config.json.
+// Save : creds를 ~/.infra-doctor/config.json에 저장
 func Save(creds Credentials) error {
 
 	path, err := Path()
@@ -57,8 +53,7 @@ func Save(creds Credentials) error {
 	return SaveTo(path, creds)
 }
 
-// LoadFrom/SaveTo take an explicit path so credential persistence can be
-// unit tested against a temp directory instead of the real home directory.
+// LoadFrom/SaveTo : 경로를 직접 받아, 실제 홈 디렉터리 대신 임시 디렉터리로 단위 테스트할 수 있게 해줌
 
 func LoadFrom(path string) (*Credentials, error) {
 

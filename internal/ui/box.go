@@ -40,8 +40,8 @@ func ProgressBar(percent, width int) string {
 	return strings.Repeat("█", filled) + strings.Repeat("░", width-filled)
 }
 
-// Wrap splits text into lines no longer than width, breaking on word
-// boundaries so long text can be printed inside a fixed-width box.
+// Wrap : 텍스트를 width보다 길지 않은 줄들로 나눔
+// 단어 단위로 끊어서 고정폭 박스 안에 긴 텍스트도 출력할 수 있도록
 func Wrap(text string, width int) []string {
 
 	words := strings.Fields(text)

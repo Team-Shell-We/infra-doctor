@@ -5,12 +5,10 @@ import (
 	"errors"
 )
 
-// CompletionRequest is a single-shot completion request. There is no
-// multi-turn conversation concept in this product — every AI command sends
-// one pre-built system prompt plus one pre-built user prompt and expects a
-// single structured answer back.
+// CompletionRequest: 단발성 요청. 
+// 모든 AI 명령어는 미리 만든 system/user 프롬프트 하나씩 보내고 구조화된 답 하나만 받음
 type CompletionRequest struct {
-	Model        string // empty means the provider's default model
+	Model        string // 비어있으면 provider 기본 모델
 	SystemPrompt string
 	UserPrompt   string
 	JSONMode     bool
@@ -21,10 +19,7 @@ type CompletionResponse struct {
 	Content string
 }
 
-// Client is implemented once per AI provider (currently only OpenAI).
-// VerifyCredentials and Complete are kept separate because login only needs
-// to know whether a key works, while explain/recommend need an actual
-// completion — the cheapest correct implementation of each differs.
+// Client는 AI provider마다 하나씩 구현(현재는 OpenAI뿐)
 type Client interface {
 	Complete(ctx context.Context, req CompletionRequest) (*CompletionResponse, error)
 	VerifyCredentials(ctx context.Context) error

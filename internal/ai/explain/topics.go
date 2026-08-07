@@ -1,8 +1,7 @@
 package explain
 
-// Topics is the fixed set of subjects `infra-doctor explain <topic>`
-// accepts, matching the feature spec exactly. It doubles as cobra's
-// ValidArgs list so an invalid topic is rejected before any AI call.
+// Topics는 `infra-doctor explain <topic>`이 허용하는 고정된 주제 목록
+// cobra의 ValidArgs로도 쓰여, 잘못된 topic은 AI 호출 전에 거부
 var Topics = []string{
 	"compose",
 	"container",
@@ -29,8 +28,8 @@ var displayNames = map[string]string{
 	"redis":          "Redis",
 }
 
-// DisplayName returns the human-readable name for a topic (e.g. "k8s" ->
-// "Kubernetes"), falling back to the raw topic if it's somehow unknown.
+// DisplayName은 topic의 사람이 읽기 좋은 이름을 반환한다(예: "k8s" ->
+// "Kubernetes"). 알 수 없는 topic이면 원래 문자열을 그대로 반환한다.
 func DisplayName(topic string) string {
 
 	if name, ok := displayNames[topic]; ok {

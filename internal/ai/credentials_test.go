@@ -34,10 +34,9 @@ func TestSaveToFilePermissions(t *testing.T) {
 		t.Skip("POSIX file permission bits are not meaningful on Windows")
 	}
 
-	// The directory must not already exist: os.MkdirAll is a no-op on an
-	// existing directory, so it would never actually apply the requested
-	// permission bits and this test would pass vacuously (t.TempDir()
-	// itself already exists before SaveTo runs).
+	// 디렉터리가 미리 존재하면 안 됨 : os.MkdirAll은 이미 있는 디렉터리엔
+	// 아무 일도 안 하므로, 요청한 권한이 실제로 적용됐는지 검증 못한 채
+	// 테스트가 그냥 통과해버림(t.TempDir()은 SaveTo 실행 전에 이미 존재).
 	path := filepath.Join(t.TempDir(), "nested", "config.json")
 
 	if err := SaveTo(path, Credentials{Provider: "openai", APIKey: "sk-test", Login: true}); err != nil {

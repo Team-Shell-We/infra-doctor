@@ -37,23 +37,19 @@ func TestBuildRequestIncludesTopicAndSummary(t *testing.T) {
 		t.Errorf("UserPrompt should embed the deterministic status facts, got: %s", req.UserPrompt)
 	}
 
-	// OpenAI's JSON mode requires the literal word "json" to appear
-	// somewhere in the prompt or the API rejects the request outright.
+	// OpenAI JSON 모드는 프롬프트 안에 "json"이라는 단어가 있어야 요청이 통과됨
 	if !strings.Contains(strings.ToLower(req.SystemPrompt+req.UserPrompt), "json") {
 		t.Error("prompt must mention 'json' somewhere for OpenAI JSON mode to be accepted")
 	}
 
-	// The schema field names in the system prompt must match result.go's
-	// json tags exactly, or the model's replies won't parse.
+	// 시스템 프롬프트의 스키마 필드명은 result.go의 json 태그와 정확히 일치해야 모델 응답을 파싱 가능
 	for _, field := range []string{"current_project", "build_flow", "why_topic"} {
 		if !strings.Contains(req.SystemPrompt, field) {
 			t.Errorf("SystemPrompt is missing schema field %q — result.go's json tags must match", field)
 		}
 	}
 
-	// current_status must never be requested from the model — it's
-	// computed deterministically in status.go instead (see BuildStatus's
-	// doc comment for why: the model was observed inventing filenames).
+	// current_status는 절대 모델에게 요청하지 않음! — status.go에서 결정론적으로 판단
 	if strings.Contains(req.SystemPrompt, "current_status") {
 		t.Error("SystemPrompt must not ask the model for current_status — that section is computed in Go, not by the AI")
 	}
