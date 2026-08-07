@@ -121,12 +121,7 @@ func renderExplainResult(topic string, result *explain.Result, status []explain.
 	ui.Footer()
 }
 
-// printWrapped prints text word-wrapped to fit the box, prefixing the
-// first line with prefix and aligning continuation lines under it so long
-// AI-generated bullets never overflow the fixed-width ASCII box. Width is
-// measured in runes, not bytes — prefixes like " ✓ " contain multi-byte
-// UTF-8 characters that would otherwise throw off both the indent and the
-// wrap width.
+// printWrapped : 박스 너비에 맞게 텍스트를 줄바꿈해 출력
 func printWrapped(prefix, text string) {
 
 	width := utf8.RuneCountInString(prefix)

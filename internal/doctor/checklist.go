@@ -8,8 +8,8 @@ type Check struct {
 	Passed   bool
 }
 
-// Checklist reflects the current pass/fail state of the fixed set of
-// infrastructure checks shown in the "Infrastructure Check" section.
+// Checklist : "Infrastructure Check" 섹션에 표시되는 고정된 인프라 체크
+// 항목들의 현재 통과/실패 상태를 반환
 func Checklist(info *project.Info) []Check {
 
 	return []Check{

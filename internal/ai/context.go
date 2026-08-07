@@ -7,10 +7,7 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 )
 
-// Summary is a compact, prompt-ready view of a scanned project. AI commands
-// send this instead of raw source code: it is cheaper, grounds the model in
-// facts the CLI already verified deterministically, and keeps every AI
-// command answering from the same known-accurate picture of the project.
+// Summary : 스캔된 프로젝트를 압축한 프롬프트용 요약
 type Summary struct {
 	Framework      string
 	Dependencies   []string
@@ -20,9 +17,7 @@ type Summary struct {
 	Profiles       []string
 }
 
-// BuildSummary turns a scanned project.Info into a Summary. It is a pure
-// function of its input so prompt construction can be unit tested without
-// re-running the analyzer.
+// BuildSummary : 스캔된 project.Info를 Summary로 변환
 func BuildSummary(info *project.Info) Summary {
 
 	summary := Summary{}
@@ -81,8 +76,7 @@ func BuildSummary(info *project.Info) Summary {
 	return summary
 }
 
-// String renders the summary as a compact bullet list suitable for
-// embedding directly into a prompt.
+// String : 요약을 프롬프트에 바로 넣을 수 있는 압축된 불릿 목록으로 렌더링
 func (s Summary) String() string {
 
 	var b strings.Builder
@@ -109,8 +103,8 @@ func (s Summary) String() string {
 
 func enabledNames(flags map[string]bool) []string {
 
-	// Fixed, deterministic order so prompt text (and therefore model
-	// output) doesn't vary run-to-run because of Go's random map order.
+	// Go의 map 순회 순서가 랜덤이라, 실행마다 프롬프트(그리고 모델 출력)가
+	// 달라지지 않도록 고정된 순서로 나열
 	order := []string{
 		"Spring Security", "Spring Data JPA", "Kafka", "AWS SDK", "Lombok",
 		"Spring Boot Actuator", "SpringDoc OpenAPI",
