@@ -1,7 +1,4 @@
-// Package openai implements ai.Client against OpenAI's Chat Completions
-// API. It is a direct net/http integration rather than the official SDK —
-// this is one stable, non-streaming endpoint, not worth the dependency
-// weight of a full client library.
+// 공식 SDK 대신 net/http로 직접 호출
 package openai
 
 import (
@@ -94,9 +91,8 @@ func (c *Client) Complete(ctx context.Context, req ai.CompletionRequest) (*ai.Co
 	return &ai.CompletionResponse{Content: result.Choices[0].Message.Content}, nil
 }
 
-// VerifyCredentials makes the cheapest possible authenticated call
-// (list models) purely to confirm the key is accepted, without spending
-// completion tokens.
+// VerifyCredentials는 completion 토큰을 쓰지 않고 키 유효성만 확인하는
+// 가장 저렴한 인증 호출(모델 목록 조회)을 사용한다.
 func (c *Client) VerifyCredentials(ctx context.Context) error {
 
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodGet, c.baseURL+"/models", nil)

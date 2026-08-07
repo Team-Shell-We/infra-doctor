@@ -46,7 +46,7 @@ var (
 	once     sync.Once
 )
 
-// LoadRules loads every rule file only once.
+// LoadRules : 모든 룰 파일을 딱 한 번만 로드
 func LoadRules() (*RuleRegistry, error) {
 
 	var err error

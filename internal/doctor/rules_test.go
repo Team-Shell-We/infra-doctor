@@ -22,11 +22,8 @@ var validLevels = map[Level]bool{
 	Critical: true,
 }
 
-// TestRuleRegistrySchema validates that every rule defined in
-// internal/doctor/rules/*.yaml conforms to the schema expected by the
-// doctor package. This is the automated check contributors' rule PRs
-// must pass (see internal/doctor/rules/README.md for the human review
-// checklist that complements it).
+// TestRuleRegistrySchema : internal/doctor/rules/*.yaml에 정의된 모든 룰이 doctor 패키지가 기대하는 스키마를 따르는지 검증
+// 기여자의 룰 PR이 통과해야 하는 자동 검증
 func TestRuleRegistrySchema(t *testing.T) {
 
 	registry, err := LoadRules()

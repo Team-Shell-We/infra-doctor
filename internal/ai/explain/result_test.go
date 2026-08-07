@@ -22,8 +22,8 @@ func TestParseValid(t *testing.T) {
 
 func TestParseIgnoresUnexpectedFields(t *testing.T) {
 
-	// If the model disobeys the "don't include current_status" instruction
-	// and sends it anyway, Parse must not choke on the unknown field.
+	// 모델이 "current_status 넣지 마라" 지시를 어기고 보내더라도, Parse가
+	// 알 수 없는 필드 때문에 실패하면 안 되므로
 	raw := `{
 		"current_project": ["Spring Boot"],
 		"build_flow": ["Source", "Build"],

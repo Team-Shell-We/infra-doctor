@@ -7,18 +7,17 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/ai"
 )
 
-// systemPrompt is topic-independent: it fixes the model's role and forces
-// its answer into the exact JSON shape internal/ai/explain/result.go
-// expects. This is what keeps `explain` from being a free-form chatbot —
-// the user never writes any of this, the CLI always sends the same
-// instructions for every topic.
-//
-// Deliberately NOT part of the schema: a "current status" / "which files
-// exist" field. Asking the model to freely list "2-5 relevant files" was
-// tried and reliably produced plausible-but-fabricated filenames (e.g.
-// "Dockerfile.dev") that were never actually scanned for — a direct
-// violation of "only state scanned facts". That section is now computed
-// deterministically in Go (see status.go) and never touches the model.
+// systemPrompt : topic과 무관하게 고정 
+
+/*
+* 모델의 역할을 정하고 답변을 JSON 스키마로 강제하는 시스템 프롬프트. 이 프롬프트는
+* internal/ai/explain/result.go가 기대하는 JSON 형태로 강제함. 
+* 사용자는 프롬프트를 전혀 쓰지 않고,
+* CLI가 모든 topic에 항상 같은 지시를 보낸다.
+* 이 섹션은 이제 Go 코드가
+* 결정론적으로 계산한다(status.go 참고), 모델은 관여하지 않는다.
+*/
+
 const systemPrompt = `You are Infra Doctor, a CLI tool that explains infrastructure concepts to backend developers strictly in the context of their own scanned project.
 
 Base every claim ONLY on the scanned project facts you are given in the user message. Do not invent technologies, files, or configuration that were not listed there.
@@ -55,10 +54,9 @@ type userPromptData struct {
 	StatusFacts string
 }
 
-// BuildRequest assembles the full completion request for a given topic,
-// scanned project summary, and deterministically-computed status facts
-// (see status.go). It's a pure function so prompt construction can be unit
-// tested without any network call.
+// BuildRequest는 topic, 스캔 요약, 결정론적으로 계산된 상태 사실(status.go)로
+// completion 요청 전체를 조립한다. 순수 함수라 네트워크 호출 없이 프롬프트
+// 생성을 단위 테스트할 수 있다.
 func BuildRequest(topic string, summary ai.Summary, status []StatusItem) (ai.CompletionRequest, error) {
 
 	tmpl, err := template.New("explain-user").Parse(userPromptTemplate)
