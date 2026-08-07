@@ -20,49 +20,28 @@ type BuildFile struct {
 	Path string
 }
 
-// Repository를 재귀 탐색하여 build.gradle 또는 pom.xml을 찾음
+// FindBuildFile : root에서 build.gradle 또는 pom.xml을 찾음(하위 디렉터리
+// 재귀 탐색 안 함 — 재귀 탐색하면 examples/ 등 하위의 다른 프로젝트를
+// 잘못 집어올 수 있어서 제거)
 func FindBuildFile(root string) (*BuildFile, error) {
 
-	var result *BuildFile
-
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-
-		if err != nil {
-			return err
-		}
-
-		// 폴더는 건너뜀
-		if info.IsDir() {
-			return nil
-		}
-
-		switch info.Name() {
-
-		case "build.gradle", "build.gradle.kts":
-			result = &BuildFile{
-				Tool: Gradle,
-				Path: path,
-			}
-			return filepath.SkipAll
-
-		case "pom.xml":
-			result = &BuildFile{
-				Tool: Maven,
-				Path: path,
-			}
-			return filepath.SkipAll
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
+	candidates := []struct {
+		FileName string
+		Tool     BuildTool
+	}{
+		{"build.gradle", Gradle},
+		{"build.gradle.kts", Gradle},
+		{"pom.xml", Maven},
 	}
 
-	if result == nil {
-		return nil, fmt.Errorf("no build file found")
+	for _, candidate := range candidates {
+
+		path := filepath.Join(root, candidate.FileName)
+
+		if _, err := os.Stat(path); err == nil {
+			return &BuildFile{Tool: candidate.Tool, Path: path}, nil
+		}
 	}
 
-	return result, nil
+	return nil, fmt.Errorf("no build file found")
 }
