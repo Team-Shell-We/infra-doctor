@@ -86,6 +86,68 @@ func TestLoadFromLoggedOutCredentials(t *testing.T) {
 	}
 }
 
+func TestLoadOrDefaultFromMissingFile(t *testing.T) {
+
+	path := filepath.Join(t.TempDir(), "does-not-exist.json")
+
+	got := LoadOrDefaultFrom(path)
+	if got != (Credentials{}) {
+		t.Errorf("expected zero-value Credentials for a missing file, got %+v", got)
+	}
+}
+
+func TestLoadOrDefaultFromLoggedOutStillReadsOtherFields(t *testing.T) {
+
+	// LoadOrDefault(From)은 config 명령어가 로그인 여부와 무관하게 언어
+	// 설정을 볼 수 있어야 해서 만든 함수 — Load와 달리 login:false여도
+	// 에러 없이 나머지 필드를 그대로 읽어야 한다.
+	path := filepath.Join(t.TempDir(), "config.json")
+
+	saved := Credentials{Login: false, Language: "ko"}
+
+	if err := SaveTo(path, saved); err != nil {
+		t.Fatalf("SaveTo failed: %v", err)
+	}
+
+	got := LoadOrDefaultFrom(path)
+	if got != saved {
+		t.Errorf("LoadOrDefaultFrom = %+v, want %+v", got, saved)
+	}
+}
+
+// 회귀 테스트: config --lang로 언어만 바꿀 때 이미 저장된 apiKey가
+// 유실되면 안 된다(LoadOrDefault → 필드 하나만 수정 → Save 흐름 검증).
+func TestChangingLanguagePreservesAPIKey(t *testing.T) {
+
+	path := filepath.Join(t.TempDir(), "config.json")
+
+	original := Credentials{Provider: "openai", APIKey: "sk-real-key", Login: true}
+
+	if err := SaveTo(path, original); err != nil {
+		t.Fatalf("SaveTo failed: %v", err)
+	}
+
+	creds := LoadOrDefaultFrom(path)
+	creds.Language = "ko"
+
+	if err := SaveTo(path, creds); err != nil {
+		t.Fatalf("SaveTo failed: %v", err)
+	}
+
+	reloaded, err := LoadFrom(path)
+	if err != nil {
+		t.Fatalf("LoadFrom failed: %v", err)
+	}
+
+	if reloaded.APIKey != "sk-real-key" {
+		t.Errorf("APIKey was lost after changing Language: got %q", reloaded.APIKey)
+	}
+
+	if reloaded.Language != "ko" {
+		t.Errorf("Language wasn't saved: got %q", reloaded.Language)
+	}
+}
+
 func TestPath(t *testing.T) {
 
 	home := t.TempDir()
