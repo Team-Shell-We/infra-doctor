@@ -19,6 +19,9 @@ func AnalyzeGitHub(root string) (*project.GithubInfo, error) {
 		}
 
 		if fileInfo.IsDir() {
+			if shouldSkipDir(fileInfo.Name()) {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 

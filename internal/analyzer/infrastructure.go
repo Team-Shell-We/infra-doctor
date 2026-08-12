@@ -23,6 +23,9 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 		// --------------------------------------------------------
 
 		if fileInfo.IsDir() {
+			if shouldSkipDir(fileInfo.Name()) {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 

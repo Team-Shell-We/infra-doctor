@@ -19,6 +19,9 @@ func FindProfiles(root string) ([]project.ProfileInfo, error) {
 		}
 
 		if info.IsDir() {
+			if shouldSkipDir(info.Name()) {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 

@@ -12,6 +12,14 @@ type Credentials struct {
 	Provider string `json:"provider"`
 	APIKey   string `json:"apiKey"`
 	Login    bool   `json:"login"`
+
+	// Language/OutputFormat/AutoExport : `config` 명령어가 표시/변경하는
+	// 전역 CLI 설정. 로그인 자격증명과 같은 파일에 두는 이유는, 이 파일의
+	// writer를 하나로 유지해야 필드 유실(다른 struct가 부분 저장하면서
+	// 모르는 필드를 날리는 사고) 위험이 없기 때문.
+	Language     string `json:"language,omitempty"`
+	OutputFormat string `json:"outputFormat,omitempty"`
+	AutoExport   bool   `json:"autoExport,omitempty"`
 }
 
 const (
@@ -30,7 +38,7 @@ func Path() (string, error) {
 	return filepath.Join(home, credentialsDirName, credentialsFileName), nil
 }
 
-// Load : 저장된 자격증명을 읽음. 
+// Load : 저장된 자격증명을 읽음.
 // `infra-doctor login`을 성공적으로 실행한 적이 없으면 ErrNotLoggedIn을 반환
 func Load() (*Credentials, error) {
 
@@ -51,6 +59,35 @@ func Save(creds Credentials) error {
 	}
 
 	return SaveTo(path, creds)
+}
+
+// LoadOrDefault : 로그인 여부와 무관하게 저장된 설정을 읽음. Load와 달리
+// 로그인 안 돼있거나 파일이 아예 없어도 에러 없이 zero-value Credentials를
+// 반환 — `config` 명령어처럼 로그인 전에도 봐야 하는 설정(언어 등)에 사용.
+func LoadOrDefault() Credentials {
+
+	path, err := Path()
+	if err != nil {
+		return Credentials{}
+	}
+
+	return LoadOrDefaultFrom(path)
+}
+
+func LoadOrDefaultFrom(path string) Credentials {
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return Credentials{}
+	}
+
+	var creds Credentials
+
+	if err := json.Unmarshal(data, &creds); err != nil {
+		return Credentials{}
+	}
+
+	return creds
 }
 
 // LoadFrom/SaveTo : 경로를 직접 받아, 실제 홈 디렉터리 대신 임시 디렉터리로 단위 테스트할 수 있게 해줌
