@@ -17,14 +17,19 @@ import (
 )
 
 var explainCmd = &cobra.Command{
-	Use:       "explain <topic>",
+	Use:       "explain <topic> [path]",
 	Short:     "Explain an infrastructure concept in the context of your project",
-	Args:      cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
+	Args:      explainArgs,
 	ValidArgs: explain.Topics,
 
 	Run: func(cmd *cobra.Command, args []string) {
 
 		topic := args[0]
+
+		root := "."
+		if len(args) == 2 {
+			root = args[1]
+		}
 
 		creds, err := ai.Load()
 		if err != nil {
@@ -38,7 +43,7 @@ var explainCmd = &cobra.Command{
 			return
 		}
 
-		info, err := analyzer.AnalyzeProject(".")
+		info, err := analyzer.AnalyzeProject(root)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -134,6 +139,24 @@ func printWrapped(prefix, text string) {
 			ui.Line(indent + line)
 		}
 	}
+}
+
+// explainArgs : 첫 번째 인자는 유효한 topic이어야 하고, 두 번째 인자(경로)는
+// 선택 — 생략하면 현재 디렉터리(doctor/scan의 [path]와 동일 패턴).
+// cobra.OnlyValidArgs는 경로까지 topic으로 검사해버려서 못 씀
+func explainArgs(cmd *cobra.Command, args []string) error {
+
+	if len(args) < 1 || len(args) > 2 {
+		return fmt.Errorf("accepts between 1 and 2 arg(s), received %d", len(args))
+	}
+
+	for _, topic := range explain.Topics {
+		if args[0] == topic {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("invalid topic %q for %q", args[0], cmd.CommandPath())
 }
 
 func init() {

@@ -15,11 +15,16 @@ import (
 )
 
 var recommendCmd = &cobra.Command{
-	Use:   "recommend",
+	Use:   "recommend [path]",
 	Short: "Recommend a deployment strategy for your project's scale",
-	Args:  cobra.NoArgs,
+	Args:  cobra.MaximumNArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
+
+		root := "."
+		if len(args) == 1 {
+			root = args[0]
+		}
 
 		creds, err := ai.Load()
 		if err != nil {
@@ -33,7 +38,7 @@ var recommendCmd = &cobra.Command{
 			return
 		}
 
-		info, err := analyzer.AnalyzeProject(".")
+		info, err := analyzer.AnalyzeProject(root)
 		if err != nil {
 			fmt.Println(err)
 			return
