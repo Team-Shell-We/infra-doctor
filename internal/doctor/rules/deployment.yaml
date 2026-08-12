@@ -1,0 +1,51 @@
+deployment:
+  no_deployment:
+
+    category: Infrastructure
+    level: Critical
+    score: -40
+
+    title: Deployment environment is not prepared
+
+    message: >
+      Dockerfile and GitHub Actions workflow were not found.
+
+    reason: >
+      The project does not appear to have a standardized deployment process.
+
+    fix: >
+      Create a Dockerfile and configure a GitHub Actions workflow.
+
+  no_docker:
+
+    category: Infrastructure
+    level: Warning
+    score: -20
+
+    title: Docker is not configured
+
+    message: >
+      GitHub Actions was detected, but no Dockerfile was found.
+
+    reason: >
+      CI/CD exists, but deployment still depends on the server environment.
+
+    fix: >
+      Create a Dockerfile.
+
+  no_github_actions:
+
+    category: CICD
+    level: Warning
+    score: -15
+
+    title: CI/CD pipeline is not configured
+
+    message: >
+      Docker is configured, but no GitHub Actions workflow was found.
+
+    reason: >
+      Deployment still appears to be manual.
+
+    fix: >
+      Configure GitHub Actions.

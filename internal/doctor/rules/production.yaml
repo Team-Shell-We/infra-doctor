@@ -1,0 +1,90 @@
+production:
+  no_health_check:
+
+    category: Infrastructure
+    level: Warning
+    score: -10
+
+    title: Health check is not configured
+
+    message: >
+      No Docker HEALTHCHECK instruction or Compose healthcheck block was found.
+
+    reason: >
+      Without a health check, orchestrators and load balancers cannot detect an
+      unhealthy instance and route traffic away from it.
+
+    fix: >
+      Add a HEALTHCHECK instruction to your Dockerfile or a healthcheck block
+      to docker-compose.yml.
+
+  no_reverse_proxy:
+
+    category: Infrastructure
+    level: Warning
+    score: -10
+
+    title: Reverse proxy is not configured
+
+    message: >
+      No Nginx configuration (nginx.conf) was found.
+
+    reason: >
+      Without a reverse proxy, TLS termination, load balancing, and request
+      buffering must be handled by the application itself.
+
+    fix: >
+      Add Nginx (or another reverse proxy) in front of the application.
+
+  no_monitoring:
+
+    category: Monitoring
+    level: Warning
+    score: -15
+
+    title: Monitoring is not configured
+
+    message: >
+      No Prometheus or Grafana configuration was found.
+
+    reason: >
+      Without monitoring, production incidents may go undetected until users
+      report them.
+
+    fix: >
+      Configure Prometheus and/or Grafana to monitor the application.
+
+  no_log_rotation:
+
+    category: Infrastructure
+    level: Info
+    score: -5
+
+    title: Log rotation is not configured
+
+    message: >
+      No logrotate configuration (logrotate.conf) was found.
+
+    reason: >
+      Unbounded log growth can exhaust disk space and eventually crash the host.
+
+    fix: >
+      Configure log rotation (e.g. logrotate) for the application logs.
+
+  no_backup:
+
+    category: Database
+    level: Critical
+    score: -20
+
+    title: Database backup is not configured
+
+    message: >
+      No backup script or scheduled backup job was found.
+
+    reason: >
+      Without backups, a database failure or accidental deletion can result in
+      permanent data loss.
+
+    fix: >
+      Configure a scheduled database backup (e.g. a backup.sh script run via cron).
