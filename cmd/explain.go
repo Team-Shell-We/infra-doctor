@@ -104,6 +104,36 @@ func renderExplainResult(lang, topic string, result *explain.Result, status []ex
 	ui.Header("💡 " + name + " " + i18n.Get(lang, "explain.suffix"))
 	ui.Blank()
 
+	// topic이 아직 이 프로젝트에 없으면(예: k8s) 아래 내용이 전부 가정
+	// 시나리오라는 걸 코드가 결정한 사실로 먼저 알려준다 — AI 문장 톤에만
+	// 의존하면 모델이 매번 일관되게 가정법을 쓴다는 보장이 없다.
+	if !explain.TopicPresent(status) {
+		printWrapped(" ⚠ ", i18n.Get(lang, "explain.notAdopted"))
+		ui.Blank()
+	}
+
+	// "현재 상태"(결정론적 ✓/✗ 사실)를 AI가 만든 서술보다 먼저 보여준다.
+	// 순서가 반대였을 땐 아직 도입 안 한 기술(예: k8s)도 마치 이미 쓰고
+	// 있는 것처럼 읽혀서, 맨 아래 ✗를 보기 전까진 오해할 수 있었다.
+	ui.Line(i18n.Get(lang, "explain.currentStatus"))
+	ui.Blank()
+
+	for _, item := range status {
+
+		mark := "✗"
+		if item.Present {
+			mark = "✓"
+		}
+
+		label := item.Label
+		if key, ok := explainStatusLabelKeys[item.Label]; ok {
+			label = i18n.Get(lang, key)
+		}
+
+		printWrapped(" "+mark+" ", label)
+	}
+
+	ui.Blank()
 	ui.Line(i18n.Get(lang, "explain.currentProject"))
 	ui.Blank()
 
@@ -125,25 +155,6 @@ func renderExplainResult(lang, topic string, result *explain.Result, status []ex
 
 	for _, reason := range result.WhyTopic {
 		printWrapped(" • ", reason)
-	}
-
-	ui.Blank()
-	ui.Line(i18n.Get(lang, "explain.currentStatus"))
-	ui.Blank()
-
-	for _, item := range status {
-
-		mark := "✗"
-		if item.Present {
-			mark = "✓"
-		}
-
-		label := item.Label
-		if key, ok := explainStatusLabelKeys[item.Label]; ok {
-			label = i18n.Get(lang, key)
-		}
-
-		printWrapped(" "+mark+" ", label)
 	}
 
 	ui.Footer()
