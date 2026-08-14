@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/Team-Shell-We/infra-doctor/internal/ai"
 	"github.com/Team-Shell-We/infra-doctor/internal/ai/explain"
@@ -153,7 +152,7 @@ func renderExplainResult(lang, topic string, result *explain.Result, status []ex
 // printWrapped : 박스 너비에 맞게 텍스트를 줄바꿈해 출력
 func printWrapped(prefix, text string) {
 
-	width := utf8.RuneCountInString(prefix)
+	width := ui.DisplayWidth(prefix)
 	indent := strings.Repeat(" ", width)
 
 	for i, line := range ui.Wrap(text, 60-width) {
