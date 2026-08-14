@@ -32,17 +32,28 @@ Scanned project facts:
 {{.Summary}}
 
 Reasons this strategy was chosen (already decided, explain these — do not change the recommendation):
-{{.ReasonLabels}}`
+{{.ReasonLabels}}
+
+Respond entirely in {{.Language}}.`
 
 type userPromptData struct {
 	Recommended  string
 	Summary      string
 	ReasonLabels string
+	Language     string
 }
 
-// BuildRequest는 이미 결정된 Decision과 스캔 요약으로 completion 요청을
-// 조립하는 순수 함수 — 네트워크 호출 없이 단위 테스트 가능하다.
-func BuildRequest(summary ai.Summary, decision Decision) (ai.CompletionRequest, error) {
+// languageNames : i18n 언어 코드를 모델에게 지시할 사람이 읽는 이름으로
+// 매핑. internal/ai/explain의 동일 패턴과 일관됨.
+var languageNames = map[string]string{
+	"ko": "Korean",
+	"en": "English",
+}
+
+// BuildRequest는 이미 결정된 Decision과 스캔 요약, 언어 설정으로
+// completion 요청을 조립하는 순수 함수 — 네트워크 호출 없이 단위
+// 테스트 가능하다.
+func BuildRequest(summary ai.Summary, decision Decision, lang string) (ai.CompletionRequest, error) {
 
 	tmpl, err := template.New("recommend-user").Parse(userPromptTemplate)
 	if err != nil {
@@ -59,10 +70,16 @@ func BuildRequest(summary ai.Summary, decision Decision) (ai.CompletionRequest, 
 		reasonLines = append(reasonLines, "- "+reason)
 	}
 
+	languageName, ok := languageNames[lang]
+	if !ok {
+		languageName = languageNames["en"]
+	}
+
 	data := userPromptData{
 		Recommended:  decision.Recommended,
 		Summary:      summaryText,
 		ReasonLabels: strings.Join(reasonLines, "\n"),
+		Language:     languageName,
 	}
 
 	var b strings.Builder

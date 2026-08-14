@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 	"github.com/Team-Shell-We/infra-doctor/internal/utils"
 	"github.com/spf13/cobra"
@@ -16,6 +17,9 @@ func initCommand() *cobra.Command {
 		Args:  cobra.NoArgs,
 
 		RunE: func(cmd *cobra.Command, args []string) error {
+
+			lang := currentLang()
+
 			currentDir, err := os.Getwd()
 			if err != nil {
 				return fmt.Errorf(
@@ -37,7 +41,7 @@ func initCommand() *cobra.Command {
 				)
 			}
 
-			fmt.Println("Spring Boot project:", currentDir)
+			fmt.Println(i18n.Get(lang, "init.springBootProject"), currentDir)
 
 			result, err := utils.Initialize(currentDir)
 			if err != nil {
@@ -45,7 +49,7 @@ func initCommand() *cobra.Command {
 			}
 
 			for _, createdPath := range result.CreatedPaths {
-				fmt.Println("Created:", createdPath)
+				fmt.Println(i18n.Get(lang, "init.created"), createdPath)
 			}
 
 			return nil

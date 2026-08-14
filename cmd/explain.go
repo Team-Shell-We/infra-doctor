@@ -12,9 +12,27 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/ai/explain"
 	"github.com/Team-Shell-We/infra-doctor/internal/ai/openai"
 	"github.com/Team-Shell-We/infra-doctor/internal/analyzer"
+	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
 	"github.com/Team-Shell-We/infra-doctor/internal/ui"
 	"github.com/spf13/cobra"
 )
+
+// explainStatusLabelKeys : explain.BuildStatus()가 반환하는 고정된
+// 라벨(영어)을 i18n key로 매핑. Dockerfile/docker-compose.yml/PostgreSQL/
+// Redis처럼 고유명사/파일명인 라벨은 번역 대상이 아니라 여기 없음(그대로 둠).
+var explainStatusLabelKeys = map[string]string{
+	"Dockerfile":                             "explain.status.dockerfile",
+	"Docker Compose":                         "explain.status.dockerCompose",
+	"Health Check":                           "explain.status.healthCheck",
+	"docker-compose.yml":                     "explain.status.dockerComposeYml",
+	"GitHub Actions workflow":                "explain.status.githubActionsWorkflow",
+	"Kubernetes manifests":                   "explain.status.kubernetesManifests",
+	"Nginx configuration":                    "explain.status.nginxConfig",
+	"PostgreSQL":                             "explain.status.postgresql",
+	"AWS SDK dependency":                     "explain.status.awsSdk",
+	"Relational database (PostgreSQL/MySQL)": "explain.status.relationalDb",
+	"Redis":                                  "explain.status.redis",
+}
 
 var explainCmd = &cobra.Command{
 	Use:       "explain <topic> [path]",
@@ -24,6 +42,7 @@ var explainCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 
+		lang := currentLang()
 		topic := args[0]
 
 		root := "."
@@ -35,7 +54,7 @@ var explainCmd = &cobra.Command{
 		if err != nil {
 
 			if errors.Is(err, ai.ErrNotLoggedIn) {
-				fmt.Println("You're not logged in. Run 'infra-doctor login' to set up your OpenAI API Key first.")
+				fmt.Println(i18n.Get(lang, "common.notLoggedIn"))
 				return
 			}
 
@@ -52,7 +71,7 @@ var explainCmd = &cobra.Command{
 		summary := ai.BuildSummary(info)
 		status := explain.BuildStatus(topic, info)
 
-		req, err := explain.BuildRequest(topic, summary, status)
+		req, err := explain.BuildRequest(topic, summary, status, lang)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -65,7 +84,7 @@ var explainCmd = &cobra.Command{
 
 		resp, err := client.Complete(ctx, req)
 		if err != nil {
-			fmt.Printf("Failed to reach OpenAI: %v\n", err)
+			fmt.Printf(i18n.Get(lang, "common.openaiFailed")+"\n", err)
 			return
 		}
 
@@ -75,18 +94,18 @@ var explainCmd = &cobra.Command{
 			return
 		}
 
-		renderExplainResult(topic, result, status)
+		renderExplainResult(lang, topic, result, status)
 	},
 }
 
-func renderExplainResult(topic string, result *explain.Result, status []explain.StatusItem) {
+func renderExplainResult(lang, topic string, result *explain.Result, status []explain.StatusItem) {
 
 	name := explain.DisplayName(topic)
 
-	ui.Header("💡 " + name + " Explained")
+	ui.Header("💡 " + name + " " + i18n.Get(lang, "explain.suffix"))
 	ui.Blank()
 
-	ui.Line("Current Project")
+	ui.Line(i18n.Get(lang, "explain.currentProject"))
 	ui.Blank()
 
 	for _, item := range result.CurrentProject {
@@ -94,7 +113,7 @@ func renderExplainResult(topic string, result *explain.Result, status []explain.
 	}
 
 	ui.Blank()
-	ui.Line("Build Flow")
+	ui.Line(i18n.Get(lang, "explain.buildFlow"))
 	ui.Blank()
 
 	for _, step := range result.BuildFlow {
@@ -102,7 +121,7 @@ func renderExplainResult(topic string, result *explain.Result, status []explain.
 	}
 
 	ui.Blank()
-	ui.Line(fmt.Sprintf("Why %s?", name))
+	ui.Line(fmt.Sprintf(i18n.Get(lang, "explain.whyTopic"), name))
 	ui.Blank()
 
 	for _, reason := range result.WhyTopic {
@@ -110,7 +129,7 @@ func renderExplainResult(topic string, result *explain.Result, status []explain.
 	}
 
 	ui.Blank()
-	ui.Line("Current Status")
+	ui.Line(i18n.Get(lang, "explain.currentStatus"))
 	ui.Blank()
 
 	for _, item := range status {
@@ -120,7 +139,12 @@ func renderExplainResult(topic string, result *explain.Result, status []explain.
 			mark = "✓"
 		}
 
-		printWrapped(" "+mark+" ", item.Label)
+		label := item.Label
+		if key, ok := explainStatusLabelKeys[item.Label]; ok {
+			label = i18n.Get(lang, key)
+		}
+
+		printWrapped(" "+mark+" ", label)
 	}
 
 	ui.Footer()

@@ -18,11 +18,15 @@ func configCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 
 			creds := ai.LoadOrDefault()
+			currentSetting := creds.Language
+			if currentSetting == "" {
+				currentSetting = i18n.English
+			}
 
 			if lang, _ := cmd.Flags().GetString("lang"); lang != "" {
 
 				if !i18n.IsSupported(lang) {
-					fmt.Printf("Unsupported language %q (supported: %v)\n", lang, i18n.Supported())
+					fmt.Printf(i18n.Get(currentSetting, "config.unsupportedLang")+"\n", lang, i18n.Supported())
 					return
 				}
 
@@ -38,7 +42,7 @@ func configCommand() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().String("lang", "", "Set output language (en, ko)")
+	cmd.Flags().String("lang", "", i18n.Get(currentLang(), "config.langFlagDesc"))
 
 	return cmd
 }

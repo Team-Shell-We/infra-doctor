@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
 	"github.com/Team-Shell-We/infra-doctor/internal/utils"
 	"github.com/spf13/cobra"
 )
@@ -13,6 +14,9 @@ var updateCmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 
 	RunE: func(cmd *cobra.Command, args []string) error {
+
+		lang := currentLang()
+
 		updateInfo, err := utils.GetUpdateInfo()
 		if err != nil {
 			return fmt.Errorf("failed to check update: %w", err)
@@ -20,15 +24,17 @@ var updateCmd = &cobra.Command{
 
 		fmt.Fprintf(
 			cmd.OutOrStdout(),
-			"Current\n\n%s\n\nLatest\n\n%s\n",
+			"%s\n\n%s\n\n%s\n\n%s\n",
+			i18n.Get(lang, "update.current"),
 			updateInfo.CurrentVersion,
+			i18n.Get(lang, "update.latest"),
 			updateInfo.LatestVersion,
 		)
 
 		if updateInfo.CurrentVersion == "dev" {
 			fmt.Fprintln(
 				cmd.OutOrStdout(),
-				"\nUpdate status cannot be checked in development mode.",
+				"\n"+i18n.Get(lang, "update.devMode"),
 			)
 			return nil
 		}
@@ -36,12 +42,12 @@ var updateCmd = &cobra.Command{
 		if updateInfo.UpdateAvailable {
 			fmt.Fprintln(
 				cmd.OutOrStdout(),
-				"\nRun\n\nbrew upgrade infra-doctor",
+				"\n"+i18n.Get(lang, "update.run")+"\n\nbrew upgrade infra-doctor",
 			)
 		} else {
 			fmt.Fprintln(
 				cmd.OutOrStdout(),
-				"\nInfra Doctor is already up to date.",
+				"\n"+i18n.Get(lang, "update.upToDate"),
 			)
 		}
 

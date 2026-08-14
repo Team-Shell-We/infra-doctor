@@ -11,9 +11,23 @@ import (
 
 	"github.com/Team-Shell-We/infra-doctor/internal/analyzer"
 	"github.com/Team-Shell-We/infra-doctor/internal/doctor"
+	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
 	"github.com/Team-Shell-We/infra-doctor/internal/ui"
 	"github.com/spf13/cobra"
 )
+
+// doctorCheckNameKeys : doctor.Checklist()가 반환하는 고정된 체크명(영어)을
+// i18n key로 매핑. internal/doctor 패키지 자체는 건드리지 않고 렌더링
+// 시점에만 매핑한다.
+var doctorCheckNameKeys = map[string]string{
+	"Docker":         "doctor.check.docker",
+	"Docker Compose": "doctor.check.dockerCompose",
+	"Health Check":   "doctor.check.healthCheck",
+	"Reverse Proxy":  "doctor.check.reverseProxy",
+	"Monitoring":     "doctor.check.monitoring",
+	"Log Rotation":   "doctor.check.logRotation",
+	"DB Backup":      "doctor.check.dbBackup",
+}
 
 var doctorCmd = &cobra.Command{
 	Use:   "doctor [path]",
@@ -21,6 +35,8 @@ var doctorCmd = &cobra.Command{
 	Args:  cobra.MaximumNArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
+
+		lang := currentLang()
 
 		root := "."
 
@@ -36,15 +52,15 @@ var doctorCmd = &cobra.Command{
 
 		result := doctor.Analyze(info)
 
-		ui.Header("🩺 Infrastructure Doctor")
+		ui.Header("🩺 " + i18n.Get(lang, "doctor.title"))
 		ui.Blank()
 
-		ui.Line("Deployment Readiness")
+		ui.Line(i18n.Get(lang, "doctor.readiness"))
 		ui.Blank()
 		ui.Line(fmt.Sprintf(" %s %d%%", ui.ProgressBar(result.Score, 30), result.Score))
 		ui.Blank()
 
-		ui.Line("Infrastructure Check")
+		ui.Line(i18n.Get(lang, "doctor.infraCheck"))
 		ui.Blank()
 
 		for _, check := range result.Checks {
@@ -54,17 +70,22 @@ var doctorCmd = &cobra.Command{
 				mark = "✓"
 			}
 
-			ui.Line(fmt.Sprintf(" %s %s", mark, check.Name))
+			name := check.Name
+			if key, ok := doctorCheckNameKeys[check.Name]; ok {
+				name = i18n.Get(lang, key)
+			}
+
+			ui.Line(fmt.Sprintf(" %s %s", mark, name))
 		}
 
 		ui.Blank()
 
-		ui.Line("Recommendation")
+		ui.Line(i18n.Get(lang, "doctor.recommendation"))
 		ui.Blank()
 
 		if len(result.Diagnoses) == 0 {
 
-			ui.Line(" ✓ No issues found.")
+			ui.Line(" ✓ " + i18n.Get(lang, "doctor.noIssues"))
 
 		} else {
 

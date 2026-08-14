@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"strings"
+	"unicode/utf8"
 )
 
 const boxWidth = 60
@@ -66,8 +67,12 @@ func Wrap(text string, width int) []string {
 	return append(lines, current)
 }
 
+// center : text를 width 안에서 가운데 정렬. rune 개수 기준으로 계산 —
+// len()(바이트 길이)을 쓰면 한글 등 멀티바이트 문자가 섞인 제목에서
+// 패딩이 틀어진다. (완전한 터미널 컬럼 폭 정렬은 한글이 2칸을 차지하는
+// East Asian Width까지 고려해야 해서 별도이며, 여기선 rune 개수까지만 맞춘다.)
 func center(text string, width int) string {
-	padding := width - len(text)
+	padding := width - utf8.RuneCountInString(text)
 	if padding <= 0 {
 		return text
 	}
