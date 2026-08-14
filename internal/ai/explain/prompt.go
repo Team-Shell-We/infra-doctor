@@ -34,6 +34,7 @@ Rules:
 - current_project: 2-5 bullets, only things actually present in the scanned facts.
 - build_flow: 3-6 short steps showing how this topic fits into this project's build/deploy flow.
 - why_topic: 2-4 bullets, specific to this project's actual stack, not generic textbook reasons.
+- The user message includes an "already-verified status" list marking each fact as "present" or "absent". For any step or reason that depends on a fact marked "absent", phrase it as what adopting it WOULD look like (e.g. "You would deploy...", "Adding a Kubernetes manifest would...") — never state it as something already happening. Only describe a step as already happening when its fact is marked "present".
 - Every string must be plain text, no markdown formatting.
 - Do not include any field other than current_project, build_flow, and why_topic — a separate, already-verified file-status checklist is shown to the user by other means, so do not attempt to reproduce or guess one.`
 

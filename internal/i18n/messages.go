@@ -64,6 +64,7 @@ var messages = map[string]map[string]string{
 
 		// explain
 		"explain.suffix":                       "Explained",
+		"explain.notAdopted":                   "Not adopted in this project yet — the sections below describe what adopting it would look like.",
 		"explain.currentProject":               "Current Project",
 		"explain.buildFlow":                    "Build Flow",
 		"explain.whyTopic":                     "Why %s?",
@@ -192,6 +193,7 @@ var messages = map[string]map[string]string{
 
 		// explain
 		"explain.suffix":                       "설명",
+		"explain.notAdopted":                   "아직 이 프로젝트에 도입되지 않았습니다 — 아래는 도입할 경우의 시나리오입니다.",
 		"explain.currentProject":               "현재 프로젝트",
 		"explain.buildFlow":                    "빌드 흐름",
 		"explain.whyTopic":                     "왜 %s인가?",
