@@ -7,6 +7,7 @@ type StatusItem struct {
 	Label   string
 	Present bool
 }
+
 func BuildStatus(topic string, info *project.Info) []StatusItem {
 
 	switch topic {

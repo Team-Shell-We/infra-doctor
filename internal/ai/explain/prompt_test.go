@@ -12,7 +12,7 @@ func TestBuildRequestIncludesTopicAndSummary(t *testing.T) {
 	summary := ai.Summary{Framework: "Spring Boot 3.5.7 (Gradle), Java 17"}
 	status := []StatusItem{{Label: "Dockerfile", Present: true}, {Label: "Docker Compose", Present: false}}
 
-	req, err := BuildRequest("docker", summary, status)
+	req, err := BuildRequest("docker", summary, status, "en")
 	if err != nil {
 		t.Fatalf("BuildRequest failed: %v", err)
 	}
@@ -55,9 +55,40 @@ func TestBuildRequestIncludesTopicAndSummary(t *testing.T) {
 	}
 }
 
+func TestBuildRequestLanguageDirective(t *testing.T) {
+
+	reqKo, err := BuildRequest("docker", ai.Summary{}, nil, "ko")
+	if err != nil {
+		t.Fatalf("BuildRequest failed: %v", err)
+	}
+
+	if !strings.Contains(reqKo.UserPrompt, "Respond entirely in Korean.") {
+		t.Errorf("expected a Korean language directive, got: %s", reqKo.UserPrompt)
+	}
+
+	reqEn, err := BuildRequest("docker", ai.Summary{}, nil, "en")
+	if err != nil {
+		t.Fatalf("BuildRequest failed: %v", err)
+	}
+
+	if !strings.Contains(reqEn.UserPrompt, "Respond entirely in English.") {
+		t.Errorf("expected an English language directive, got: %s", reqEn.UserPrompt)
+	}
+
+	// 알 수 없는 언어 코드는 영어로 폴백
+	reqUnknown, err := BuildRequest("docker", ai.Summary{}, nil, "fr")
+	if err != nil {
+		t.Fatalf("BuildRequest failed: %v", err)
+	}
+
+	if !strings.Contains(reqUnknown.UserPrompt, "Respond entirely in English.") {
+		t.Errorf("expected an unknown language code to fall back to English, got: %s", reqUnknown.UserPrompt)
+	}
+}
+
 func TestBuildRequestEmptySummaryFallsBack(t *testing.T) {
 
-	req, err := BuildRequest("redis", ai.Summary{}, nil)
+	req, err := BuildRequest("redis", ai.Summary{}, nil, "en")
 	if err != nil {
 		t.Fatalf("BuildRequest failed: %v", err)
 	}
@@ -69,7 +100,7 @@ func TestBuildRequestEmptySummaryFallsBack(t *testing.T) {
 
 func TestBuildRequestNoStatusOmitsSection(t *testing.T) {
 
-	req, err := BuildRequest("redis", ai.Summary{Framework: "Spring Boot"}, nil)
+	req, err := BuildRequest("redis", ai.Summary{Framework: "Spring Boot"}, nil, "en")
 	if err != nil {
 		t.Fatalf("BuildRequest failed: %v", err)
 	}

@@ -12,6 +12,7 @@ import (
 
 	"github.com/Team-Shell-We/infra-doctor/internal/ai"
 	"github.com/Team-Shell-We/infra-doctor/internal/ai/openai"
+	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
 	"github.com/Team-Shell-We/infra-doctor/internal/ui"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
@@ -33,43 +34,44 @@ func init() {
 
 func runLogin(in io.Reader, out io.Writer) {
 
+	lang := currentLang()
 	reader := bufio.NewReader(in)
 
-	ui.Header("🔐 Login")
+	ui.Header("🔐 " + i18n.Get(lang, "login.title"))
 	fmt.Fprintln(out)
-	fmt.Fprintln(out, "Select Login Method")
+	fmt.Fprintln(out, i18n.Get(lang, "login.selectMethod"))
 	fmt.Fprintln(out)
-	fmt.Fprintln(out, "  1. OpenAI API Key")
+	fmt.Fprintln(out, "  "+i18n.Get(lang, "login.option1"))
 	fmt.Fprintln(out)
-	fmt.Fprintln(out, "  2. Infra Doctor Account")
+	fmt.Fprintln(out, "  "+i18n.Get(lang, "login.option2"))
 	fmt.Fprintln(out)
-	fmt.Fprint(out, "Choose (1-2): ")
+	fmt.Fprint(out, i18n.Get(lang, "login.choose"))
 
 	switch readLine(reader) {
 
 	case "1":
-		loginWithOpenAI(reader, out)
+		loginWithOpenAI(reader, out, lang)
 
 	case "2":
 		fmt.Fprintln(out)
-		fmt.Fprintln(out, "Infra Doctor Account login is not available yet. Please use an OpenAI API Key for now.")
+		fmt.Fprintln(out, i18n.Get(lang, "login.accountUnavailable"))
 
 	default:
 		fmt.Fprintln(out)
-		fmt.Fprintln(out, "Invalid choice. Run 'infra-doctor login' again and choose 1 or 2.")
+		fmt.Fprintln(out, i18n.Get(lang, "login.invalidChoice"))
 	}
 }
 
-func loginWithOpenAI(reader *bufio.Reader, out io.Writer) {
+func loginWithOpenAI(reader *bufio.Reader, out io.Writer, lang string) {
 
 	fmt.Fprintln(out)
-	fmt.Fprintln(out, "OpenAI API Key")
+	fmt.Fprintln(out, i18n.Get(lang, "login.apiKeyPrompt"))
 	fmt.Fprint(out, "> ")
 
 	apiKey := readAPIKey(reader)
 	if apiKey == "" {
 		fmt.Fprintln(out)
-		fmt.Fprintln(out, "API Key cannot be empty.")
+		fmt.Fprintln(out, i18n.Get(lang, "login.apiKeyEmpty"))
 		return
 	}
 
@@ -83,30 +85,33 @@ func loginWithOpenAI(reader *bufio.Reader, out io.Writer) {
 		fmt.Fprintln(out)
 
 		if errors.Is(err, ai.ErrInvalidAPIKey) {
-			fmt.Fprintln(out, "❌ Invalid OpenAI API Key.")
+			fmt.Fprintln(out, "❌ "+i18n.Get(lang, "login.invalidKey"))
 			fmt.Fprintln(out)
-			fmt.Fprintln(out, "Please check your API Key.")
+			fmt.Fprintln(out, i18n.Get(lang, "login.checkKey"))
 			return
 		}
 
-		fmt.Fprintf(out, "Failed to verify API Key: %v\n", err)
+		fmt.Fprintf(out, i18n.Get(lang, "login.verifyFailed")+"\n", err)
 		return
 	}
 
-	creds := ai.Credentials{Provider: "openai", APIKey: apiKey, Login: true}
+	creds := ai.LoadOrDefault()
+	creds.Provider = "openai"
+	creds.APIKey = apiKey
+	creds.Login = true
 
 	if err := ai.Save(creds); err != nil {
 		fmt.Fprintln(out)
-		fmt.Fprintf(out, "Failed to save credentials: %v\n", err)
+		fmt.Fprintf(out, i18n.Get(lang, "login.saveFailed")+"\n", err)
 		return
 	}
 
 	fmt.Fprintln(out)
-	fmt.Fprintln(out, "✅ OpenAI API Key verified.")
+	fmt.Fprintln(out, "✅ "+i18n.Get(lang, "login.verified"))
 	fmt.Fprintln(out)
-	fmt.Fprintln(out, "✅ Login completed.")
+	fmt.Fprintln(out, "✅ "+i18n.Get(lang, "login.completed"))
 	fmt.Fprintln(out)
-	fmt.Fprintln(out, "Provider")
+	fmt.Fprintln(out, i18n.Get(lang, "login.provider"))
 	fmt.Fprintln(out)
 	fmt.Fprintln(out, "OpenAI")
 }
