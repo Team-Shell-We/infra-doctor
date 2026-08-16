@@ -9,7 +9,7 @@ import (
 // DisplayWidth 기준으로 패딩해야 실제 터미널 폭에 정확히 맞음
 func TestCenterMultibyteText(t *testing.T) {
 
-	got := center("한글", 10)
+	got := Center("한글", 10)
 
 	if DisplayWidth(got) != 10 {
 		t.Errorf("center(\"한글\", 10) display width = %d, want 10 (got %q)", DisplayWidth(got), got)
@@ -18,7 +18,7 @@ func TestCenterMultibyteText(t *testing.T) {
 
 func TestCenterASCII(t *testing.T) {
 
-	got := center("hi", 6)
+	got := Center("hi", 6)
 
 	if DisplayWidth(got) != 6 {
 		t.Errorf("center(\"hi\", 6) display width = %d, want 6 (got %q)", DisplayWidth(got), got)
@@ -32,6 +32,14 @@ func TestExportedLayoutHelpers(t *testing.T) {
 	}
 	if got := DisplayWidth(PadRight("한글", 10)); got != 10 {
 		t.Fatalf("PadRight display width = %d, want 10", got)
+	}
+}
+
+
+func TestCenterTextLongerThanWidth(t *testing.T) {
+
+	if got := Center("very long title", 5); got != "very long title" {
+		t.Errorf("center should return text unchanged when it's already >= width, got %q", got)
 	}
 }
 
@@ -80,8 +88,8 @@ func TestLineAndHeaderRowsMatchWidthForKoreanAndASCII(t *testing.T) {
 		t.Errorf("row widths differ: ascii=%d korean=%d", DisplayWidth(asciiRow), DisplayWidth(koreanRow))
 	}
 
-	asciiHeader := "║ " + center("Infra Doctor", boxWidth) + " ║"
-	koreanHeader := "║ " + center("한글 제목 테스트", boxWidth) + " ║"
+	asciiHeader := "║ " + Center("Infra Doctor", boxWidth) + " ║"
+	koreanHeader := "║ " + Center("한글 제목 테스트", boxWidth) + " ║"
 
 	if DisplayWidth(asciiHeader) != DisplayWidth(koreanHeader) {
 		t.Errorf("header widths differ: ascii=%d korean=%d", DisplayWidth(asciiHeader), DisplayWidth(koreanHeader))
@@ -93,7 +101,7 @@ func TestLineAndHeaderRowsMatchWidthForKoreanAndASCII(t *testing.T) {
 func TestBorderRowMatchesContentRowWidth(t *testing.T) {
 
 	border := "╔" + strings.Repeat("═", borderWidth) + "╗"
-	content := "║ " + center("🔍 프로젝트 스캔", boxWidth) + " ║"
+	content := "║ " + Center("🔍 프로젝트 스캔", boxWidth) + " ║"
 
 	if DisplayWidth(border) != DisplayWidth(content) {
 		t.Errorf("border width = %d, content row width = %d, want equal", DisplayWidth(border), DisplayWidth(content))
