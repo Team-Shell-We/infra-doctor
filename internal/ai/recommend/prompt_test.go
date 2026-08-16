@@ -12,7 +12,7 @@ func TestBuildRequestIncludesDecisionAndSummary(t *testing.T) {
 	summary := ai.Summary{Framework: "Spring Boot 3.5.7"}
 	decision := Decision{Recommended: "Docker Compose", Reasons: []string{"Single API server"}}
 
-	req, err := BuildRequest(summary, decision)
+	req, err := BuildRequest(summary, decision, "en")
 	if err != nil {
 		t.Fatalf("BuildRequest failed: %v", err)
 	}
@@ -45,12 +45,33 @@ func TestBuildRequestIncludesDecisionAndSummary(t *testing.T) {
 
 func TestBuildRequestNeverAsksModelToRedecide(t *testing.T) {
 
-	req, err := BuildRequest(ai.Summary{}, Decision{Recommended: "Kubernetes"})
+	req, err := BuildRequest(ai.Summary{}, Decision{Recommended: "Kubernetes"}, "en")
 	if err != nil {
 		t.Fatalf("BuildRequest failed: %v", err)
 	}
 
 	if strings.Contains(req.SystemPrompt, "recommended_strategy") || strings.Contains(req.SystemPrompt, `"recommended"`) {
 		t.Error("SystemPrompt must not ask the model for a recommendation field — that's decided in decision.go")
+	}
+}
+
+func TestBuildRequestLanguageDirective(t *testing.T) {
+
+	reqKo, err := BuildRequest(ai.Summary{}, Decision{Recommended: "Docker Compose"}, "ko")
+	if err != nil {
+		t.Fatalf("BuildRequest failed: %v", err)
+	}
+
+	if !strings.Contains(reqKo.UserPrompt, "Respond entirely in Korean.") {
+		t.Errorf("expected a Korean language directive, got: %s", reqKo.UserPrompt)
+	}
+
+	reqUnknown, err := BuildRequest(ai.Summary{}, Decision{Recommended: "Docker Compose"}, "fr")
+	if err != nil {
+		t.Fatalf("BuildRequest failed: %v", err)
+	}
+
+	if !strings.Contains(reqUnknown.UserPrompt, "Respond entirely in English.") {
+		t.Errorf("expected an unknown language code to fall back to English, got: %s", reqUnknown.UserPrompt)
 	}
 }

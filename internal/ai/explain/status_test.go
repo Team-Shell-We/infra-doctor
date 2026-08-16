@@ -88,3 +88,20 @@ func TestBuildStatusUnknownTopic(t *testing.T) {
 		t.Errorf("expected nil status for an unrecognized topic, got %+v", status)
 	}
 }
+
+// 회귀 테스트: explain k8s처럼 아직 도입 안 한 topic을 explain할 때
+// cmd/explain.go가 "아직 도입되지 않음" 배너를 보여줄지 이 함수로 판단한다.
+func TestTopicPresent(t *testing.T) {
+
+	if TopicPresent(nil) {
+		t.Error("TopicPresent(nil) should be false")
+	}
+
+	if TopicPresent([]StatusItem{{Label: "Kubernetes manifests", Present: false}}) {
+		t.Error("TopicPresent should be false when the primary status item is absent")
+	}
+
+	if !TopicPresent([]StatusItem{{Label: "Dockerfile", Present: true}, {Label: "Docker Compose", Present: false}}) {
+		t.Error("TopicPresent should be true when the primary (first) status item is present, even if later items are absent")
+	}
+}

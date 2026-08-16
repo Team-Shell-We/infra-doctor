@@ -6,15 +6,32 @@ import (
 	"fmt"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/Team-Shell-We/infra-doctor/internal/ai"
 	"github.com/Team-Shell-We/infra-doctor/internal/ai/explain"
 	"github.com/Team-Shell-We/infra-doctor/internal/ai/openai"
 	"github.com/Team-Shell-We/infra-doctor/internal/analyzer"
+	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
 	"github.com/Team-Shell-We/infra-doctor/internal/ui"
 	"github.com/spf13/cobra"
 )
+
+// explainStatusLabelKeys : explain.BuildStatus()가 반환하는 고정된
+// 라벨(영어)을 i18n key로 매핑. Dockerfile/docker-compose.yml/PostgreSQL/
+// Redis처럼 고유명사/파일명인 라벨은 번역 대상이 아니라 여기 없음(그대로 둠).
+var explainStatusLabelKeys = map[string]string{
+	"Dockerfile":                             "explain.status.dockerfile",
+	"Docker Compose":                         "explain.status.dockerCompose",
+	"Health Check":                           "explain.status.healthCheck",
+	"docker-compose.yml":                     "explain.status.dockerComposeYml",
+	"GitHub Actions workflow":                "explain.status.githubActionsWorkflow",
+	"Kubernetes manifests":                   "explain.status.kubernetesManifests",
+	"Nginx configuration":                    "explain.status.nginxConfig",
+	"PostgreSQL":                             "explain.status.postgresql",
+	"AWS SDK dependency":                     "explain.status.awsSdk",
+	"Relational database (PostgreSQL/MySQL)": "explain.status.relationalDb",
+	"Redis":                                  "explain.status.redis",
+}
 
 var explainCmd = &cobra.Command{
 	Use:       "explain <topic> [path]",
@@ -24,6 +41,7 @@ var explainCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 
+		lang := currentLang()
 		topic := args[0]
 
 		root := "."
@@ -35,7 +53,7 @@ var explainCmd = &cobra.Command{
 		if err != nil {
 
 			if errors.Is(err, ai.ErrNotLoggedIn) {
-				fmt.Println("You're not logged in. Run 'infra-doctor login' to set up your OpenAI API Key first.")
+				fmt.Println(i18n.Get(lang, "common.notLoggedIn"))
 				return
 			}
 
@@ -52,7 +70,7 @@ var explainCmd = &cobra.Command{
 		summary := ai.BuildSummary(info)
 		status := explain.BuildStatus(topic, info)
 
-		req, err := explain.BuildRequest(topic, summary, status)
+		req, err := explain.BuildRequest(topic, summary, status, lang)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -65,7 +83,7 @@ var explainCmd = &cobra.Command{
 
 		resp, err := client.Complete(ctx, req)
 		if err != nil {
-			fmt.Printf("Failed to reach OpenAI: %v\n", err)
+			fmt.Printf(i18n.Get(lang, "common.openaiFailed")+"\n", err)
 			return
 		}
 
@@ -75,42 +93,29 @@ var explainCmd = &cobra.Command{
 			return
 		}
 
-		renderExplainResult(topic, result, status)
+		renderExplainResult(lang, topic, result, status)
 	},
 }
 
-func renderExplainResult(topic string, result *explain.Result, status []explain.StatusItem) {
+func renderExplainResult(lang, topic string, result *explain.Result, status []explain.StatusItem) {
 
 	name := explain.DisplayName(topic)
 
-	ui.Header("💡 " + name + " Explained")
+	ui.Header("💡 " + name + " " + i18n.Get(lang, "explain.suffix"))
 	ui.Blank()
 
-	ui.Line("Current Project")
-	ui.Blank()
-
-	for _, item := range result.CurrentProject {
-		printWrapped(" ✓ ", item)
+	// topic이 아직 이 프로젝트에 없으면(예: k8s) 아래 내용이 전부 가정
+	// 시나리오라는 걸 코드가 결정한 사실로 먼저 알려준다 — AI 문장 톤에만
+	// 의존하면 모델이 매번 일관되게 가정법을 쓴다는 보장이 없다.
+	if !explain.TopicPresent(status) {
+		printWrapped(" ⚠ ", i18n.Get(lang, "explain.notAdopted"))
+		ui.Blank()
 	}
 
-	ui.Blank()
-	ui.Line("Build Flow")
-	ui.Blank()
-
-	for _, step := range result.BuildFlow {
-		printWrapped(" ", step)
-	}
-
-	ui.Blank()
-	ui.Line(fmt.Sprintf("Why %s?", name))
-	ui.Blank()
-
-	for _, reason := range result.WhyTopic {
-		printWrapped(" • ", reason)
-	}
-
-	ui.Blank()
-	ui.Line("Current Status")
+	// "현재 상태"(결정론적 ✓/✗ 사실)를 AI가 만든 서술보다 먼저 보여준다.
+	// 순서가 반대였을 땐 아직 도입 안 한 기술(예: k8s)도 마치 이미 쓰고
+	// 있는 것처럼 읽혀서, 맨 아래 ✗를 보기 전까진 오해할 수 있었다.
+	ui.Line(i18n.Get(lang, "explain.currentStatus"))
 	ui.Blank()
 
 	for _, item := range status {
@@ -120,7 +125,36 @@ func renderExplainResult(topic string, result *explain.Result, status []explain.
 			mark = "✓"
 		}
 
-		printWrapped(" "+mark+" ", item.Label)
+		label := item.Label
+		if key, ok := explainStatusLabelKeys[item.Label]; ok {
+			label = i18n.Get(lang, key)
+		}
+
+		printWrapped(" "+mark+" ", label)
+	}
+
+	ui.Blank()
+	ui.Line(i18n.Get(lang, "explain.currentProject"))
+	ui.Blank()
+
+	for _, item := range result.CurrentProject {
+		printWrapped(" ✓ ", item)
+	}
+
+	ui.Blank()
+	ui.Line(i18n.Get(lang, "explain.buildFlow"))
+	ui.Blank()
+
+	for _, step := range result.BuildFlow {
+		printWrapped(" ", step)
+	}
+
+	ui.Blank()
+	ui.Line(fmt.Sprintf(i18n.Get(lang, "explain.whyTopic"), name))
+	ui.Blank()
+
+	for _, reason := range result.WhyTopic {
+		printWrapped(" • ", reason)
 	}
 
 	ui.Footer()
@@ -129,7 +163,7 @@ func renderExplainResult(topic string, result *explain.Result, status []explain.
 // printWrapped : 박스 너비에 맞게 텍스트를 줄바꿈해 출력
 func printWrapped(prefix, text string) {
 
-	width := utf8.RuneCountInString(prefix)
+	width := ui.DisplayWidth(prefix)
 	indent := strings.Repeat(" ", width)
 
 	for i, line := range ui.Wrap(text, 60-width) {

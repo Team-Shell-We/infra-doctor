@@ -1,22 +1,30 @@
 package utils
 
 import (
-    "fmt"
+	"fmt"
+
+	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
 )
 
-func PrintAbout() {
-    fmt.Println(`
+func PrintAbout(lang string) {
+	fmt.Printf(`
         Infra Doctor
 
-AI-powered Infrastructure Analysis CLI
+%s
 
-Built for backend developers.
+%s
 
-GitHub
+%s
 
 github.com/Team-Shell-We/infra-doctor
 
-License
+%s
 
-Apache 2.0`)
+Apache 2.0
+`,
+		i18n.Get(lang, "about.tagline"),
+		i18n.Get(lang, "about.builtFor"),
+		i18n.Get(lang, "about.github"),
+		i18n.Get(lang, "about.license"),
+	)
 }

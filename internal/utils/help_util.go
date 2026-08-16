@@ -1,42 +1,58 @@
 package utils
 
 import (
-    "fmt"
+	"fmt"
+
+	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
 )
 
-func PrintHelp() {
-    fmt.Println(`
-        Infra Doctor v1.0.0
+func PrintHelp(lang string) {
+	fmt.Printf(`
+        Infra Doctor %s
 
-        Usage
+        %s
         infra-doctor <command> [arguments]
 
-        Core Commands
+        %s
 
         doctor
-            Analyze project readiness
+            %s
 
         visualize architecture
-            Show infrastructure architecture
+            %s
 
         visualize flow
-            Show deployment flow
+            %s
 
         explain <topic>
-            Explain infrastructure concepts
+            %s
 
         recommend
-            Recommend deployment strategy
+            %s
 
         generate <target>
-            Generate configuration files
+            %s
 
         export
-            Export project report
+            %s
 
-        Run
+        %s
 
         infra-doctor help <command>
 
-        for detailed information.`)
+        %s
+`,
+		LocalizeVersion(lang, Version()),
+		i18n.Get(lang, "help.usage"),
+		i18n.Get(lang, "help.coreCommands"),
+		i18n.Get(lang, "help.doctorDesc"),
+		i18n.Get(lang, "help.visualizeArchDesc"),
+		i18n.Get(lang, "help.visualizeFlowDesc"),
+		i18n.Get(lang, "help.explainDesc"),
+		i18n.Get(lang, "help.recommendDesc"),
+		i18n.Get(lang, "help.generateDesc"),
+		i18n.Get(lang, "help.exportDesc"),
+		i18n.Get(lang, "help.run"),
+		i18n.Get(lang, "help.forDetails"),
+	)
 }

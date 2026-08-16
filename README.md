@@ -197,7 +197,10 @@ infra-doctor
 
 Contributions are always welcome.
 
-If you'd like to contribute, please read the contribution guide before opening an Issue or Pull Request.
+If you'd like to contribute, please read the **Contributor Guide** section below before opening an Issue or Pull Request. For specific kinds of contributions, see:
+
+- [internal/doctor/rules/README.md](internal/doctor/rules/README.md) — adding or changing a diagnostic rule
+- [internal/i18n/README.md](internal/i18n/README.md) — adding or changing a translated string
 
 ---
 
@@ -277,6 +280,18 @@ target/
 ```
 
 The test project is intended **only for local development and testing**. Do not include sensitive source code or production configuration files in the repository.
+
+---
+
+### 3. Adding a Diagnostic Rule
+
+`doctor` checks are defined as YAML, not Go code. See [internal/doctor/rules/README.md](internal/doctor/rules/README.md) for the rule schema and PR checklist.
+
+---
+
+### 4. Adding a Translation
+
+CLI output supports English/Korean via `internal/i18n`. See [internal/i18n/README.md](internal/i18n/README.md) for how to add a new string and which strings should stay untranslated.
 
 ---
 

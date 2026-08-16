@@ -7,6 +7,7 @@ type StatusItem struct {
 	Label   string
 	Present bool
 }
+
 func BuildStatus(topic string, info *project.Info) []StatusItem {
 
 	switch topic {
@@ -66,4 +67,13 @@ func BuildStatus(topic string, info *project.Info) []StatusItem {
 
 func isRelationalDatabase(dbType string) bool {
 	return dbType == "PostgreSQL" || dbType == "MySQL" || dbType == "MariaDB"
+}
+
+// TopicPresent : topic이 이 프로젝트에 이미 도입돼 있는지. 각 topic의 첫
+// StatusItem을 그 topic의 핵심 신호로 취급한다(docker→Dockerfile,
+// k8s→Kubernetes manifests 등, BuildStatus의 항목 순서와 일치). 아직
+// 도입 안 된 topic을 explain할 때 cmd/explain.go가 안내 배너를 보여줄지
+// 판단하는 데 쓴다.
+func TopicPresent(status []StatusItem) bool {
+	return len(status) > 0 && status[0].Present
 }

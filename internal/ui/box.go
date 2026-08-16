@@ -3,29 +3,33 @@ package ui
 import (
 	"fmt"
 	"strings"
+
+	"golang.org/x/text/width"
 )
 
 const boxWidth = 60
 
+const borderWidth = boxWidth + 2
+
 func Header(title string) {
-	fmt.Println("╔" + strings.Repeat("═", boxWidth) + "╗")
-	fmt.Printf("║ %-57s ║\n", center(title, boxWidth))
-	fmt.Println("╚" + strings.Repeat("═", boxWidth) + "╝")
+	fmt.Println("╔" + strings.Repeat("═", borderWidth) + "╗")
+	fmt.Println("║ " + Center(title, boxWidth) + " ║")
+	fmt.Println("╚" + strings.Repeat("═", borderWidth) + "╝")
 }
 
 func Footer() {
-	fmt.Println("╚" + strings.Repeat("═", boxWidth) + "╝")
+	fmt.Println("╚" + strings.Repeat("═", borderWidth) + "╝")
 }
 
 func Blank() {
-	fmt.Printf("║ %-60s ║\n", "")
+	fmt.Println("║ " + PadRight("", boxWidth) + " ║")
 }
 
 func Line(text string) {
-	fmt.Printf("║ %-60s ║\n", text)
+	fmt.Println("║ " + PadRight(text, boxWidth) + " ║")
 }
 
-func ProgressBar(percent, width int) string {
+func ProgressBar(percent, w int) string {
 
 	if percent < 0 {
 		percent = 0
@@ -35,14 +39,30 @@ func ProgressBar(percent, width int) string {
 		percent = 100
 	}
 
-	filled := (percent * width) / 100
+	filled := (percent * w) / 100
 
-	return strings.Repeat("█", filled) + strings.Repeat("░", width-filled)
+	return strings.Repeat("█", filled) + strings.Repeat("░", w-filled)
 }
 
-// Wrap : 텍스트를 width보다 길지 않은 줄들로 나눔
-// 단어 단위로 끊어서 고정폭 박스 안에 긴 텍스트도 출력할 수 있도록
-func Wrap(text string, width int) []string {
+// DisplayWidth : text가 터미널에서 실제로 차지하는 컬럼 수를 계산
+func DisplayWidth(text string) int {
+
+	w := 0
+
+	for _, r := range text {
+		switch width.LookupRune(r).Kind() {
+		case width.EastAsianWide, width.EastAsianFullwidth:
+			w += 2
+		default:
+			w += 1
+		}
+	}
+
+	return w
+}
+
+// Wrap : 텍스트를 화면 폭 w보다 넓지 않은 줄들로 나눔
+func Wrap(text string, w int) []string {
 
 	words := strings.Fields(text)
 	if len(words) == 0 {
@@ -54,7 +74,7 @@ func Wrap(text string, width int) []string {
 
 	for _, word := range words[1:] {
 
-		if len(current)+1+len(word) > width {
+		if DisplayWidth(current)+1+DisplayWidth(word) > w {
 			lines = append(lines, current)
 			current = word
 			continue
@@ -66,8 +86,18 @@ func Wrap(text string, width int) []string {
 	return append(lines, current)
 }
 
-func center(text string, width int) string {
-	padding := width - len(text)
+// PadRight : text 뒤에 공백을 채워 DisplayWidth 기준으로 w까지 맞춤
+func PadRight(text string, w int) string {
+	padding := w - DisplayWidth(text)
+	if padding <= 0 {
+		return text
+	}
+	return text + strings.Repeat(" ", padding)
+}
+
+// Center : text를 w 안에서 가운데 정렬. DisplayWidth 기준으로 계산
+func Center(text string, w int) string {
+	padding := w - DisplayWidth(text)
 	if padding <= 0 {
 		return text
 	}

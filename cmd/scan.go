@@ -5,9 +5,11 @@ import (
 	"strings"
 
 	"github.com/Team-Shell-We/infra-doctor/internal/analyzer"
+	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
 	"github.com/Team-Shell-We/infra-doctor/internal/ui"
 	"github.com/spf13/cobra"
 )
+
 /*
 CLI 명령을 정의하여 지정한 프로젝트 경로를 분석하고 요약 정보를 터미널에 출력
 */
@@ -20,6 +22,8 @@ var scanCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 
+		lang := currentLang()
+
 		root := "."
 
 		if len(args) == 1 {
@@ -28,18 +32,18 @@ var scanCmd = &cobra.Command{
 
 		info, err := analyzer.AnalyzeProject(root)
 		if err != nil {
-			fmt.Printf("Error: %v\n", err)
+			fmt.Printf("%s %v\n", i18n.Get(lang, "common.error"), err)
 			return
 		}
 
-		ui.Header("🔍 Project Scan")
+		ui.Header("🔍 " + i18n.Get(lang, "scan.title"))
 
 		// ---------------------------------------------------------------------
 		// Framework
 		// ---------------------------------------------------------------------
 
 		fmt.Println()
-		fmt.Println(" Framework")
+		fmt.Println(" " + i18n.Get(lang, "scan.framework"))
 
 		if info.Framework.SpringBoot.Version != "" {
 			fmt.Printf("   ✓ Spring Boot %s\n", info.Framework.SpringBoot.Version)
@@ -56,7 +60,7 @@ var scanCmd = &cobra.Command{
 		// ---------------------------------------------------------------------
 
 		fmt.Println()
-		fmt.Println(" Dependencies")
+		fmt.Println(" " + i18n.Get(lang, "scan.dependencies"))
 
 		if info.Dependencies.Security.Enabled {
 			fmt.Println("   ✓ Spring Security")
@@ -91,7 +95,7 @@ var scanCmd = &cobra.Command{
 		// ---------------------------------------------------------------------
 
 		fmt.Println()
-		fmt.Println(" Database")
+		fmt.Println(" " + i18n.Get(lang, "scan.database"))
 
 		if info.Database.Primary.Type != "" &&
 			info.Database.Primary.Type != "Unknown" {
@@ -107,7 +111,7 @@ var scanCmd = &cobra.Command{
 		// ---------------------------------------------------------------------
 
 		fmt.Println()
-		fmt.Println(" Infrastructure")
+		fmt.Println(" " + i18n.Get(lang, "scan.infrastructure"))
 
 		// Docker
 		if info.Infrastructure.Docker.Enabled {
@@ -154,7 +158,7 @@ var scanCmd = &cobra.Command{
 		// ---------------------------------------------------------------------
 
 		fmt.Println()
-		fmt.Println(" CI/CD")
+		fmt.Println(" " + i18n.Get(lang, "scan.cicd"))
 
 		if len(info.Github.Workflows) > 0 {
 
@@ -166,11 +170,11 @@ var scanCmd = &cobra.Command{
 
 				for _, trigger := range workflow.Triggers {
 
-					fmt.Printf("         Trigger : %s\n", trigger.Event)
+					fmt.Printf("         %s : %s\n", i18n.Get(lang, "scan.trigger"), trigger.Event)
 
 					if len(trigger.Branches) > 0 {
-						fmt.Printf("         Branch  : %s\n",
-							strings.Join(trigger.Branches, ", "))
+						fmt.Printf("         %s  : %s\n",
+							i18n.Get(lang, "scan.branch"), strings.Join(trigger.Branches, ", "))
 					}
 				}
 
@@ -182,8 +186,8 @@ var scanCmd = &cobra.Command{
 						jobs = append(jobs, job.Name)
 					}
 
-					fmt.Printf("         Jobs    : %s\n",
-						strings.Join(jobs, ", "))
+					fmt.Printf("         %s    : %s\n",
+						i18n.Get(lang, "scan.jobs"), strings.Join(jobs, ", "))
 				}
 			}
 
@@ -197,7 +201,7 @@ var scanCmd = &cobra.Command{
 		// ---------------------------------------------------------------------
 
 		fmt.Println()
-		fmt.Println(" Profiles")
+		fmt.Println(" " + i18n.Get(lang, "scan.profiles"))
 
 		if len(info.Profiles) > 0 {
 
@@ -209,7 +213,7 @@ var scanCmd = &cobra.Command{
 
 		} else {
 
-			fmt.Println("   ✗ Profiles")
+			fmt.Printf("   ✗ %s\n", i18n.Get(lang, "scan.profiles"))
 		}
 
 		fmt.Println()
