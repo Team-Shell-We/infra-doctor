@@ -13,7 +13,9 @@ const borderWidth = boxWidth + 2
 
 func Header(title string) {
 	fmt.Println("╔" + strings.Repeat("═", borderWidth) + "╗")
+
 	fmt.Println("║ " + Center(title, boxWidth) + " ║")
+
 	fmt.Println("╚" + strings.Repeat("═", borderWidth) + "╝")
 }
 
@@ -22,11 +24,13 @@ func Footer() {
 }
 
 func Blank() {
+
 	fmt.Println("║ " + PadRight("", boxWidth) + " ║")
 }
 
 func Line(text string) {
 	fmt.Println("║ " + PadRight(text, boxWidth) + " ║")
+
 }
 
 func ProgressBar(percent, w int) string {
@@ -86,14 +90,17 @@ func Wrap(text string, w int) []string {
 	return append(lines, current)
 }
 
+
 // PadRight : text 뒤에 공백을 채워 DisplayWidth 기준으로 w까지 맞춤
 func PadRight(text string, w int) string {
+
 	padding := w - DisplayWidth(text)
 	if padding <= 0 {
 		return text
 	}
 	return text + strings.Repeat(" ", padding)
 }
+
 
 // Center : text를 w 안에서 가운데 정렬. DisplayWidth 기준으로 계산
 func Center(text string, w int) string {
