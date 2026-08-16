@@ -81,8 +81,8 @@ func TestWrapUsesDisplayWidthNotByteLength(t *testing.T) {
 // DisplayWidth 기준으로 패딩해야, 한글이 섞인 행도 ASCII 행과 동일한 터미널 폭으로 정렬됨
 func TestLineAndHeaderRowsMatchWidthForKoreanAndASCII(t *testing.T) {
 
-	asciiRow := "║ " + padRight("hello world", boxWidth) + " ║"
-	koreanRow := "║ " + padRight("한글도 잘 맞아야 함", boxWidth) + " ║"
+	asciiRow := "║ " + PadRight("hello world", boxWidth) + " ║"
+	koreanRow := "║ " + PadRight("한글도 잘 맞아야 함", boxWidth) + " ║"
 
 	if DisplayWidth(asciiRow) != DisplayWidth(koreanRow) {
 		t.Errorf("row widths differ: ascii=%d korean=%d", DisplayWidth(asciiRow), DisplayWidth(koreanRow))
