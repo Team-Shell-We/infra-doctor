@@ -1,0 +1,17 @@
+services:
+  application:
+    build: .
+    ports:
+      - "{{ .ApplicationPort }}:{{ .ApplicationPort }}"
+{{- range .Databases }}
+  {{ .ServiceName }}:
+    image: {{ .Image }}
+    ports:
+      - "{{ .Port }}:{{ .Port }}"
+{{- end }}
+{{- if .Redis }}
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+{{- end }}

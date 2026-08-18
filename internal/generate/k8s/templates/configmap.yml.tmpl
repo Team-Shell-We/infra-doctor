@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .ServiceName }}-config
+  namespace: {{ .Namespace }}
+data:
+  SERVER_PORT: "{{ .ApplicationPort }}"
