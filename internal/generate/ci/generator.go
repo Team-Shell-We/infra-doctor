@@ -25,6 +25,8 @@ func (Generator) Plan(
 		)
 	}
 
+	ctx.Header = generate.BuildHeader(ctx.Lang, "generate.ci.nextSteps")
+
 	content, err := generate.RenderTemplate(
 		templates,
 		"templates/github-actions.yml.tmpl",
