@@ -19,21 +19,21 @@ const (
 )
 
 type Diagnosis struct {
-	Category Category
-	Level    Level
+	Category Category `json:"category"`
+	Level    Level    `json:"level"`
 
 	// 감점
-	ScoreImpact int
+	ScoreImpact int `json:"scoreImpact"`
 
-	Title   string
-	Message string
+	Title   string `json:"title"`
+	Message string `json:"message"`
 
-	Reason string
-	Fix    string
+	Reason string `json:"reason"`
+	Fix    string `json:"fix"`
 }
 
 type Result struct {
-	Score     int
-	Diagnoses []Diagnosis
-	Checks    []Check
+	Score     int         `json:"score"`
+	Diagnoses []Diagnosis `json:"diagnoses"`
+	Checks    []Check     `json:"checks"`
 }

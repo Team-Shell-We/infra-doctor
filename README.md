@@ -16,9 +16,9 @@ It scans project configurations, detects infrastructure components, and provides
 | 🩺 Diagnosis | `doctor` | Diagnose deployment readiness (0–100%) against a rule-based checklist and suggest infrastructure improvements. | ✅ |
 | 🤖 AI | `explain <topic>` | Explain how a specific infrastructure technology is used within the current project. | ✅ |
 | 🤖 AI | `recommend` | Recommend a deployment strategy (Docker Compose vs. Kubernetes) based on detected infrastructure complexity. | ✅ |
-| 🏗 Visualization | `visualize architecture` | Generate an architecture diagram of the current infrastructure. | 📅 |
-| 🏗 Visualization | `visualize flow` | Visualize the build and deployment workflow. | 📅 |
-| ⚙️ Generator | `generate <target>` | Generate infrastructure configuration files from scan results. | 📅 |
+| 🏗 Visualization | `visualize architecture` | Generate an architecture diagram of the current infrastructure. | ✅ |
+| 🏗 Visualization | `visualize flow` | Visualize the build and deployment workflow. | ✅ |
+| ⚙️ Generator | `generate <target>` | Generate infrastructure configuration files from scan results. | ✅ |
 | 📄 Export | `export` | Export analysis results as Markdown, Mermaid, or report files. | 📅 |
 
 > **Status**
@@ -28,6 +28,15 @@ It scans project configurations, detects infrastructure components, and provides
 > - 📅 Planned
 
 `explain`/`recommend` require `login` first. Their AI-generated sections are always grounded in facts the scanner already verified deterministically — the AI never invents which files exist, it only explains why they matter (see [docs/기능명세서.md](docs/기능명세서.md) for the full design rationale).
+
+### Using `doctor` as a CI gate
+
+`doctor --json` prints the same result as machine-readable JSON instead of the box UI, and `--fail-under <score>` exits non-zero when the readiness score is below the threshold — combine them to fail a CI pipeline on infrastructure regressions:
+
+```bash
+infra-doctor doctor --fail-under 70
+infra-doctor doctor --json > doctor-result.json
+```
 
 ---
 
