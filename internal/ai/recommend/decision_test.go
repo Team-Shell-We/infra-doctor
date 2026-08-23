@@ -32,6 +32,73 @@ func TestDecideExistingKubernetesIsKept(t *testing.T) {
 	}
 }
 
+// 회귀 테스트: 이미 Kubernetes를 쓰는 프로젝트가 replicas도 높으면, 그냥
+// "manifest가 있다"보다 더 구체적인 근거(실제로 스케일 중이라는 사실)를
+// Reasons에 추가해야 한다.
+func TestDecideExistingKubernetesWithHighReplicasAddsReason(t *testing.T) {
+
+	info := &project.Info{}
+	info.Infrastructure.Kubernetes.Enabled = true
+	info.Infrastructure.Kubernetes.Replicas = 5
+
+	decision := Decide(info)
+
+	found := false
+	for _, reason := range decision.Reasons {
+		if reason == "Already scaled to 5 replicas" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected a replica-scale reason, got %+v", decision.Reasons)
+	}
+}
+
+func TestDecideExistingKubernetesWithLowReplicasOmitsReason(t *testing.T) {
+
+	info := &project.Info{}
+	info.Infrastructure.Kubernetes.Enabled = true
+	info.Infrastructure.Kubernetes.Replicas = 1
+
+	decision := Decide(info)
+
+	if len(decision.Reasons) != 1 {
+		t.Errorf("expected no replica-scale reason for a single replica, got %+v", decision.Reasons)
+	}
+}
+
+// 회귀 테스트: API 엔드포인트 수/멀티모듈 구조도 복잡도 신호로 잡혀야 한다
+// (이슈 #52) — 둘 다 정적 스캔으로 얻을 수 있는 규모 대리 지표.
+func TestDecideCountsEndpointAndModuleSignals(t *testing.T) {
+
+	info := &project.Info{}
+	info.API.EndpointCount = endpointCountThreshold + 1
+	info.Framework.Modules.Count = moduleCountThreshold + 1
+	info.Dependencies.Kafka.Enabled = true
+	info.Database.Redis = &project.RedisInfo{Enabled: true}
+
+	decision := Decide(info)
+
+	if decision.Recommended != "Kubernetes" {
+		t.Errorf("expected Kubernetes once endpoint+module signals push past the threshold, got %q (reasons: %v)", decision.Recommended, decision.Reasons)
+	}
+}
+
+func TestDecideLowEndpointAndModuleCountsDoNotSignal(t *testing.T) {
+
+	info := &project.Info{}
+	info.API.EndpointCount = 1
+	info.Framework.Modules.Count = 1
+
+	signals := complexitySignals(info)
+
+	for _, s := range signals {
+		if s == "Large number of API endpoints (1)" || s == "Multi-module Gradle project (1 modules)" {
+			t.Errorf("did not expect a signal from a small single-module project, got %v", signals)
+		}
+	}
+}
+
 func TestDecideHighComplexityRecommendsKubernetes(t *testing.T) {
 
 	info := &project.Info{}

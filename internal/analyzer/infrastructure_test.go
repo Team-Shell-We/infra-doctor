@@ -31,6 +31,40 @@ func TestAnalyzeInfrastructureSkipsExcludedDirs(t *testing.T) {
 	}
 }
 
+// 회귀 테스트: recommend가 "이미 replicas를 늘려서 쓰고 있다"는 근거를
+// 대려면 manifest에서 replicas 값을 실제로 읽어와야 한다.
+func TestAnalyzeInfrastructureReadsKubernetesReplicas(t *testing.T) {
+
+	root := t.TempDir()
+
+	mustWriteFile(t, filepath.Join(root, "k8s", "deployment.yaml"), "apiVersion: apps/v1\nkind: Deployment\nspec:\n  replicas: 5\n")
+
+	info, err := AnalyzeInfrastructure(root)
+	if err != nil {
+		t.Fatalf("AnalyzeInfrastructure failed: %v", err)
+	}
+
+	if info.Kubernetes.Replicas != 5 {
+		t.Errorf("Replicas = %d, want 5", info.Kubernetes.Replicas)
+	}
+}
+
+func TestAnalyzeInfrastructureNoReplicasFieldDefaultsToZero(t *testing.T) {
+
+	root := t.TempDir()
+
+	mustWriteFile(t, filepath.Join(root, "k8s", "service.yaml"), "apiVersion: v1\nkind: Service\n")
+
+	info, err := AnalyzeInfrastructure(root)
+	if err != nil {
+		t.Fatalf("AnalyzeInfrastructure failed: %v", err)
+	}
+
+	if info.Kubernetes.Replicas != 0 {
+		t.Errorf("Replicas = %d, want 0 when no manifest declares it", info.Kubernetes.Replicas)
+	}
+}
+
 func mustWriteFile(t *testing.T, path, content string) {
 
 	t.Helper()

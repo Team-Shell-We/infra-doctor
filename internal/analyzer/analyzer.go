@@ -45,6 +45,18 @@ func AnalyzeProject(root string) (*project.Info, error) {
 		info.Dependencies = *dependency
 		info.Database = *database
 
+		moduleCount, err := AnalyzeGradleModules(root)
+		if err != nil {
+			return nil, err
+		}
+		info.Framework.Modules.Count = moduleCount
+
+		api, err := AnalyzeAPI(root)
+		if err != nil {
+			return nil, err
+		}
+		info.API = *api
+
 		profiles, err := FindProfiles(root)
 		if err != nil {
 			return nil, err
