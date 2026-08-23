@@ -126,39 +126,5 @@ func TestDecideIsDeterministic(t *testing.T) {
 	}
 }
 
-func TestNextStepsSuggestsDockerWhenMissing(t *testing.T) {
-
-	info := &project.Info{}
-	info.Github.Workflows = []project.WorkflowInfo{{Name: "ci"}}
-
-	steps := NextSteps(info, Decision{Recommended: "Docker Compose"})
-
-	if len(steps) != 1 || steps[0] != "infra-doctor generate docker" {
-		t.Errorf("NextSteps = %v, want [infra-doctor generate docker]", steps)
-	}
-}
-
-func TestNextStepsSuggestsCIWhenMissing(t *testing.T) {
-
-	info := &project.Info{}
-	info.Infrastructure.Docker.Compose = []project.ComposeInfo{{File: "docker-compose.yml"}}
-
-	steps := NextSteps(info, Decision{Recommended: "Docker Compose"})
-
-	if len(steps) != 1 || steps[0] != "infra-doctor generate ci" {
-		t.Errorf("NextSteps = %v, want [infra-doctor generate ci]", steps)
-	}
-}
-
-func TestNextStepsFallbackWhenNothingMissing(t *testing.T) {
-
-	info := &project.Info{}
-	info.Infrastructure.Docker.Compose = []project.ComposeInfo{{File: "docker-compose.yml"}}
-	info.Github.Workflows = []project.WorkflowInfo{{Name: "ci"}}
-
-	steps := NextSteps(info, Decision{Recommended: "Docker Compose"})
-
-	if len(steps) != 1 || steps[0] != "infra-doctor doctor" {
-		t.Errorf("NextSteps = %v, want [infra-doctor doctor]", steps)
-	}
-}
+// NextSteps는 internal/nextstep으로 이관됨 (이슈 #40) — 관련 테스트는
+// internal/nextstep/suggest_test.go 참고.

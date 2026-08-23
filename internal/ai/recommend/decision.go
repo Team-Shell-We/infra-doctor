@@ -97,27 +97,3 @@ func complexitySignals(info *project.Info) []string {
 
 	return signals
 }
-
-// NextSteps는 결정 결과와 현재 프로젝트에 부족한 부분을 기반으로 다음 명령어 제안
-func NextSteps(info *project.Info, decision Decision) []string {
-
-	var steps []string
-
-	if decision.Recommended == "Docker Compose" && len(info.Infrastructure.Docker.Compose) == 0 {
-		steps = append(steps, "infra-doctor generate docker")
-	}
-
-	if decision.Recommended == "Kubernetes" && !info.Infrastructure.Kubernetes.Enabled {
-		steps = append(steps, "infra-doctor generate k8s")
-	}
-
-	if len(info.Github.Workflows) == 0 {
-		steps = append(steps, "infra-doctor generate ci")
-	}
-
-	if len(steps) == 0 {
-		steps = append(steps, "infra-doctor doctor")
-	}
-
-	return steps
-}
