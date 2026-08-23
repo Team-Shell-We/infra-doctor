@@ -43,13 +43,15 @@ type RuleRegistry struct {
 
 var (
 	registry *RuleRegistry
+	loadErr  error
 	once     sync.Once
 )
 
-// LoadRules : 모든 룰 파일을 딱 한 번만 로드
+// LoadRules : 모든 룰 파일을 딱 한 번만 로드. once.Do는 첫 호출에서만
+// 실행되므로, 로드 실패 시의 err도 loadErr에 저장해 이후 호출에서도
+// 계속 반환해야 한다 — 로컬 var err에만 담으면 두 번째 호출부터는
+// nil로 돌아가 실패를 숨긴다.
 func LoadRules() (*RuleRegistry, error) {
-
-	var err error
 
 	once.Do(func() {
 
@@ -59,18 +61,18 @@ func LoadRules() (*RuleRegistry, error) {
 			LocalDev:   make(map[string]Diagnosis),
 		}
 
-		if err = loadDeploymentRules(registry); err != nil {
+		if loadErr = loadDeploymentRules(registry); loadErr != nil {
 			return
 		}
 
-		if err = loadProductionRules(registry); err != nil {
+		if loadErr = loadProductionRules(registry); loadErr != nil {
 			return
 		}
 
-		err = loadLocalDevRules(registry)
+		loadErr = loadLocalDevRules(registry)
 	})
 
-	return registry, err
+	return registry, loadErr
 }
 
 func loadDeploymentRules(registry *RuleRegistry) error {

@@ -38,4 +38,9 @@ func TestPlanIncludesResourceLimitsAndSpringProfile(t *testing.T) {
 	if !strings.Contains(deployment, "SPRING_PROFILES_ACTIVE") {
 		t.Error("expected SPRING_PROFILES_ACTIVE to match Dockerfile/compose")
 	}
+
+	// ConfigMap을 만들고 참조 안 하면 적용해도 아무 효과가 없다
+	if !strings.Contains(deployment, "configMapRef:") || !strings.Contains(deployment, "name: application-config") {
+		t.Error("expected the Deployment to reference the generated ConfigMap via envFrom")
+	}
 }

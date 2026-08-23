@@ -19,6 +19,9 @@ spec:
           image: {{ .DockerImage }}
           ports:
             - containerPort: {{ .ApplicationPort }}
+          envFrom:
+            - configMapRef:
+                name: {{ .ServiceName }}-config
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: prod
