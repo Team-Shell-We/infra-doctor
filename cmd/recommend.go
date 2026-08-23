@@ -17,7 +17,7 @@ import (
 
 var recommendCmd = &cobra.Command{
 	Use:   "recommend [path]",
-	Short: "Recommend a deployment strategy for your project's scale",
+	Short: "Recommend a deployment strategy based on detected infrastructure complexity",
 	Args:  cobra.MaximumNArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
