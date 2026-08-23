@@ -12,6 +12,7 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/analyzer"
 	"github.com/Team-Shell-We/infra-doctor/internal/doctor"
 	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
+	"github.com/Team-Shell-We/infra-doctor/internal/nextstep"
 	"github.com/Team-Shell-We/infra-doctor/internal/ui"
 	"github.com/spf13/cobra"
 )
@@ -102,6 +103,15 @@ var doctorCmd = &cobra.Command{
 					}
 				}
 			}
+		}
+
+		ui.Blank()
+
+		ui.Line(i18n.Get(lang, "doctor.nextStep"))
+		ui.Blank()
+
+		for _, step := range nextstep.Suggest(info, false) {
+			ui.Line(" " + step)
 		}
 
 		ui.Footer()
