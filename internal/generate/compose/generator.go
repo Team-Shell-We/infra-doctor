@@ -18,6 +18,15 @@ func (Generator) Target() generate.Target {
 func (Generator) Plan(
 	ctx generate.Context,
 ) ([]generate.File, error) {
+	ctx.Header = generate.BuildHeader(ctx.Lang, "generate.compose.nextSteps")
+
+	if len(ctx.Databases) > 0 {
+		ctx.CredentialsNote = generate.IndentLines(
+			generate.NoteBlock(ctx.Lang, "generate.compose.credentialsNote"),
+			2,
+		)
+	}
+
 	content, err := generate.RenderTemplate(
 		templates,
 		"templates/docker-compose.yml.tmpl",

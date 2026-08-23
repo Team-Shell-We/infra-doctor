@@ -18,6 +18,10 @@ func (Generator) Target() generate.Target {
 func (Generator) Plan(
 	ctx generate.Context,
 ) ([]generate.File, error) {
+	ctx.Header = generate.BuildHeader(ctx.Lang, "generate.k8s.nextSteps")
+	ctx.ImageNote = generate.NoteBlock(ctx.Lang, "generate.k8s.imageNote")
+	ctx.ResourcesNote = generate.NoteBlock(ctx.Lang, "generate.k8s.resourcesNote")
+
 	items := []struct {
 		template string
 		output   string

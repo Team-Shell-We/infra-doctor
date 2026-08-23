@@ -56,7 +56,7 @@ func generateCommand(runner GenerateRunner) *cobra.Command {
 				outputDir = filepath.Join(request.Root, outputDir)
 			}
 			overwrite := loaded.Overwrite || request.Force
-			result, err := runner.Generate(target, generate.Options{Root: request.Root, OutputDir: outputDir, Overwrite: overwrite, DryRun: request.DryRun, Config: loaded.Generate})
+			result, err := runner.Generate(target, generate.Options{Root: request.Root, OutputDir: outputDir, Overwrite: overwrite, DryRun: request.DryRun, Config: loaded.Generate, Lang: currentLang()})
 			if err != nil {
 				return err
 			}

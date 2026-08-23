@@ -17,6 +17,7 @@ type Options struct {
 	Overwrite bool
 	DryRun    bool
 	Config    Config
+	Lang      string
 }
 
 // Config contains the optional values used to customize generated files.
@@ -56,6 +57,7 @@ func (s Service) Generate(
 		*info,
 		diagnosis,
 		options.Config,
+		options.Lang,
 	)
 
 	generator, found := s.Generators[target]

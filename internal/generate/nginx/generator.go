@@ -18,6 +18,8 @@ func (Generator) Target() generate.Target {
 func (Generator) Plan(
 	ctx generate.Context,
 ) ([]generate.File, error) {
+	ctx.Header = generate.BuildHeader(ctx.Lang, "generate.nginx.nextSteps")
+
 	content, err := generate.RenderTemplate(
 		templates,
 		"templates/nginx.conf.tmpl",
