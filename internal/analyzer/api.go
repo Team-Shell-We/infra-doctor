@@ -13,8 +13,7 @@ var (
 	endpointAnnotationRegex   = regexp.MustCompile(`@(?:Get|Post|Put|Delete|Patch)Mapping\b`)
 )
 
-// AnalyzeAPI : .java 소스에서 Controller/엔드포인트 어노테이션 개수를 센다.
-// recommend가 API 규모를 복잡도 신호로 쓰기 위한 대리 지표.
+// AnalyzeAPI : .java 소스에서 Controller/엔드포인트 어노테이션 개수를 셈
 func AnalyzeAPI(root string) (*project.APIInfo, error) {
 
 	info := &project.APIInfo{}

@@ -33,8 +33,7 @@ func TestDecideExistingKubernetesIsKept(t *testing.T) {
 }
 
 // 회귀 테스트: 이미 Kubernetes를 쓰는 프로젝트가 replicas도 높으면, 그냥
-// "manifest가 있다"보다 더 구체적인 근거(실제로 스케일 중이라는 사실)를
-// Reasons에 추가해야 한다.
+// "manifest가 있다"보다 더 구체적인 근거(실제로 스케일 중이라는 사실)를 Reasons에 추가해야 함
 func TestDecideExistingKubernetesWithHighReplicasAddsReason(t *testing.T) {
 
 	info := &project.Info{}
@@ -67,8 +66,7 @@ func TestDecideExistingKubernetesWithLowReplicasOmitsReason(t *testing.T) {
 	}
 }
 
-// 회귀 테스트: API 엔드포인트 수/멀티모듈 구조도 복잡도 신호로 잡혀야 한다
-// (이슈 #52) — 둘 다 정적 스캔으로 얻을 수 있는 규모 대리 지표.
+// 회귀 테스트: API 엔드포인트 수/멀티모듈 구조도 복잡도 신호로 잡혀야 함
 func TestDecideCountsEndpointAndModuleSignals(t *testing.T) {
 
 	info := &project.Info{}
@@ -114,8 +112,7 @@ func TestDecideHighComplexityRecommendsKubernetes(t *testing.T) {
 	}
 }
 
-// 같은 입력이면 항상 같은 결정이 나와야 한다 — AI 호출 없이 순수 함수로만
-// 판단하는 게 이 설계의 핵심이므로, 결정론성 자체를 테스트로 못박아 둔다.
+// 같은 입력이면 항상 같은 결정이 나와야 함
 func TestDecideIsDeterministic(t *testing.T) {
 
 	info := &project.Info{}

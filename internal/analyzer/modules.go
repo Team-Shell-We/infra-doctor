@@ -11,8 +11,7 @@ var (
 	quotedModuleRegex = regexp.MustCompile(`['"]([^'"]+)['"]`)
 )
 
-// AnalyzeGradleModules : root의 settings.gradle(.kts)에서 include된
-// 서브모듈 개수를 센다. 파일이 없거나 include가 없으면 0.
+// AnalyzeGradleModules : root의 settings.gradle(.kts)에서 include된 서브모듈 개수를 센다. 파일이 없거나 include가 없으면 0.
 func AnalyzeGradleModules(root string) (int, error) {
 
 	for _, name := range []string{"settings.gradle", "settings.gradle.kts"} {

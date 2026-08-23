@@ -10,9 +10,7 @@ import (
 func AnalyzeProject(root string) (*project.Info, error) {
 
 	// root가 아예 존재하지 않는 경우와, root는 있지만 Spring Boot
-	// 프로젝트가 아닌 경우(FindBuildFile의 "no build file found")를
-	// 구분해서 알려준다 — 안 그러면 예: `recommend k8s`처럼 인자를
-	// 실수로 경로로 착각하고 입력했을 때 원인 파악이 어렵다.
+	// 프로젝트가 아닌 경우(FindBuildFile의 "no build file found")를 구분
 	stat, err := os.Stat(root)
 	if err != nil {
 		if os.IsNotExist(err) {

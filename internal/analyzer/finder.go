@@ -20,9 +20,7 @@ type BuildFile struct {
 	Path string
 }
 
-// FindBuildFile : root에서 build.gradle 또는 pom.xml을 찾음(하위 디렉터리
-// 재귀 탐색 안 함 — 재귀 탐색하면 examples/ 등 하위의 다른 프로젝트를
-// 잘못 집어올 수 있어서 제거)
+// FindBuildFile : root에서 build.gradle 또는 pom.xml을 찾음
 func FindBuildFile(root string) (*BuildFile, error) {
 
 	candidates := []struct {
