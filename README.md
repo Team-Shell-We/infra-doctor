@@ -19,7 +19,7 @@ It scans project configurations, detects infrastructure components, and provides
 | 🏗 Visualization | `visualize architecture` | Generate an architecture diagram of the current infrastructure. | ✅ |
 | 🏗 Visualization | `visualize flow` | Visualize the build and deployment workflow. | ✅ |
 | ⚙️ Generator | `generate <target>` | Generate infrastructure configuration files from scan results. | ✅ |
-| 📄 Export | `export` | Export analysis results as Markdown, Mermaid, or report files. | 📅 |
+| 📄 Export | `export` | Export the full analysis (report, diagrams, generated configs) into one directory. | ✅ |
 
 > **Status**
 >
@@ -28,6 +28,8 @@ It scans project configurations, detects infrastructure components, and provides
 > - 📅 Planned
 
 `explain`/`recommend` require `login` first. Their AI-generated sections are always grounded in facts the scanner already verified deterministically — the AI never invents which files exist, it only explains why they matter (see [docs/기능명세서.md](docs/기능명세서.md) for the full design rationale).
+
+Both Gradle (`build.gradle`/`build.gradle.kts`) and Maven (`pom.xml`) projects are detected as a build tool. **Known limitation:** for Maven projects, only framework/dependency/database detection currently runs — Docker/Compose/Kubernetes/CI/profile detection is Gradle-only right now, so `doctor`/`recommend`/`export` will under-report readiness on an otherwise well-configured Maven project. Tracked as a bug to fix; see [docs/기능명세서.md](docs/기능명세서.md) for details.
 
 ### Using `doctor` as a CI gate
 
@@ -221,6 +223,39 @@ infra-doctor config
 infra-doctor config --lang ko
 ```
 
+### `export [path]`
+
+Writes the full analysis — report, architecture/flow diagrams, and every `generate` target — into one `infra-doctor/` directory in the project, so you don't have to run each command separately. No login required (the report and diagrams are all deterministic; there's no AI-generated content in `export`'s output).
+
+| Flag | Default | Description |
+| :--- | :--- | :--- |
+| `-f`, `--force` | `false` | Overwrite files that already exist |
+| `--dry-run` | `false` | Print what would be written without writing it |
+
+```bash
+infra-doctor export ~/workspace/my-project
+```
+
+Produces:
+```text
+infra-doctor/
+├── report.md              # scan + doctor results
+├── architecture.md
+├── architecture.mmd
+├── deployment-flow.md
+├── recommendations.md     # doctor's fix list, sorted
+├── docker/
+│   ├── Dockerfile
+│   ├── .dockerignore
+│   └── docker-compose.yml
+├── kubernetes/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── configmap.yaml
+└── github/
+    └── ci.yml
+```
+
 ### `init`
 
 Detects that the current directory is a Spring Boot project and creates `.infra-doctor/config.yaml` + `.infra-doctor/.gitignore`. Run this once per project, before `generate`, if you want to customize output.
@@ -300,7 +335,7 @@ infra-doctor
 ## 🛣️ Roadmap
 
 - [x] Project Scanner
-- [x] Framework Detection
+- [x] Framework Detection (Gradle; Maven partially — see note above)
 - [x] Database Detection
 - [x] Docker Detection
 - [x] Profile Detection
@@ -311,7 +346,7 @@ infra-doctor
 - [x] AI-powered Recommendation
 - [x] Infrastructure Visualization
 - [x] Configuration Generator
-- [ ] Export Reports
+- [x] Export Reports
 - [ ] Kubernetes Deep Analysis
 - [ ] SSH / EC2 Analysis
 - [ ] Full Multi-language Output
