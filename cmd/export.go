@@ -21,6 +21,7 @@ func exportCommand(runner ExportRunner) *cobra.Command {
 			if len(args) == 1 {
 				request.Root = args[0]
 			}
+			request.Lang = currentLang()
 			return runner.Run(command.Context(), request, command.OutOrStdout())
 		},
 	}
