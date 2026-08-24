@@ -50,7 +50,17 @@ func AnalyzeMaven(buildFile string) (
 	return framework, dependencies, database, nil
 }
 
-// parseMavenProject는 pom.xml을 Maven 모델로 변환한다.
+// AnalyzeMavenModules: pom.xml의 <modules><module> 개수를 셈
+func AnalyzeMavenModules(buildFile string) (int, error) {
+	pom, err := parseMavenProject(buildFile)
+	if err != nil {
+		return 0, fmt.Errorf("parse Maven project %q: %w", buildFile, err)
+	}
+
+	return len(pom.Modules), nil
+}
+
+// parseMavenProject: pom.xml을 Maven 모델로 변환
 func parseMavenProject(path string) (*mavenProject, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -81,8 +91,8 @@ func extractMavenFramework(
 	result.Java.Version = findMavenJavaVersion(pom)
 }
 
-// extractSpringBoot는 parent, dependency, plugin 순서로
-// Spring Boot 사용 여부와 버전을 확인한다.
+// extractSpringBoot: parent, dependencyManagement(BOM), dependency,
+// plugin 순서로 Spring Boot 사용 여부와 버전 확인
 func extractSpringBoot(
 	pom *mavenProject,
 	result *project.FrameworkInfo,
@@ -105,6 +115,22 @@ func extractSpringBoot(
 		)
 	}
 
+	// spring-boot-dependencies를 <dependencyManagement>로 import하는
+	// 프로젝트는 부모나 직접 의존성 없이도 Spring Boot 프로젝트임
+	for _, item := range pom.DependencyManagement.Dependencies {
+		groupID := resolveMavenValue(item.GroupID, pom.Properties)
+		artifactID := resolveMavenValue(item.ArtifactID, pom.Properties)
+
+		if groupID == "org.springframework.boot" &&
+			artifactID == "spring-boot-dependencies" {
+			result.SpringBoot.Enabled = true
+
+			if result.SpringBoot.Version == "" {
+				result.SpringBoot.Version = resolveMavenValue(item.Version, pom.Properties)
+			}
+		}
+	}
+
 	for _, item := range pom.Dependencies {
 		groupID := resolveMavenValue(
 			item.GroupID,
@@ -118,10 +144,12 @@ func extractSpringBoot(
 		result.SpringBoot.Enabled = true
 
 		if result.SpringBoot.Version == "" {
-			result.SpringBoot.Version = resolveMavenValue(
-				item.Version,
-				pom.Properties,
-			)
+			version := resolveMavenValue(item.Version, pom.Properties)
+			if version == "" {
+				// <version>이 없으면 BOM이 관리하는 버전
+				version = managedMavenVersion(pom, groupID, item.ArtifactID)
+			}
+			result.SpringBoot.Version = version
 		}
 	}
 
@@ -149,7 +177,7 @@ func extractSpringBoot(
 	}
 }
 
-// extractMavenDependencies는 프로젝트에서 사용하는 주요 의존성을 분석한다.
+// extractMavenDependencies: 프로젝트에서 사용하는 주요 의존성 분석
 func extractMavenDependencies(
 	pom *mavenProject,
 	result *project.DependencyInfo,
@@ -195,7 +223,7 @@ func extractMavenDependencies(
 	}
 }
 
-// extractMavenDatabase는 주 데이터베이스와 Redis 사용 여부를 분석한다.
+// extractMavenDatabase: 주 데이터베이스와 Redis 사용 여부를 분석
 func extractMavenDatabase(
 	pom *mavenProject,
 	result *project.DatabaseInfo,
@@ -259,8 +287,8 @@ func isRedisDependency(groupID, artifactID string) bool {
 	}
 }
 
-// findMavenJavaVersion은 properties와 maven-compiler-plugin에서
-// Java 버전을 찾는다.
+// findMavenJavaVersion: properties와 maven-compiler-plugin에서
+// Java 버전을 찾음
 func findMavenJavaVersion(pom *mavenProject) string {
 	propertyNames := []string{
 		"java.version",
@@ -311,14 +339,29 @@ func findMavenJavaVersion(pom *mavenProject) string {
 	return ""
 }
 
-// resolveMavenValue는 ${property.name} 형식의 값을 실제 값으로 변환한다.
+// managedMavenVersion: <dependencyManagement>에서 groupID/artifactID가 일치하는 항목의 버전을 찾음 
+// <version> 없이 BOM으로만 버전이 관리되는 의존성의 버전을 찾을 때 사용
+func managedMavenVersion(pom *mavenProject, groupID, artifactID string) string {
+	artifactID = resolveMavenValue(artifactID, pom.Properties)
+
+	for _, item := range pom.DependencyManagement.Dependencies {
+		if resolveMavenValue(item.GroupID, pom.Properties) == groupID &&
+			resolveMavenValue(item.ArtifactID, pom.Properties) == artifactID {
+			return resolveMavenValue(item.Version, pom.Properties)
+		}
+	}
+
+	return ""
+}
+
+// resolveMavenValue: ${property.name} 형식의 값을 실제 값으로 변환
 func resolveMavenValue(
 	value string,
 	properties mavenProperties,
 ) string {
 	value = strings.TrimSpace(value)
 
-	// 순환 참조에 빠지지 않도록 최대 해석 횟수를 제한한다.
+	// 순환 참조에 빠지지 않도록 최대 해석 횟수를 제한
 	for range 10 {
 		if !strings.HasPrefix(value, "${") ||
 			!strings.HasSuffix(value, "}") {
@@ -346,7 +389,7 @@ func resolveMavenValue(
 	return value
 }
 
-// normalizeJavaVersion은 1.8 형식을 8로 변환한다.
+// normalizeJavaVersion: 1.8 형식을 8로 변환
 func normalizeJavaVersion(value string) string {
 	value = strings.TrimSpace(value)
 	return strings.TrimPrefix(value, "1.")
