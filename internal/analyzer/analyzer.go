@@ -64,15 +64,15 @@ func AnalyzeProject(root string) (*project.Info, error) {
 		info.Github = *github
 
 	case Maven:
-		framework, dependency, database, err:=AnalyzeMaven(buildFile.Path)
+		/*framework, dependency, database, err:=AnalyzeMaven(buildFile.Path)
 		
-		if err!=nil{
+		//if err!=nil{
 			return nil, err
 		}
 
 		info.Framework=*framework
 		info.Dependencies=*dependency
-		info.Database=*database
+		info.Database=*database*/
 	}
 
 	return info, nil
