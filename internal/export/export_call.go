@@ -25,6 +25,7 @@ type Request struct {
 	Root   string
 	Force  bool
 	DryRun bool
+	Lang   string
 }
 
 type Application struct {
@@ -53,7 +54,7 @@ func (a *Application) Run(_ context.Context, request Request, output io.Writer) 
 		return err
 	}
 	diagnosis := a.Diagnose(info)
-	files, err := buildFiles(root, *info, diagnosis)
+	files, err := buildFiles(root, *info, diagnosis, request.Lang)
 	if err != nil {
 		return err
 	}
@@ -65,7 +66,7 @@ func (a *Application) Run(_ context.Context, request Request, output io.Writer) 
 	return printResult(output, result)
 }
 
-func buildFiles(root string, info project.Info, diagnosis *doctor.Result) ([]generate.File, error) {
+func buildFiles(root string, info project.Info, diagnosis *doctor.Result, lang string) ([]generate.File, error) {
 	architecture := visualize.Build(info)
 	flow, err := visualize.BuildDeploymentFlow(root, info)
 	if err != nil {
@@ -91,7 +92,7 @@ func buildFiles(root string, info project.Info, diagnosis *doctor.Result) ([]gen
 		textFile("deployment-flow.md", flowMarkdown),
 		textFile("recommendations.md", renderRecommendations(diagnosis)),
 	}
-	ctx, _ := generate.BuildContext(info, diagnosis, generate.Config{})
+	ctx, _ := generate.BuildContext(info, diagnosis, generate.Config{}, lang)
 	generated, err := collectGeneratedFiles(ctx)
 	if err != nil {
 		return nil, err
