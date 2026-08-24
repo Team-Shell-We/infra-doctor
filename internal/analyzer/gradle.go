@@ -44,7 +44,9 @@ func AnalyzeGradle(buildFile string) (
 	// Spring Boot
 	// --------------------------------------------------------
 
-	springRegex := regexp.MustCompile(`org\.springframework\.boot['"]?\s*version\s*['"]([0-9.]+)['"]`)
+	// ['"]?\)? : Kotlin DSL은 plugin id 뒤에 닫는 괄호가 온다
+	// (id("org.springframework.boot") version "x" vs Groovy의 id 'x' version 'y')
+	springRegex := regexp.MustCompile(`org\.springframework\.boot['"]?\)?\s*version\s*['"]([0-9.]+)['"]`)
 	if match := springRegex.FindStringSubmatch(text); len(match) == 2 {
 		framework.SpringBoot.Enabled = true
 		framework.SpringBoot.Version = match[1]
@@ -54,8 +56,12 @@ func AnalyzeGradle(buildFile string) (
 	// Java
 	// --------------------------------------------------------
 
-	javaRegex := regexp.MustCompile(`JavaLanguageVersion\.of\((\d+)\)`)
-	if match := javaRegex.FindStringSubmatch(text); len(match) == 2 {
+	javaToolchainRegex := regexp.MustCompile(`JavaLanguageVersion\.of\((\d+)\)`)
+	javaSourceCompatRegex := regexp.MustCompile(`sourceCompatibility\s*=\s*['"]?(\d+)`)
+
+	if match := javaToolchainRegex.FindStringSubmatch(text); len(match) == 2 {
+		framework.Java.Version = match[1]
+	} else if match := javaSourceCompatRegex.FindStringSubmatch(text); len(match) == 2 {
 		framework.Java.Version = match[1]
 	}
 
