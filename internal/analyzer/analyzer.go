@@ -49,41 +49,47 @@ func AnalyzeProject(root string) (*project.Info, error) {
 		}
 		info.Framework.Modules.Count = moduleCount
 
-		api, err := AnalyzeAPI(root)
-		if err != nil {
-			return nil, err
-		}
-		info.API = *api
-
-		profiles, err := FindProfiles(root)
-		if err != nil {
-			return nil, err
-		}
-		info.Profiles = profiles
-
-		infrastructure, err := AnalyzeInfrastructure(root)
-		if err != nil {
-			return nil, err
-		}
-		info.Infrastructure = *infrastructure
-
-		github, err := AnalyzeGitHub(root)
-		if err != nil {
-			return nil, err
-		}
-		info.Github = *github
-
 	case Maven:
-		framework, dependency, database, err:=AnalyzeMaven(buildFile.Path)
-		
-		if err!=nil{
+
+		framework, dependency, database, err := AnalyzeMaven(buildFile.Path)
+		if err != nil {
 			return nil, err
 		}
 
-		info.Framework=*framework
-		info.Dependencies=*dependency
-		info.Database=*database
+		info.Framework = *framework
+		info.Dependencies = *dependency
+		info.Database = *database
+
+		moduleCount, err := AnalyzeMavenModules(buildFile.Path)
+		if err != nil {
+			return nil, err
+		}
+		info.Framework.Modules.Count = moduleCount
 	}
+
+	api, err := AnalyzeAPI(root)
+	if err != nil {
+		return nil, err
+	}
+	info.API = *api
+
+	profiles, err := FindProfiles(root)
+	if err != nil {
+		return nil, err
+	}
+	info.Profiles = profiles
+
+	infrastructure, err := AnalyzeInfrastructure(root)
+	if err != nil {
+		return nil, err
+	}
+	info.Infrastructure = *infrastructure
+
+	github, err := AnalyzeGitHub(root)
+	if err != nil {
+		return nil, err
+	}
+	info.Github = *github
 
 	return info, nil
 }

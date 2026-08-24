@@ -6,17 +6,22 @@ import (
 )
 
 type mavenProject struct {
-	XMLName      xml.Name          `xml:"project"`
-	ModelVersion string            `xml:"modelVersion"`
-	GroupID      string            `xml:"groupId"`
-	ArtifactID   string            `xml:"artifactId"`
-	Version      string            `xml:"version"`
-	Packaging    string            `xml:"packaging"`
-	Parent       mavenParent       `xml:"parent"`
-	Properties   mavenProperties   `xml:"properties"`
+	XMLName              xml.Name             `xml:"project"`
+	ModelVersion         string               `xml:"modelVersion"`
+	GroupID              string               `xml:"groupId"`
+	ArtifactID           string               `xml:"artifactId"`
+	Version              string               `xml:"version"`
+	Packaging            string               `xml:"packaging"`
+	Parent               mavenParent          `xml:"parent"`
+	Properties           mavenProperties      `xml:"properties"`
+	Dependencies         []mavenDependency    `xml:"dependencies>dependency"`
+	DependencyManagement mavenDependencyBlock `xml:"dependencyManagement"`
+	Plugins              []mavenPlugin        `xml:"build>plugins>plugin"`
+	Modules              []string             `xml:"modules>module"`
+}
+
+type mavenDependencyBlock struct {
 	Dependencies []mavenDependency `xml:"dependencies>dependency"`
-	Plugins      []mavenPlugin     `xml:"build>plugins>plugin"`
-	Modules      []string          `xml:"modules>module"`
 }
 
 type mavenParent struct {

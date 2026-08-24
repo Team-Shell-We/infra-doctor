@@ -15,6 +15,7 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/generate/compose"
 	"github.com/Team-Shell-We/infra-doctor/internal/generate/docker"
 	"github.com/Team-Shell-We/infra-doctor/internal/generate/k8s"
+	"github.com/Team-Shell-We/infra-doctor/internal/generate/nginx"
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 	"github.com/Team-Shell-We/infra-doctor/internal/visualize"
 )
@@ -54,7 +55,7 @@ func (a *Application) Run(_ context.Context, request Request, output io.Writer) 
 		return err
 	}
 	diagnosis := a.Diagnose(info)
-	files, err := buildFiles(root, *info, diagnosis, request.Lang)
+	files, warnings, err := buildFiles(root, *info, diagnosis, request.Lang)
 	if err != nil {
 		return err
 	}
@@ -63,26 +64,27 @@ func (a *Application) Run(_ context.Context, request Request, output io.Writer) 
 	if err != nil {
 		return err
 	}
+	result.Warnings = warnings
 	return printResult(output, result)
 }
 
-func buildFiles(root string, info project.Info, diagnosis *doctor.Result, lang string) ([]generate.File, error) {
+func buildFiles(root string, info project.Info, diagnosis *doctor.Result, lang string) ([]generate.File, []string, error) {
 	architecture := visualize.Build(info)
 	flow, err := visualize.BuildDeploymentFlow(root, info)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	architectureMarkdown, err := visualize.Render(architecture, visualize.Markdown)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	architectureMermaid, err := visualize.Render(architecture, visualize.Mermaid)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	flowMarkdown, err := visualize.Render(flow, visualize.Markdown)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	files := []generate.File{
@@ -92,12 +94,12 @@ func buildFiles(root string, info project.Info, diagnosis *doctor.Result, lang s
 		textFile("deployment-flow.md", flowMarkdown),
 		textFile("recommendations.md", renderRecommendations(diagnosis)),
 	}
-	ctx, _ := generate.BuildContext(info, diagnosis, generate.Config{}, lang)
+	ctx, warnings := generate.BuildContext(info, diagnosis, generate.Config{}, lang)
 	generated, err := collectGeneratedFiles(ctx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return append(files, generated...), nil
+	return append(files, generated...), warnings, nil
 }
 
 type generatorCall struct {
@@ -110,6 +112,7 @@ func collectGeneratedFiles(ctx generate.Context) ([]generate.File, error) {
 	calls := []generatorCall{
 		{generator: docker.Generator{}, directory: "docker"},
 		{generator: compose.Generator{}, directory: "docker"},
+		{generator: nginx.Generator{}, directory: "docker"},
 		{generator: k8s.Generator{}, directory: "kubernetes", paths: map[string]string{
 			"k8s/deployment.yml": "deployment.yaml", "k8s/service.yml": "service.yaml", "k8s/configmap.yml": "configmap.yaml",
 		}},
@@ -244,6 +247,11 @@ func value(value string) string {
 }
 
 func printResult(output io.Writer, result generate.Result) error {
+	for _, warning := range result.Warnings {
+		if _, err := fmt.Fprintf(output, "warning: %s\n", warning); err != nil {
+			return err
+		}
+	}
 	for _, path := range result.Planned {
 		status := "created"
 		if result.DryRun {
