@@ -28,6 +28,8 @@ func (Generator) Plan(
 		)
 	}
 
+	ctx.Header = generate.BuildHeader(ctx.Lang, "generate.docker.nextSteps")
+
 	dockerfile, err := generate.RenderTemplate(
 		templates,
 		"templates/Dockerfile.tmpl",

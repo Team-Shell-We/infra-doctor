@@ -3,10 +3,10 @@ package doctor
 import "github.com/Team-Shell-We/infra-doctor/internal/project"
 
 type Check struct {
-	ID       string
-	Name     string
-	Category Category
-	Passed   bool
+	ID       string   `json:"id"`
+	Name     string   `json:"name"`
+	Category Category `json:"category"`
+	Passed   bool     `json:"passed"`
 }
 
 // Checklist : "Infrastructure Check" 섹션에 표시되는 고정된 인프라 체크

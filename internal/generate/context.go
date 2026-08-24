@@ -13,6 +13,9 @@ type Database struct {
 	Image       string
 	Port        int
 	DataPath    string
+
+	EnvVars         map[string]string
+	HealthCheckTest string // 이미 YAML 배열 형태로 포맷된 문자열, 예: ["CMD", "redis-cli", "ping"]
 }
 
 type Context struct {
@@ -46,17 +49,29 @@ type Context struct {
 	NeedsHealthCheck bool
 	NeedsNginx       bool
 	NeedsCI          bool
+
+	// Lang과 아래 배너 필드들은 생성 파일에 들어가는 안내 주석용이다.
+	// 각 target의 generator.go가 자기가 쓸 필드만 채운 뒤 RenderTemplate에
+	// 넘긴다 — 다른 target이 쓰는 필드는 비워둬도 무방하다.
+	Lang            string
+	Header          string
+	PortNote        string
+	CredentialsNote string
+	ImageNote       string
+	ResourcesNote   string
+	BranchNote      string
 }
 
-func BuildContext(info project.Info, diagnosis *doctor.Result, config Config) (Context, []string) {
+func BuildContext(info project.Info, diagnosis *doctor.Result, config Config, lang string) (Context, []string) {
 	ctx := Context{
+		Lang: lang,
 		ProjectName:     valueOr(config.ProjectName, "application"),
 		Framework:       "spring-boot",
 		Runtime:         "java",
 		RuntimeVersion:  valueOr(info.Framework.Java.Version, "21"),
 		BuildTool:       strings.ToLower(info.Framework.BuildTool.Type),
 		ApplicationPort: intOr(config.ApplicationPort, 8080),
-		HealthPath:      valueOr(config.HealthPath, "/actuator/health"),
+		HealthPath:      valueOr(config.HealthPath, defaultHealthPath(info)),
 		ServiceName:     valueOr(config.ServiceName, "application"),
 		DockerImage:     valueOr(config.DockerImage, "application:latest"),
 		Namespace:       valueOr(config.Namespace, "default"),
@@ -120,17 +135,40 @@ func buildDetections(info project.Info) []string {
 	return detections
 }
 
+// databaseFor : DB별 최소 필수 환경변수를 채운다. 공식 postgres/mysql/mariadb
+// 이미지는 이 값들(또는 대체 값) 없이는 컨테이너가 바로 종료된다.
 func databaseFor(name string) (Database, bool) {
 	switch strings.ToLower(name) {
 	case "postgresql":
-		return Database{Name: "postgres", ServiceName: "postgres", Image: "postgres:16", Port: 5432, DataPath: "/var/lib/postgresql/data"}, true
+		return Database{
+			Name: "postgres", ServiceName: "postgres", Image: "postgres:16", Port: 5432, DataPath: "/var/lib/postgresql/data",
+			EnvVars:         map[string]string{"POSTGRES_PASSWORD": "changeme"},
+			HealthCheckTest: `["CMD-SHELL", "pg_isready -U postgres"]`,
+		}, true
 	case "mysql":
-		return Database{Name: "mysql", ServiceName: "mysql", Image: "mysql:8", Port: 3306, DataPath: "/var/lib/mysql"}, true
+		return Database{
+			Name: "mysql", ServiceName: "mysql", Image: "mysql:8", Port: 3306, DataPath: "/var/lib/mysql",
+			EnvVars:         map[string]string{"MYSQL_ROOT_PASSWORD": "changeme"},
+			HealthCheckTest: `["CMD", "mysqladmin", "ping", "-h", "localhost"]`,
+		}, true
 	case "mariadb":
-		return Database{Name: "mariadb", ServiceName: "mariadb", Image: "mariadb:11", Port: 3306, DataPath: "/var/lib/mysql"}, true
+		return Database{
+			Name: "mariadb", ServiceName: "mariadb", Image: "mariadb:11", Port: 3306, DataPath: "/var/lib/mysql",
+			EnvVars:         map[string]string{"MARIADB_ROOT_PASSWORD": "changeme"},
+			HealthCheckTest: `["CMD", "mysqladmin", "ping", "-h", "localhost"]`,
+		}, true
 	default:
 		return Database{}, false
 	}
+}
+
+// defaultHealthPath : Actuator가 없는 프로젝트에 "/actuator/health"를
+// 기본값으로 넣으면 404만 반환해 HEALTHCHECK/probe가 항상 실패한다.
+func defaultHealthPath(info project.Info) string {
+	if info.Dependencies.Actuator.Enabled {
+		return "/actuator/health"
+	}
+	return "/"
 }
 
 func valueOr(value, fallback string) string {

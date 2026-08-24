@@ -11,13 +11,14 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/ai/recommend"
 	"github.com/Team-Shell-We/infra-doctor/internal/analyzer"
 	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
+	"github.com/Team-Shell-We/infra-doctor/internal/nextstep"
 	"github.com/Team-Shell-We/infra-doctor/internal/ui"
 	"github.com/spf13/cobra"
 )
 
 var recommendCmd = &cobra.Command{
 	Use:   "recommend [path]",
-	Short: "Recommend a deployment strategy for your project's scale",
+	Short: "Recommend a deployment strategy based on detected infrastructure complexity",
 	Args:  cobra.MaximumNArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
@@ -73,7 +74,7 @@ var recommendCmd = &cobra.Command{
 			return
 		}
 
-		renderRecommendResult(lang, summary, decision, result, recommend.NextSteps(info, decision))
+		renderRecommendResult(lang, summary, decision, result, nextstep.Suggest(info, decision.Recommended == "Kubernetes"))
 	},
 }
 
