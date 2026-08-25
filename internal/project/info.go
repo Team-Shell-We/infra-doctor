@@ -7,6 +7,7 @@ type Info struct {
 	Infrastructure InfrastructureInfo
 	Github         GithubInfo
 	Profiles       []ProfileInfo
+	API            APIInfo
 }
 
 // FrameworkInfo : 프로젝트에서 사용하는 프레임워크 정보
@@ -14,6 +15,18 @@ type FrameworkInfo struct {
 	BuildTool  BuildToolInfo
 	SpringBoot SpringBootInfo
 	Java       JavaInfo
+	Modules    ModuleInfo
+}
+
+// ModuleInfo : Gradle 멀티모듈 구조 정보
+type ModuleInfo struct {
+	Count int
+}
+
+// APIInfo : 프로젝트의 Controller/엔드포인트 규모
+type APIInfo struct {
+	ControllerCount int
+	EndpointCount   int
 }
 
 // DependencyInfo : 프로젝트에서 사용하는 주요 Dependency 정보
@@ -151,6 +164,9 @@ type KubernetesInfo struct {
 	Enabled bool
 
 	Files []KubernetesFileInfo
+
+	// Replicas : manifest에서 찾은 가장 큰 replicas 값(없으면 0)
+	Replicas int
 }
 
 // KubernetesFileInfo : 프로젝트에서 사용하는 Kubernetes 파일 정보

@@ -3,10 +3,14 @@ package analyzer
 import (
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 )
+
+var replicasRegex = regexp.MustCompile(`(?m)^\s*replicas:\s*(\d+)`)
 
 func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 
@@ -100,6 +104,14 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 					Path: path,
 				},
 			)
+
+			if data, readErr := os.ReadFile(path); readErr == nil {
+				if match := replicasRegex.FindSubmatch(data); match != nil {
+					if n, convErr := strconv.Atoi(string(match[1])); convErr == nil && n > info.Kubernetes.Replicas {
+						info.Kubernetes.Replicas = n
+					}
+				}
+			}
 
 		// ----------------------------
 		// Nginx

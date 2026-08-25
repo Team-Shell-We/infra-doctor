@@ -1,0 +1,44 @@
+{{ .Header }}
+{{ .ImageNote }}
+{{ .ResourcesNote }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .ServiceName }}
+  namespace: {{ .Namespace }}
+spec:
+  replicas: {{ .Replicas }}
+  selector:
+    matchLabels: { app: {{ .ServiceName }} }
+  template:
+    metadata:
+      labels: { app: {{ .ServiceName }} }
+    spec:
+      containers:
+        - name: {{ .ServiceName }}
+          image: {{ .DockerImage }}
+          ports:
+            - containerPort: {{ .ApplicationPort }}
+          envFrom:
+            - configMapRef:
+                name: {{ .ServiceName }}-config
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+{{- if .NeedsHealthCheck }}
+          livenessProbe:
+            httpGet:
+              path: {{ .HealthPath }}
+              port: {{ .ApplicationPort }}
+          readinessProbe:
+            httpGet:
+              path: {{ .HealthPath }}
+              port: {{ .ApplicationPort }}
+{{- end }}

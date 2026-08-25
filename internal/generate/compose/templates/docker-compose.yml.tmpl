@@ -1,0 +1,58 @@
+{{ .Header }}
+services:
+  application:
+    build: .
+    ports:
+      - "{{ .ApplicationPort }}:{{ .ApplicationPort }}"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:{{ .ApplicationPort }}{{ .HealthPath }}"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+{{- if or .Databases .Redis }}
+    depends_on:
+{{- range .Databases }}
+      {{ .ServiceName }}:
+        condition: service_healthy
+{{- end }}
+{{- if .Redis }}
+      redis:
+        condition: service_healthy
+{{- end }}
+{{- end }}
+{{ .CredentialsNote }}
+{{- range .Databases }}
+  {{ .ServiceName }}:
+    image: {{ .Image }}
+    ports:
+      - "{{ .Port }}:{{ .Port }}"
+    environment:
+{{- range $key, $value := .EnvVars }}
+      {{ $key }}: {{ $value }}
+{{- end }}
+    volumes:
+      - {{ .ServiceName }}-data:{{ .DataPath }}
+    healthcheck:
+      test: {{ .HealthCheckTest }}
+      interval: 10s
+      timeout: 5s
+      retries: 5
+{{- end }}
+{{- if .Redis }}
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+{{- end }}
+{{- if .Databases }}
+
+volumes:
+{{- range .Databases }}
+  {{ .ServiceName }}-data:
+{{- end }}
+{{- end }}

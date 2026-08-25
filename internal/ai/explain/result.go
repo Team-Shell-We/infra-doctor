@@ -14,7 +14,7 @@ type Result struct {
 	WhyTopic       []string `json:"why_topic"`
 }
 
-// Parse : 모델 응답을 디코딩하고 검증 
+// Parse : 모델 응답을 디코딩하고 검증
 // 모든 섹션이 비어있지 않아야하며, 섹션이 빠진 응답은 빈 박스로 조용히 보여주는 대신 렌더링 실패로 처리
 func Parse(raw string) (*Result, error) {
 

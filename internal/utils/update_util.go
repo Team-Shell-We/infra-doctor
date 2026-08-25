@@ -1,16 +1,11 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
 )
-
-// 현재 배포된 최신 버전
-const latestVersion = "v1.1.2"
-
-// 빌드할 때 -ldflags로 주입되는 현재 CLI 버전
-var currentVersion = "dev"
 
 type UpdateInfo struct {
 	CurrentVersion  string
@@ -26,8 +21,21 @@ type semanticVersion struct {
 }
 
 func GetUpdateInfo() (UpdateInfo, error) {
+	return getUpdateInfo(context.Background(), Version(), NewGitHubClient())
+}
+
+func getUpdateInfo(
+	ctx context.Context,
+	currentVersion string,
+	fetcher ReleaseFetcher,
+) (UpdateInfo, error) {
+	release, err := fetcher.LatestRelease(ctx)
+	if err != nil {
+		return UpdateInfo{}, fmt.Errorf("fetch latest GitHub release: %w", err)
+	}
+
 	current := normalizeVersion(currentVersion)
-	latest := normalizeVersion(latestVersion)
+	latest := normalizeVersion(release.TagName)
 
 	// go run 등 개발 환경에서는 현재 버전을 비교할 수 없습니다.
 	if current == "dev" {
@@ -124,7 +132,7 @@ func parseVersion(version string) (semanticVersion, error) {
 func normalizeVersion(version string) string {
 	version = strings.TrimSpace(version)
 
-	if version == "" || version == "dev" {
+	if version == "" || version == "dev" || version == "development" || version == "unknown" || version == "(devel)" {
 		return "dev"
 	}
 
