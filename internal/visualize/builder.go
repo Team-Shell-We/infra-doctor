@@ -57,7 +57,7 @@ func Build(info project.Info) Diagram {
 		info.Database.Primary.Type,
 	)
 
-	if database != "" {
+	if database != "" && database != "Unknown" {
 		databaseID := slug(database)
 
 		addNode(&diagram, Node{
