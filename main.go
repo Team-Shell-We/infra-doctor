@@ -1,6 +1,5 @@
 /*
-Copyright © 2026 Shell We? <EMAIL ADDRESS>
-
+Copyright © 2026 Team-Shell-We <team.shellwe.go@gmail.com>
 */
 package main
 

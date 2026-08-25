@@ -41,28 +41,6 @@ func RenderMarkdown(d Diagram) string {
 	return b.String()
 }
 
-func nodeMap(nodes []Node) map[string]Node {
-	result := make(map[string]Node, len(nodes))
-
-	for _, node := range nodes {
-		result[node.ID] = node
-	}
-
-	return result
-}
-
-func nodeLabel(
-	nodes map[string]Node,
-	id string,
-) string {
-	node, found := nodes[id]
-	if !found {
-		return id
-	}
-
-	return node.Label
-}
-
 func markdownCell(value string) string {
 	value = strings.ReplaceAll(value, "|", "\\|")
 	value = strings.ReplaceAll(value, "\n", " ")
