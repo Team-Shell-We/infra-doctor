@@ -2,6 +2,7 @@ package recommend
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
@@ -82,6 +83,22 @@ func TestDecideCountsEndpointAndModuleSignals(t *testing.T) {
 	}
 }
 
+// 회귀 테스트: 멀티모듈 신호 라벨이 빌드 도구를 하드코딩하면 안 됨
+func TestDecideMultiModuleSignalDoesNotHardcodeBuildTool(t *testing.T) {
+
+	info := &project.Info{}
+	info.Framework.BuildTool.Type = "Maven"
+	info.Framework.Modules.Count = moduleCountThreshold + 1
+
+	signals := complexitySignals(info)
+
+	for _, s := range signals {
+		if strings.Contains(s, "Gradle") {
+			t.Errorf("multi-module signal must not name a specific build tool, got %q", s)
+		}
+	}
+}
+
 func TestDecideLowEndpointAndModuleCountsDoNotSignal(t *testing.T) {
 
 	info := &project.Info{}
@@ -91,7 +108,7 @@ func TestDecideLowEndpointAndModuleCountsDoNotSignal(t *testing.T) {
 	signals := complexitySignals(info)
 
 	for _, s := range signals {
-		if s == "Large number of API endpoints (1)" || s == "Multi-module Gradle project (1 modules)" {
+		if s == "Large number of API endpoints (1)" || s == "Multi-module project (1 modules)" {
 			t.Errorf("did not expect a signal from a small single-module project, got %v", signals)
 		}
 	}
@@ -125,6 +142,3 @@ func TestDecideIsDeterministic(t *testing.T) {
 		t.Errorf("Decide should be deterministic, got %+v then %+v", first, second)
 	}
 }
-
-// NextSteps는 internal/nextstep으로 이관됨 (이슈 #40) — 관련 테스트는
-// internal/nextstep/suggest_test.go 참고.

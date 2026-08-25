@@ -92,7 +92,7 @@ func complexitySignals(info *project.Info) []string {
 	}
 
 	if info.Framework.Modules.Count > moduleCountThreshold {
-		signals = append(signals, fmt.Sprintf("Multi-module Gradle project (%d modules)", info.Framework.Modules.Count))
+		signals = append(signals, fmt.Sprintf("Multi-module project (%d modules)", info.Framework.Modules.Count))
 	}
 
 	return signals

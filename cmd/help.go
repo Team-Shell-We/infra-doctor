@@ -1,19 +1,34 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/Team-Shell-We/infra-doctor/internal/utils"
 	"github.com/spf13/cobra"
 )
 
 func helpCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:   "help",
+		Use:   "help [command]",
 		Short: "Show help information",
-		Args:  cobra.NoArgs,
+		Args:  cobra.ArbitraryArgs,
 
 		Run: func(cmd *cobra.Command, args []string) {
 
-			utils.PrintHelp(currentLang())
+			if len(args) == 0 {
+				utils.PrintHelp(currentLang())
+				return
+			}
+
+			target, _, err := cmd.Root().Find(args)
+			if target == nil || err != nil {
+				fmt.Printf("Unknown help topic %#q\n", args)
+				_ = cmd.Root().Usage()
+				return
+			}
+
+			target.InitDefaultHelpFlag()
+			_ = target.Help()
 		},
 	}
 }
