@@ -65,7 +65,9 @@ func DisplayWidth(text string) int {
 	return w
 }
 
-// Wrap : 텍스트를 화면 폭 w보다 넓지 않은 줄들로 나눔
+// Wrap : 텍스트를 화면 폭 w보다 넓지 않은 줄들로 나눔. 단어 자체가 w보다
+// 넓으면(URL 등 공백 없는 긴 토큰) splitByWidth로 강제로 끊어서
+// 어떤 줄도 w를 넘지 않도록 함
 func Wrap(text string, w int) []string {
 
 	words := strings.Fields(text)
@@ -74,9 +76,26 @@ func Wrap(text string, w int) []string {
 	}
 
 	var lines []string
-	current := words[0]
+	var current string
 
-	for _, word := range words[1:] {
+	for _, word := range words {
+
+		for DisplayWidth(word) > w {
+			var chunk string
+			chunk, word = splitByWidth(word, w)
+
+			if current != "" {
+				lines = append(lines, current)
+				current = ""
+			}
+
+			lines = append(lines, chunk)
+		}
+
+		if current == "" {
+			current = word
+			continue
+		}
 
 		if DisplayWidth(current)+1+DisplayWidth(word) > w {
 			lines = append(lines, current)
@@ -88,6 +107,32 @@ func Wrap(text string, w int) []string {
 	}
 
 	return append(lines, current)
+}
+
+// splitByWidth : s 앞부분에서 DisplayWidth가 w를 넘지 않는 최대 조각을 잘라
+// (head, 나머지)로 반환. 룬 단위로 계산해 와이드 문자(한글 등)가 중간에
+// 안 잘리게 함. w가 0 이하면 자를 수 없으므로 s 전체를 head로 반환(무한 루프 방지)
+func splitByWidth(s string, w int) (head, rest string) {
+
+	if w <= 0 {
+		return s, ""
+	}
+
+	runes := []rune(s)
+	width := 0
+
+	for i, r := range runes {
+
+		rw := DisplayWidth(string(r))
+
+		if width+rw > w {
+			return string(runes[:i]), string(runes[i:])
+		}
+
+		width += rw
+	}
+
+	return s, ""
 }
 
 // PadRight : text 뒤에 공백을 채워 DisplayWidth 기준으로 w까지 맞춤
