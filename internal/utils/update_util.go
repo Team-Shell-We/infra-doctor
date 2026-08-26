@@ -36,56 +36,41 @@ func getUpdateInfo(
 	current := normalizeVersion(currentVersion)
 	latest := normalizeVersion(release.TagName)
 
-	// go run 등 개발 환경에서는 현재 버전을 비교할 수 없습니다.
-	if current == "dev" {
+	currentSemVer, err := parseVersion(current)
+	// go run 등 개발 환경이거나, go install ...@브랜치처럼 태그가 아닌 방식으로
+	// 설치해 Go pseudo-version(예: v0.3.1-0.20260101120000-abcdef123456)이나
+	// pre-release 태그가 나온 경우엔 버전 비교가 불가능하므로 "dev"로 취급한다.
+	if current == "dev" || err != nil {
 		return UpdateInfo{
-			CurrentVersion:  current,
+			CurrentVersion:  "dev",
 			LatestVersion:   latest,
 			UpdateAvailable: false,
 		}, nil
 	}
 
-	updateAvailable, err := isUpdateAvailable(current, latest)
+	latestSemVer, err := parseVersion(latest)
 	if err != nil {
-		return UpdateInfo{}, err
+		return UpdateInfo{}, fmt.Errorf("invalid latest version %q: %w", latest, err)
 	}
 
 	return UpdateInfo{
 		CurrentVersion:  current,
 		LatestVersion:   latest,
-		UpdateAvailable: updateAvailable,
+		UpdateAvailable: isUpdateAvailable(currentSemVer, latestSemVer),
 	}, nil
 }
 
 // current가 latest보다 낮을 때만 true를 반환합니다.
-func isUpdateAvailable(current, latest string) (bool, error) {
-	currentSemVer, err := parseVersion(current)
-	if err != nil {
-		return false, fmt.Errorf(
-			"invalid current version %q: %w",
-			current,
-			err,
-		)
+func isUpdateAvailable(current, latest semanticVersion) bool {
+	if current.Major != latest.Major {
+		return current.Major < latest.Major
 	}
 
-	latestSemVer, err := parseVersion(latest)
-	if err != nil {
-		return false, fmt.Errorf(
-			"invalid latest version %q: %w",
-			latest,
-			err,
-		)
+	if current.Minor != latest.Minor {
+		return current.Minor < latest.Minor
 	}
 
-	if currentSemVer.Major != latestSemVer.Major {
-		return currentSemVer.Major < latestSemVer.Major, nil
-	}
-
-	if currentSemVer.Minor != latestSemVer.Minor {
-		return currentSemVer.Minor < latestSemVer.Minor, nil
-	}
-
-	return currentSemVer.Patch < latestSemVer.Patch, nil
+	return current.Patch < latest.Patch
 }
 
 // "v1.2.3"을 Major=1, Minor=2, Patch=3으로 변환합니다.
