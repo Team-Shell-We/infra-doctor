@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 )
 
-// BuildTool은 빌드 도구 종류를 나타낸다.
 type BuildTool string
 
 const (
@@ -14,13 +13,12 @@ const (
 	Maven  BuildTool = "Maven"
 )
 
-// BuildFile : 찾은 빌드 파일 정보 저장 구조체
 type BuildFile struct {
 	Tool BuildTool
 	Path string
 }
 
-// FindBuildFile : root에서 build.gradle 또는 pom.xml을 찾음
+// FindBuildFile: root에서 build.gradle(.kts) 또는 pom.xml을 찾는다
 func FindBuildFile(root string) (*BuildFile, error) {
 
 	candidates := []struct {

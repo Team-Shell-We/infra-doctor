@@ -27,7 +27,6 @@ func FindProfiles(root string) ([]project.ProfileInfo, error) {
 
 		name := info.Name()
 
-		// application*.yml 또는 application*.yaml만 찾는다.
 		// TODO: .properties 등 다른 형식도 지원
 		if strings.HasPrefix(name, "application") &&
 			(strings.HasSuffix(name, ".yml") || strings.HasSuffix(name, ".yaml")) {

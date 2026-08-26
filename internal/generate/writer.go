@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 )
 
-// 실제 파일 저장
 type WriteOptions struct {
 	Overwrite bool
 	DryRun    bool

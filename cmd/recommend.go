@@ -83,9 +83,7 @@ func renderRecommendResult(lang string, summary ai.Summary, decision recommend.D
 	ui.Header("🚀 " + i18n.Get(lang, "recommend.title"))
 	ui.Blank()
 
-	// Current Stack, Recommended, Kubernetes, Next Step은 전부 스캔 결과에서
-	// 바로 나오는 결정론적 값 — AI를 거치지 않는다.
-
+	// Current Stack/Recommended/Kubernetes/Next Step은 스캔 결과에서 나오는 결정론적 값이며 AI를 거치지 않는다
 	ui.Line(i18n.Get(lang, "recommend.currentStack"))
 	ui.Blank()
 

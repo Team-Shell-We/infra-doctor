@@ -7,7 +7,7 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 )
 
-// 전체 파이프라인 실행
+// Service.Generate가 쓰는 파이프라인 단계별 함수 타입
 type Analyzer func(string) (*project.Info, error)
 type Diagnoser func(*project.Info) *doctor.Result
 
@@ -20,8 +20,7 @@ type Options struct {
 	Lang      string
 }
 
-// Config contains the optional values used to customize generated files.
-// It lives in the generate package so callers do not need an application layer.
+// Config는 생성 파일을 커스터마이징하는 선택값을 담는다. 호출자가 application 계층 없이 쓸 수 있도록 generate 패키지에 둔다
 type Config struct {
 	ProjectName     string
 	ApplicationPort int

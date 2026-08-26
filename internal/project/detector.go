@@ -13,7 +13,7 @@ type BuildTool string
 const (
 	BuildToolUnknown BuildTool = "unknown"
 	BuildToolMaven   BuildTool = "maven"
-	BuildToolGradle  BuildTool = "gradle" // Gradle or Gradle Kotlin DSL
+	BuildToolGradle  BuildTool = "gradle" // Gradle 또는 Gradle Kotlin DSL
 )
 
 type DetectionResult struct {

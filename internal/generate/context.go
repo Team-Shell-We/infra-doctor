@@ -50,9 +50,7 @@ type Context struct {
 	NeedsNginx       bool
 	NeedsCI          bool
 
-	// Lang과 아래 배너 필드들은 생성 파일에 들어가는 안내 주석용이다.
-	// 각 target의 generator.go가 자기가 쓸 필드만 채운 뒤 RenderTemplate에
-	// 넘긴다 — 다른 target이 쓰는 필드는 비워둬도 무방하다.
+	// Lang과 아래 배너 필드는 생성 파일 안내 주석용이다. 각 target의 generator.go가 자신이 쓰는 필드만 채워 RenderTemplate에 넘기고 나머지는 비워도 된다
 	Lang            string
 	Header          string
 	PortNote        string
@@ -64,7 +62,7 @@ type Context struct {
 
 func BuildContext(info project.Info, diagnosis *doctor.Result, config Config, lang string) (Context, []string) {
 	ctx := Context{
-		Lang: lang,
+		Lang:            lang,
 		ProjectName:     valueOr(config.ProjectName, "application"),
 		Framework:       "spring-boot",
 		Runtime:         "java",
@@ -135,8 +133,7 @@ func buildDetections(info project.Info) []string {
 	return detections
 }
 
-// databaseFor : DB별 최소 필수 환경변수를 채운다. 공식 postgres/mysql/mariadb
-// 이미지는 이 값들(또는 대체 값) 없이는 컨테이너가 바로 종료된다.
+// databaseFor: DB별 최소 필수 환경변수를 채운다. 공식 postgres/mysql/mariadb 이미지는 이 값(또는 대체 값) 없이는 컨테이너가 바로 종료된다
 func databaseFor(name string) (Database, bool) {
 	switch strings.ToLower(name) {
 	case "postgresql":
@@ -162,8 +159,7 @@ func databaseFor(name string) (Database, bool) {
 	}
 }
 
-// defaultHealthPath : Actuator가 없는 프로젝트에 "/actuator/health"를
-// 기본값으로 넣으면 404만 반환해 HEALTHCHECK/probe가 항상 실패한다.
+// defaultHealthPath: Actuator 없는 프로젝트에 "/actuator/health"를 기본값으로 쓰면 404로 HEALTHCHECK/probe가 항상 실패한다
 func defaultHealthPath(info project.Info) string {
 	if info.Dependencies.Actuator.Enabled {
 		return "/actuator/health"

@@ -1,4 +1,3 @@
-// 생성할 기본 설정 파일의 내용, config.yaml에 적힐 내용
 package utils
 
 const defaultConfig = `version: 1

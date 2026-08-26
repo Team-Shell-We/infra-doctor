@@ -13,7 +13,6 @@ type UpdateInfo struct {
 	UpdateAvailable bool
 }
 
-// Semantic Version의 각 숫자를 저장합니다.
 type semanticVersion struct {
 	Major int
 	Minor int

@@ -144,7 +144,6 @@ func renderReport(info project.Info, diagnosis *doctor.Result) string {
 	var b strings.Builder
 	b.WriteString("# Infrastructure Analysis Report\n\n")
 
-	// scan command result
 	b.WriteString("## Scan Result\n\n### Framework\n\n")
 	fmt.Fprintf(&b, "- Spring Boot: %s\n- Java: %s\n- Build tool: %s\n", value(info.Framework.SpringBoot.Version), value(info.Framework.Java.Version), value(info.Framework.BuildTool.Type))
 
@@ -201,7 +200,6 @@ func renderReport(info project.Info, diagnosis *doctor.Result) string {
 		fmt.Fprintf(&b, "- %s (`%s`)\n", profile.Name, profile.File)
 	}
 
-	// doctor command result
 	fmt.Fprintf(&b, "\n## Doctor Result\n\n### Readiness\n\n- Score: %d%%\n\n### Infrastructure Checks\n\n", diagnosis.Score)
 	for _, check := range diagnosis.Checks {
 		mark := "❌"

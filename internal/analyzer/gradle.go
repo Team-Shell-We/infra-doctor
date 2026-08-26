@@ -40,21 +40,12 @@ func AnalyzeGradle(buildFile string) (
 
 	database := &project.DatabaseInfo{}
 
-	// --------------------------------------------------------
-	// Spring Boot
-	// --------------------------------------------------------
-
-	// ['"]?\)? : Kotlin DSL은 plugin id 뒤에 닫는 괄호가 온다
-	// (id("org.springframework.boot") version "x" vs Groovy의 id 'x' version 'y')
+	// ['"]?\)? : Kotlin DSL(id("org.springframework.boot") version "x")은 plugin id 뒤에 닫는 괄호가 오지만 Groovy(id 'x' version 'y')는 없어 선택적으로 매치한다
 	springRegex := regexp.MustCompile(`org\.springframework\.boot['"]?\)?\s*version\s*['"]([0-9.]+)['"]`)
 	if match := springRegex.FindStringSubmatch(text); len(match) == 2 {
 		framework.SpringBoot.Enabled = true
 		framework.SpringBoot.Version = match[1]
 	}
-
-	// --------------------------------------------------------
-	// Java
-	// --------------------------------------------------------
 
 	javaToolchainRegex := regexp.MustCompile(`JavaLanguageVersion\.of\((\d+)\)`)
 	javaSourceCompatRegex := regexp.MustCompile(`sourceCompatibility\s*=\s*['"]?(\d+)`)
@@ -64,10 +55,6 @@ func AnalyzeGradle(buildFile string) (
 	} else if match := javaSourceCompatRegex.FindStringSubmatch(text); len(match) == 2 {
 		framework.Java.Version = match[1]
 	}
-
-	// --------------------------------------------------------
-	// Dependencies
-	// --------------------------------------------------------
 
 	if strings.Contains(text, "spring-boot-starter-security") {
 		dependency.Security.Enabled = true
@@ -97,10 +84,6 @@ func AnalyzeGradle(buildFile string) (
 	if strings.Contains(text, "springdoc-openapi") {
 		dependency.OpenAPI.Enabled = true
 	}
-
-	// --------------------------------------------------------
-	// Database
-	// --------------------------------------------------------
 
 	switch {
 	case strings.Contains(lowerText, "postgresql"):

@@ -9,8 +9,7 @@ import (
 
 func AnalyzeProject(root string) (*project.Info, error) {
 
-	// root가 아예 존재하지 않는 경우와, root는 있지만 Spring Boot
-	// 프로젝트가 아닌 경우(FindBuildFile의 "no build file found")를 구분
+	// root 자체가 없는 경우와 root는 있으나 빌드 파일이 없는 경우(FindBuildFile)를 구분해 에러 메시지를 다르게 낸다
 	stat, err := os.Stat(root)
 	if err != nil {
 		if os.IsNotExist(err) {
