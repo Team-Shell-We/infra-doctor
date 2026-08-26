@@ -29,7 +29,6 @@ var visualizeFlowCmd = &cobra.Command{
 			return err
 		}
 
-		// 애플리케이션은 build.gradle이 있는 gogildong에서 분석한다.
 		info, err := analyzer.AnalyzeProject(absoluteProjectRoot)
 		if err != nil {
 			return err

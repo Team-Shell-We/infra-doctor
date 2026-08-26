@@ -253,27 +253,9 @@ func printResult(output io.Writer, result generate.Result) error {
 		}
 	}
 	for _, path := range result.Planned {
-		status := "created"
-		if result.DryRun {
-			status = "planned"
-		}
-		if contains(result.Skipped, path) {
-			status = "skipped"
-		} else if contains(result.Overwritten, path) {
-			status = "overwritten"
-		}
-		if _, err := fmt.Fprintf(output, "%s: %s\n", status, filepath.Join(OutputDirectory, path)); err != nil {
+		if _, err := fmt.Fprintf(output, "%s: %s\n", result.StatusOf(path), filepath.Join(OutputDirectory, path)); err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-func contains(values []string, target string) bool {
-	for _, value := range values {
-		if value == target {
-			return true
-		}
-	}
-	return false
 }
