@@ -366,7 +366,7 @@ Generated files use exactly the filenames/content `internal/analyzer` recognizes
 | `infra-doctor about` | ✅ Done | Matches the spec |
 | `infra-doctor version` | ✅ Done | Based on `runtime/debug.ReadBuildInfo` |
 | `infra-doctor update` | ✅ Done | Real semver comparison logic + GitHub Releases API integration (issue #41, PR #66, `internal/utils/github.go`). Since the `v0.2.0` official release (PR #82, develop → main), `GET /releases/latest` responds correctly — confirmed `Latest: v0.2.0` in practice. However, the version parser still hard-fails on the Go pseudo-version produced by installing via `go install ...@branch` instead of a tag (see "Known Issues" below). |
-| `infra-doctor donate` | ✅ Nearly done | The "Buy Me a Coffee" link is in the spec but missing from the implementation |
+| `infra-doctor donate` | ✅ Done | Shows a Ko-fi (`https://ko-fi.com/shellwe`) link. Chose Ko-fi over Buy Me a Coffee since the latter doesn't support South Korea |
 
 ---
 
@@ -464,10 +464,9 @@ A pre-existing bug was also fixed during the migration — `recommend` used to s
 2. **Dependency/database detection only reads the root build file** — neither Gradle nor Maven descends into child modules. A multi-module project whose real dependencies live in a child module can have its JPA/Kafka/DB detection missed. A pre-existing limitation, symmetric across both build tools.
 3. **GitHub Actions shorthand triggers (`on: push`, `on: [push, pull_request]`) parse as zero triggers** — only the multi-line mapping form is supported. Fails silently with no error.
 4. **`config` displays settings it can't actually change** — shows "Output Format"/"Auto Export" as if they were configurable, but no such flag exists, so they can never change. Only `--lang` actually works.
-5. **`donate` is missing the "Buy Me a Coffee" link** — present in the spec, absent from the implementation. (Low priority, on hold.)
-6. **`doctor`'s rule YAML has no translation support** — needs a separate bilingual YAML field design.
-7. **`ui.Wrap` doesn't force-break a single word longer than the box** — a long unbroken token in AI-generated text (e.g. a URL) can break the box border alignment.
-8. **Test coverage gaps** — most of `cmd/*.go` (only doctor and generate have tests), `internal/utils`, and `internal/ai/openai` have no dedicated tests.
+5. **`doctor`'s rule YAML has no translation support** — needs a separate bilingual YAML field design.
+6. **`ui.Wrap` doesn't force-break a single word longer than the box** — a long unbroken token in AI-generated text (e.g. a URL) can break the box border alignment.
+7. **Test coverage gaps** — most of `cmd/*.go` (only doctor and generate have tests), `internal/utils`, and `internal/ai/openai` have no dedicated tests.
 
 ### Not Yet Implemented
 
