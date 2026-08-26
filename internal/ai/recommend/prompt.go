@@ -43,13 +43,6 @@ type userPromptData struct {
 	Language     string
 }
 
-// languageNames : i18n 언어 코드를 모델에게 지시할 사람이 읽는 이름으로
-// 매핑. internal/ai/explain의 동일 패턴과 일관됨.
-var languageNames = map[string]string{
-	"ko": "Korean",
-	"en": "English",
-}
-
 // BuildRequest는 이미 결정된 Decision과 스캔 요약, 언어 설정으로
 // completion 요청을 조립하는 순수 함수 — 네트워크 호출 없이 단위
 // 테스트 가능하다.
@@ -70,16 +63,11 @@ func BuildRequest(summary ai.Summary, decision Decision, lang string) (ai.Comple
 		reasonLines = append(reasonLines, "- "+reason)
 	}
 
-	languageName, ok := languageNames[lang]
-	if !ok {
-		languageName = languageNames["en"]
-	}
-
 	data := userPromptData{
 		Recommended:  decision.Recommended,
 		Summary:      summaryText,
 		ReasonLabels: strings.Join(reasonLines, "\n"),
-		Language:     languageName,
+		Language:     ai.LanguageName(lang),
 	}
 
 	var b strings.Builder
