@@ -75,6 +75,58 @@ func TestWrapUsesDisplayWidthNotByteLength(t *testing.T) {
 	}
 }
 
+// 회귀 테스트: 공백 없는 긴 토큰(URL 등)이 박스 폭보다 넓으면 강제로
+// 끊어야 함 — 안 그러면 그 줄만 박스 테두리를 뚫고 나감
+func TestWrapForceSplitsTokenLongerThanWidth(t *testing.T) {
+
+	longURL := "https://example.com/very/long/path/that/exceeds/the/box/width/entirely"
+
+	lines := Wrap(longURL, 20)
+
+	for _, line := range lines {
+		if DisplayWidth(line) > 20 {
+			t.Errorf("Wrap line %q has display width %d, want <= 20", line, DisplayWidth(line))
+		}
+	}
+
+	if strings.Join(lines, "") != longURL {
+		t.Errorf("Wrap(%q, 20) lost or altered content, got %q", longURL, lines)
+	}
+}
+
+// 회귀 테스트: 긴 토큰 앞뒤에 짧은 단어가 있어도 각 줄이 폭을 넘지 않아야 함
+func TestWrapForceSplitsTokenWithSurroundingWords(t *testing.T) {
+
+	text := "see https://example.com/very/long/path/that/exceeds/the/box/width for details"
+
+	lines := Wrap(text, 20)
+
+	for _, line := range lines {
+		if DisplayWidth(line) > 20 {
+			t.Errorf("Wrap line %q has display width %d, want <= 20", line, DisplayWidth(line))
+		}
+	}
+}
+
+// 회귀 테스트: 와이드 문자(한글)로 된 긴 토큰을 강제로 끊을 때도
+// 글자 중간이 아니라 룬 경계에서 잘려야 함(깨진 문자 방지)
+func TestWrapForceSplitsWideCharTokenAtRuneBoundary(t *testing.T) {
+
+	longToken := "가나다라마바사아자차카타파하가나다라마바사아자차카타파하"
+
+	lines := Wrap(longToken, 10)
+
+	for _, line := range lines {
+		if DisplayWidth(line) > 10 {
+			t.Errorf("Wrap line %q has display width %d, want <= 10", line, DisplayWidth(line))
+		}
+	}
+
+	if strings.Join(lines, "") != longToken {
+		t.Errorf("Wrap(%q, 10) lost or altered content, got %q", longToken, lines)
+	}
+}
+
 // 회귀 테스트: Line/Blank/Header가 fmt의 %-Ns(rune 개수 기준) 대신
 // DisplayWidth 기준으로 패딩해야, 한글이 섞인 행도 ASCII 행과 동일한 터미널 폭으로 정렬됨
 func TestLineAndHeaderRowsMatchWidthForKoreanAndASCII(t *testing.T) {
