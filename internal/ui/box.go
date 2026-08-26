@@ -90,7 +90,6 @@ func Wrap(text string, w int) []string {
 	return append(lines, current)
 }
 
-
 // PadRight : text 뒤에 공백을 채워 DisplayWidth 기준으로 w까지 맞춤
 func PadRight(text string, w int) string {
 
@@ -100,7 +99,6 @@ func PadRight(text string, w int) string {
 	}
 	return text + strings.Repeat(" ", padding)
 }
-
 
 // Center : text를 w 안에서 가운데 정렬. DisplayWidth 기준으로 계산
 func Center(text string, w int) string {

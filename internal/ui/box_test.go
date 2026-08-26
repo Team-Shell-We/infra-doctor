@@ -25,7 +25,6 @@ func TestCenterASCII(t *testing.T) {
 	}
 }
 
-
 func TestExportedLayoutHelpers(t *testing.T) {
 	if got := DisplayWidth(Center("한글", 10)); got != 10 {
 		t.Fatalf("Center display width = %d, want 10", got)
@@ -34,7 +33,6 @@ func TestExportedLayoutHelpers(t *testing.T) {
 		t.Fatalf("PadRight display width = %d, want 10", got)
 	}
 }
-
 
 func TestCenterTextLongerThanWidth(t *testing.T) {
 
