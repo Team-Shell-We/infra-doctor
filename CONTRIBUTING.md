@@ -1,12 +1,14 @@
-# Contributing to Infra Doctor
+# Infra Doctor 기여 가이드
 
-Thanks for considering a contribution. This guide covers everything you need to get set up, test your changes, and contribute a specific kind of change (a diagnostic rule or a translation).
+[English](CONTRIBUTING_EN.md) | **한국어**
+
+기여를 고려해주셔서 감사합니다. 이 가이드는 개발 환경 설정, 변경 사항 테스트 방법, 그리고 특정 종류의 기여(진단 룰 추가, 번역 추가)를 다룹니다.
 
 ---
 
-## 1. Configure Git
+## 1. Git 설정
 
-After cloning the repository, run the setup script once.
+저장소를 클론한 뒤, 설정 스크립트를 한 번 실행하세요.
 
 **Windows (PowerShell)**
 
@@ -14,12 +16,12 @@ After cloning the repository, run the setup script once.
 .\scripts\setup.ps1
 ```
 
-This script automatically configures:
+이 스크립트는 다음을 자동으로 설정합니다.
 
 - Git Hooks (`.githooks`)
-- Commit Message Template (`.gitmessage`)
+- 커밋 메시지 템플릿 (`.gitmessage`)
 
-You should see:
+아래처럼 나오면 정상입니다.
 
 ```text
 Configuring Git...
@@ -31,9 +33,9 @@ Done!
 
 ---
 
-## 2. Prepare a Test Project
+## 2. 테스트 프로젝트 준비
 
-For development, prepare a Spring Boot project under the `examples` directory.
+개발용으로 `examples` 디렉터리 아래에 Spring Boot 프로젝트를 준비하세요.
 
 ```text
 infra-doctor
@@ -48,9 +50,9 @@ infra-doctor
 └── ...
 ```
 
-Copy your Spring Boot project into `examples/spring-gradle`.
+Spring Boot 프로젝트를 `examples/spring-gradle`에 복사합니다.
 
-For example:
+예:
 
 ```text
 examples
@@ -66,7 +68,7 @@ examples
         └── ...
 ```
 
-Before committing, remove the following directories from the copied project:
+커밋하기 전에 복사한 프로젝트에서 아래 디렉터리를 제거하세요.
 
 ```text
 .git/
@@ -77,25 +79,25 @@ node_modules/
 target/
 ```
 
-The test project is intended **only for local development and testing**. Do not include sensitive source code or production configuration files in the repository.
+테스트 프로젝트는 **로컬 개발·테스트 전용**입니다. 민감한 소스코드나 운영 설정 파일은 저장소에 포함하지 마세요.
 
 ---
 
-## 3. Test Your Changes
+## 3. 변경 사항 테스트
 
-Example projects are **not included** in this repository — use your own test project (see step 2) or any Spring Boot project on disk.
+예제 프로젝트는 이 저장소에 **포함돼 있지 않습니다** — 위 2번에서 준비한 테스트 프로젝트나 로컬에 있는 아무 Spring Boot 프로젝트를 쓰면 됩니다.
 
 ```bash
 go run . scan <project-path>
 ```
 
-Example
+예시
 
 ```bash
 go run . scan ../spring-project
 ```
 
-For richer analysis, the project may contain:
+더 풍부한 분석을 원한다면 프로젝트에 다음이 포함되면 좋습니다.
 
 ```text
 build.gradle
@@ -111,7 +113,7 @@ application-dev.yml
 application-prod.yml
 ```
 
-The following directories are automatically excluded from analysis:
+다음 디렉터리는 분석에서 자동으로 제외됩니다.
 
 ```text
 .git/
@@ -123,7 +125,7 @@ target/
 .infra-doctor/
 ```
 
-Run the full test suite and formatting check before opening a PR:
+PR을 올리기 전에 전체 테스트와 포맷 검사를 실행하세요.
 
 ```bash
 go build ./...
@@ -134,18 +136,18 @@ go test ./...
 
 ---
 
-## 4. Adding a Diagnostic Rule
+## 4. 진단 룰 추가
 
-`doctor` checks are defined as YAML, not Go code. See [internal/doctor/rules/README.md](internal/doctor/rules/README.md) for the rule schema and PR checklist.
-
----
-
-## 5. Adding a Translation
-
-CLI output supports English/Korean via `internal/i18n`. See [internal/i18n/README.md](internal/i18n/README.md) for how to add a new string and which strings should stay untranslated.
+`doctor`의 체크 항목은 Go 코드가 아니라 YAML로 정의됩니다. 룰 스키마와 PR 체크리스트는 [internal/doctor/rules/README.md](internal/doctor/rules/README.md)를 참고하세요.
 
 ---
 
-## Opening a Pull Request
+## 5. 번역 추가
 
-Use the PR template — it asks for the linked issue, a summary, what you implemented, anything you got stuck on, and anything reviewers should know. Commit messages must match the `<type>(#issue): <summary>` format (`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`); the `commit-msg` hook from step 1 enforces this locally.
+CLI 출력은 `internal/i18n`을 통해 영어/한글을 지원합니다. 새 문구를 추가하는 법과 번역하면 안 되는 것들은 [internal/i18n/README.md](internal/i18n/README.md)를 참고하세요.
+
+---
+
+## Pull Request 올리기
+
+PR 템플릿을 사용하세요 — 연관 이슈, 개요, 구현한 기능, 막혔던 부분, 리뷰어가 알아야 할 내용을 물어봅니다. 커밋 메시지는 `<type>(#이슈번호): <요약>` 형식(`feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`)을 따라야 하며, 1번의 `commit-msg` 훅이 로컬에서 이를 강제합니다.
