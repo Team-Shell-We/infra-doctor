@@ -31,7 +31,7 @@ Infra Doctor는 Spring Boot 프로젝트의 현재 인프라 구성을 분석해
 
 `explain`/`recommend`는 먼저 `login`이 필요합니다. AI가 생성하는 내용은 항상 스캐너가 이미 결정론적으로 확인한 사실에 근거합니다 — AI는 어떤 파일이 있는지 지어내지 않고, 왜 그게 중요한지만 설명합니다 (전체 설계 근거는 [docs/기능명세서.md](docs/기능명세서.md) 참고).
 
-Gradle(`build.gradle`/`build.gradle.kts`)과 Maven(`pom.xml`) 프로젝트 모두 빌드 도구로 감지됩니다. **알려진 한계:** Maven 프로젝트는 현재 프레임워크/의존성/데이터베이스 감지만 동작합니다 — Docker/Compose/Kubernetes/CI/프로파일 감지는 아직 Gradle 전용이라, 잘 갖춰진 Maven 프로젝트도 `doctor`/`recommend`/`export`가 준비도를 실제보다 낮게 보고할 수 있습니다. 수정 예정인 버그로 추적 중입니다. 자세한 내용은 [docs/기능명세서.md](docs/기능명세서.md) 참고.
+Gradle(`build.gradle`/`build.gradle.kts`)과 Maven(`pom.xml`) 프로젝트 모두 프레임워크/의존성/데이터베이스/인프라/CI/프로파일 감지를 동일하게 지원합니다. 다만 의존성/DB 감지는 루트 빌드 파일만 읽으므로, 자식 모듈에 의존성이 선언된 멀티모듈 프로젝트에서는 일부 감지를 놓칠 수 있습니다 — 자세한 내용은 [docs/기능명세서.md](docs/기능명세서.md) 참고.
 
 ---
 
@@ -74,8 +74,7 @@ go build -o infra-doctor
 
 ## 📖 사용법
 
-### Flow
-
+### 흐름
 
 ```bash
 cd ~/workspace/my-project
@@ -129,7 +128,7 @@ infra-doctor
 ## 🛣️ 로드맵
 
 - [x] 프로젝트 스캐너
-- [x] 프레임워크 감지 (Gradle; Maven은 일부만 — 위 안내 참고)
+- [x] 프레임워크 감지 (Gradle & Maven)
 - [x] 데이터베이스 감지
 - [x] Docker 감지
 - [x] 프로파일 감지
