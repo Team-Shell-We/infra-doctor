@@ -31,7 +31,7 @@ It scans project configurations, detects infrastructure components, and provides
 
 `explain`/`recommend` require `login` first. Their AI-generated sections are always grounded in facts the scanner already verified deterministically — the AI never invents which files exist, it only explains why they matter (see [docs/기능명세서_EN.md](docs/기능명세서_EN.md) for the full design rationale).
 
-Both Gradle (`build.gradle`/`build.gradle.kts`) and Maven (`pom.xml`) projects are detected as a build tool. **Known limitation:** for Maven projects, only framework/dependency/database detection currently runs — Docker/Compose/Kubernetes/CI/profile detection is Gradle-only right now, so `doctor`/`recommend`/`export` will under-report readiness on an otherwise well-configured Maven project. Tracked as a bug to fix; see [docs/기능명세서_EN.md](docs/기능명세서_EN.md) for details.
+Both Gradle (`build.gradle`/`build.gradle.kts`) and Maven (`pom.xml`) projects get the same framework/dependency/database/infrastructure/CI/profile detection. Dependency/database detection only reads the root build file, though, so a multi-module project whose dependencies are declared in a child module can have some detection missed — see [docs/기능명세서_EN.md](docs/기능명세서_EN.md) for details.
 
 ---
 
@@ -130,7 +130,7 @@ infra-doctor
 ## 🛣️ Roadmap
 
 - [x] Project Scanner
-- [x] Framework Detection (Gradle; Maven partially — see note above)
+- [x] Framework Detection (Gradle & Maven)
 - [x] Database Detection
 - [x] Docker Detection
 - [x] Profile Detection
