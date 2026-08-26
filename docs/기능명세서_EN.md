@@ -2,7 +2,7 @@
 
 **English** | [한국어](기능명세서.md)
 
-> Last updated against: `develop` (PR #45 full i18n coverage, #46 explain topic-not-adopted clarification, #49 visualize, #50/#51 generate, #53 recommend copy cleanup, #54 recommend complexity signal expansion, #55 Next Step layer, #56 doctor CI gate, #64 Maven support, #66 update release API, #67 Gradle Kotlin DSL detection fix, #70 Maven infrastructure detection fix, #77 help/timeout/recommend label/visualize DB node cleanup, #81 scaffold/dead code cleanup, #82 v0.2.0 release, #84 duplicate logic consolidation, #85 comment style unification, #79 CONTRIBUTING split)
+> Last updated against: `develop` (PR #45 full i18n coverage, #46 explain topic-not-adopted clarification, #49 visualize, #50/#51 generate, #53 recommend copy cleanup, #54 recommend complexity signal expansion, #55 Next Step layer, #56 doctor CI gate, #64 Maven support, #66 update release API, #67 Gradle Kotlin DSL detection fix, #70 Maven infrastructure detection fix, #77 help/timeout/recommend label/visualize DB node cleanup, #81 scaffold/dead code cleanup, #82 v0.2.0 release, #84 duplicate logic consolidation, #85 comment style unification, #79 CONTRIBUTING split, #94 donate Ko-fi link, #95 update pseudo-version fallback, #96 GitHub Actions shorthand trigger parsing, #97 ui.Wrap force-break, #98 test coverage)
 
 ## Project Description
 
@@ -14,16 +14,16 @@ An AI-powered CLI for operational diagnosis and infrastructure guidance. An open
 - There's plenty of information online, but getting an answer specific to *your* project usually means pasting your whole codebase into an AI and asking — a lot of manual effort.
 - Infra Doctor aims to analyze the project itself, explain the current structure from an operations standpoint, and provide both a direction for improvement and config files you can actually apply.
 
-## Core Design Principle (established during implementation)
+## Core Design Principle
 
-Not in the original spec, but confirmed empirically while building `explain`/`doctor` and then applied to every subsequent AI command.
+Applies to every AI command (`explain`, `recommend`).
 
 > **AI never judges facts — it only explains facts the code has already determined.**
 
-- `doctor` was built without any AI at all, 100% rule-based (YAML rules) — noted again below wherever this differs from the original spec.
-- `explain` initially let the AI freely generate "Current Status" (whether related files exist). In testing, we confirmed it would plausibly invent filenames it had never scanned (e.g. `Dockerfile.dev`). We then restructured it so "fact-finding" (what exists) is entirely decided by Go code based on `project.Info`, and the AI only handles the natural-language "why it matters" explanation.
-- `recommend` applies the same principle from the start — the deployment strategy recommendation itself (Docker Compose vs. Kubernetes) is decided deterministically by code, and the AI only writes out the reasoning (Reason) in prose.
-- Thanks to this principle, the AI commands have reproducible core information (checklists, recommended values, Next Step, etc.), and the AI's role is clearly scoped to "explaining things naturally."
+- `doctor` uses no AI at all — it is 100% rule-based (YAML rules).
+- `explain`'s "Current Status" (whether related files/settings exist) is decided deterministically by Go code based on `project.Info`; the AI only explains "why it matters" in natural language. This keeps the AI from inventing content the scan never found.
+- `recommend`'s deployment strategy recommendation (Docker Compose vs. Kubernetes) is likewise decided deterministically by code, with the AI only writing out the reasoning (Reason) in prose.
+- Because of this principle, the AI commands have reproducible core information (checklists, recommended values, Next Step, etc.) guaranteed by code, while the AI's role is scoped to explanation.
 
 ---
 
@@ -104,7 +104,7 @@ Instead of running the above commands one at a time, `infra-doctor export` can c
    ...
 ```
 
-Build file (`build.gradle`/`pom.xml`) discovery only happens in the given `path` directory, while Docker/Compose/K8s/GitHub Actions/Profile file discovery recurses into subdirectories, excluding `.git`/`.gradle`/`.idea`/`build`/`node_modules`/`target`/`.infra-doctor` (`internal/analyzer/walk.go`). This applies identically to Gradle and Maven (PR #70) — however, dependency/database/framework detection itself only reads the single root build file for both build tools, so a multi-module project whose real dependencies are declared in a child module can be missed (see "Known Issues" below).
+Build file (`build.gradle`/`pom.xml`) discovery only happens in the given `path` directory, while Docker/Compose/K8s/GitHub Actions/Profile file discovery recurses into subdirectories, excluding `.git`/`.gradle`/`.idea`/`build`/`node_modules`/`target`/`.infra-doctor` (`internal/analyzer/walk.go`). This applies identically to Gradle and Maven — however, dependency/database/framework detection itself only reads the single root build file for both build tools, so a multi-module project whose real dependencies are declared in a child module can have its detection missed.
 
 ---
 
@@ -249,11 +249,9 @@ Current Status
 | Uses AI | Y (some sections only) |
 | Owner | gimye |
 
-**Description**: Recommends a deployment strategy (Docker Compose vs. Kubernetes) based on infrastructure complexity signals detected in the project (Kafka/relational DB/Redis/multiple CI workflows count). Requires `login`.
+**Description**: Recommends a deployment strategy (Docker Compose vs. Kubernetes) based on static complexity signals detected in the project (Kafka/relational DB/Redis usage, CI workflow/API endpoint/module counts). True "scale" indicators like traffic, team size, or microservice count aren't observable from a single-repo scan, so the command deals only with signals that can be checked statically in code. Requires `login`.
 
-Previously described as "analyzing project scale," but there's actually no way to see true "scale" indicators like traffic, team size, or microservice count (only a single repo is scanned). Counting scannable static signals is what the code actually does, so the wording was updated to match (issue #44).
-
-**6 signals (expanded in issue #52, `complexityThreshold = 4`)**: Kafka usage, relational DB usage, Redis usage, 2+ CI workflows, more than 20 API endpoints (`internal/analyzer/api.go` counts `@RestController`/`@GetMapping`-style annotations in `.java` sources), multi-module structure (for Gradle, `internal/analyzer/modules.go` counts `include` statements in `settings.gradle`; for Maven, `AnalyzeMavenModules` counts `<modules>` entries in `pom.xml` — PR #70). A project already using Kubernetes is kept regardless of these signals, but if replicas are 2 or more, an "already scaling" rationale is added to the Reason (`internal/analyzer/infrastructure.go` also parses the `replicas:` value from manifests).
+**6 signals (`complexityThreshold = 4`)**: Kafka usage, relational DB usage, Redis usage, 2+ CI workflows, more than 20 API endpoints (`internal/analyzer/api.go` counts `@RestController`/`@GetMapping`-style annotations in `.java` sources), multi-module structure (for Gradle, `internal/analyzer/modules.go` counts `include` statements in `settings.gradle`; for Maven, `AnalyzeMavenModules` counts `<modules>` entries in `pom.xml`). A project already using Kubernetes is kept regardless of these signals, but if replicas are 2 or more, an "already scaling" rationale is added to the Reason (`internal/analyzer/infrastructure.go` also parses the `replicas:` value from manifests).
 
 **How each section is generated**:
 | Section | Generated by |
@@ -365,8 +363,8 @@ Generated files use exactly the filenames/content `internal/analyzer` recognizes
 |---|---|---|
 | `infra-doctor about` | ✅ Done | Matches the spec |
 | `infra-doctor version` | ✅ Done | Based on `runtime/debug.ReadBuildInfo` |
-| `infra-doctor update` | ✅ Done | Real semver comparison logic + GitHub Releases API integration (issue #41, PR #66, `internal/utils/github.go`). Since the `v0.2.0` official release (PR #82, develop → main), `GET /releases/latest` responds correctly — confirmed `Latest: v0.2.0` in practice. However, the version parser still hard-fails on the Go pseudo-version produced by installing via `go install ...@branch` instead of a tag (see "Known Issues" below). |
-| `infra-doctor donate` | ✅ Done | Shows a Ko-fi (`https://ko-fi.com/shellwe`) link. Chose Ko-fi over Buy Me a Coffee since the latter doesn't support South Korea |
+| `infra-doctor update` | ✅ Done | Real semver comparison logic + GitHub Releases API integration (issue #41, PR #66, `internal/utils/github.go`). Since the `v0.2.0` official release (PR #82, develop → main), `GET /releases/latest` responds correctly — confirmed `Latest: v0.2.0` in practice. A Go pseudo-version or pre-release tag (e.g. from `go install ...@branch` instead of a tag) now falls back to "dev" the same way `(devel)`/`unknown` do (issue #87, PR #95). |
+| `infra-doctor donate` | ✅ Done | Shows a Ko-fi (`https://ko-fi.com/shellwe`) link. Chose Ko-fi over Buy Me a Coffee since the latter doesn't support South Korea (issue #90, PR #94) |
 
 ---
 
@@ -378,7 +376,7 @@ Generated files use exactly the filenames/content `internal/analyzer` recognizes
 | Status | ✅ Done |
 | Uses AI | N |
 
-**Description**: Confirms the current directory is a Spring Boot project and creates `.infra-doctor/config.yaml` + `.infra-doctor/.gitignore`. Spring Boot detection uses `internal/project/detector.go`'s `DetectSpringBoot` (previously `cmd/init.go` had its own reimplementation plus a recursive `examples/` fallback; both were removed — if the current directory isn't a Spring Boot project, it now fails with a clear error).
+**Description**: Confirms the current directory is a Spring Boot project and creates `.infra-doctor/config.yaml` + `.infra-doctor/.gitignore`. Spring Boot detection uses `internal/project/detector.go`'s `DetectSpringBoot`; if the current directory isn't a Spring Boot project, it fails with a clear error.
 
 ---
 
@@ -390,7 +388,7 @@ Generated files use exactly the filenames/content `internal/analyzer` recognizes
 | Status | ✅ Done |
 | Uses AI | N |
 
-**Description**: `error` (and `internal/utils/error_util.go`) was removed entirely — Cobra provides "suggest help on an invalid command" by default. `help` is registered via `rootCmd.SetHelpCommand` instead of `rootCmd.AddCommand`, which also resolves a naming collision with Cobra's own built-in `help` (`Use: "help"` is a reserved name, so registering via `AddCommand` would duplicate it).
+**Description**: Suggesting help on an invalid command is handled by Cobra by default, so there's no separate implementation for it. `help` is registered via `rootCmd.SetHelpCommand` (`Use: "help"` is a reserved name for Cobra's own built-in help command, so registering it via `AddCommand` would collide).
 
 ---
 
@@ -402,9 +400,9 @@ Generated files use exactly the filenames/content `internal/analyzer` recognizes
 | Status | ✅ Done (language switching is only the mechanism so far — see below) |
 | Uses AI | N |
 
-**Description**: Displays the current LLM/Language/Output/Auto Export settings. Actually reads and writes `~/.infra-doctor/config.json` (the same file `login` uses; `Language`/`OutputFormat`/`AutoExport` fields were added to `Credentials` in `internal/ai/credentials.go`). The `--lang` flag changes and persists the language.
+**Description**: Displays the current LLM/Language/Output/Auto Export settings. Actually reads and writes `~/.infra-doctor/config.json` (the same file `login` uses; `Language`/`OutputFormat`/`AutoExport` fields were added to `Credentials` in `internal/ai/credentials.go`). The `--lang` flag changes and persists the language. `Output`/`Auto Export` are currently read-only — there's no flag yet to change their values (issue #89).
 
-**Scope of language switching**: The `internal/i18n` package (map-based key lookup, no external dependency) is applied to the fixed text of every command — `scan`/`doctor`/`login`/`explain`/`recommend`/`init`/`update`/`version`/`help`/`about`/`donate`/`config`/`generate` (issue #36, PR #45). `explain`/`recommend`'s AI responses are also genuinely generated in Korean via a prompt language instruction. The box UI (`internal/ui/box.go`) also handles East Asian Width via `DisplayWidth`, since Korean characters take up 2 columns in a terminal. The only thing left untranslated is `doctor`'s rule YAML (`message`/`reason`/`fix`) — that needs a separate bilingual YAML field design.
+**Scope of language switching**: The `internal/i18n` package (map-based key lookup, no external dependency) is applied to the fixed text of every command — `scan`/`doctor`/`login`/`explain`/`recommend`/`init`/`update`/`version`/`help`/`about`/`donate`/`config`/`generate`. `explain`/`recommend`'s AI responses are also genuinely generated in Korean via a prompt language instruction. The box UI (`internal/ui/box.go`) also handles East Asian Width via `DisplayWidth`, since Korean characters take up 2 columns in a terminal. `doctor`'s rule YAML (`message`/`reason`/`fix`) isn't translated yet — that needs a separate bilingual YAML field design (issue #91).
 
 ---
 
@@ -415,59 +413,8 @@ Generated files use exactly the filenames/content `internal/analyzer` recognizes
 | Status | ✅ Done (doctor + recommend, issue #40) |
 | Uses AI | N |
 
-**Description**: Unified as `internal/nextstep.Suggest(info, wantsKubernetes)`. It looks at what's missing among Dockerfile/compose/k8s/CI workflow and suggests an `infra-doctor generate <target>` command; if nothing is missing, it suggests `infra-doctor doctor`. `doctor` shows it as a new Next Step section below the existing Recommendation (per-rule Fix text); `recommend` replaced its existing Next Step section with a call into this same package. Extending this to `scan`/`explain` was left out of scope.
-
-A pre-existing bug was also fixed during the migration — `recommend` used to suggest `generate docker` when it recommended Docker Compose and no compose file existed, but the target that actually creates `docker-compose.yml` is `compose` (`docker` only creates the Dockerfile). The case where the Dockerfile itself is missing, which wasn't checked at all before, was also added.
+**Description**: Unified as `internal/nextstep.Suggest(info, wantsKubernetes)`. It looks at what's missing among Dockerfile/compose/k8s/CI workflow and suggests an `infra-doctor generate <target>` command; if nothing is missing, it suggests `infra-doctor doctor`. `doctor` shows it as a Next Step section below the existing Recommendation (per-rule Fix text); `recommend` also calls this same package for its Next Step section. Extending this to `scan`/`explain` is out of scope.
 
 ---
 
-## Known Issues
-
-### Resolved (for reference, issue #31)
-- ~~`FindBuildFile` recursed into subdirectories and could pick up an unrelated project like `examples/`~~ → PR #30
-- ~~`explain`/`recommend` were hardcoded to the current directory~~ → PR #30, added the `[path]` argument
-- ~~`help`/`error` command name collision~~ → removed `error.go` and switched `help.go` to `SetHelpCommand` (also discovered and fixed the collision with Cobra's own built-in help)
-- ~~`init`'s `examples/` fallback logic~~ → removed
-- ~~Triple-duplicated Spring Boot detection logic~~ → `cmd/init.go` now uses `project.DetectSpringBoot` (previously unused code); `internal/analyzer/finder.go` serves a different purpose (parsing build files) and was kept separate.
-- ~~`config` command's content didn't match the spec~~ → now shows LLM/Language/Output/Auto Export and `--lang` actually changes/persists a value. Only `--lang` actually changes a value; Output/Auto Export are still read-only.
-- ~~`root.go` was still the raw Cobra scaffold~~ → replaced the Short/Long description, removed the unused `--toggle` flag
-- ~~`scan`/`doctor`'s infrastructure file search walked the entire tree recursively~~ → `internal/analyzer/walk.go` now excludes `.git`/`.gradle`/`.idea`/`build`/`node_modules`/`target`/`.infra-doctor`
-
-### Resolved (for reference, issues #36/#38/#37/#44)
-- ~~Language switching only applied to the `config` command itself~~ → extended to every command, box UI now handles East Asian Width (PR #45)
-- ~~`visualize architecture`/`visualize flow` unimplemented~~ → implemented as the `internal/visualize` package (PR #49)
-- ~~`generate <target>` unimplemented~~ → implemented as `internal/generate` (docker/compose/nginx/k8s/ci + the unified `architecture` target), integrated with doctor's diagnosis, hardened generated output to a genuinely deployable level (HEALTHCHECK/depends_on condition/resources limits/CI caching, etc.) + localized banners (PR #50/#51)
-- ~~`explain` described a not-yet-adopted topic as if it were already in use~~ → shows "Current Status" first + a not-yet-adopted banner + subjunctive-phrasing prompt instruction (PR #46)
-- ~~`recommend`'s description overstated the actual logic (complexity signal counting) as "scale analysis"~~ → wording cleaned up (issue #44, final item)
-
-### Resolved (for reference, issues #39/#41/#43)
-- ~~`export` unimplemented~~ → implemented as `internal/export`, saves report+diagrams+generated files into `infra-doctor/` in one run (PR #61/#62)
-- ~~Maven project analysis unsupported~~ → implemented pom.xml parsing in `internal/analyzer/maven.go` (Spring Boot version resolved via parent/dependency/plugin order, `${property}` substitution, Java version resolved via `sourceCompatibility`/`maven.compiler.*`/toolchain order) (PR #64)
-- ~~`update`'s `latestVersion` was hardcoded~~ → integrated the GitHub Releases API (PR #66)
-
-### Resolved (for reference, issues #65/#73/#74/#75/#76)
-- ~~Gradle Kotlin DSL (`build.gradle.kts`) projects were misdetected as non-Spring-Boot~~ → the version regex now matches Kotlin DSL syntax too, added `sourceCompatibility`-based Java version detection (PR #67)
-- ~~Infrastructure/CI/profile detection was always failing for Maven projects~~ → moved the `AnalyzeGitHub`/`FindProfiles`/`AnalyzeInfrastructure`/`AnalyzeAPI` calls outside the switch so both Gradle and Maven run them, added Maven multi-module counting and `dependencyManagement` (BOM) parsing, also fixed `export`'s missing nginx generation (PR #70)
-- ~~`help <command>` always failed~~ → implemented so it actually shows the given command's help (issue #73, PR #77)
-- ~~OpenAI requests were cut off at 30 seconds instead of 60~~ → removed the fixed timeout, now controlled solely by the context timeout (issue #74, PR #77)
-- ~~`recommend` mislabeled Maven multi-module projects as "Gradle"~~ → removed the hardcoded build-tool name (issue #75, PR #77)
-- ~~A fake "Unknown" node appeared in the architecture diagram for projects with no database~~ → added a filter in `visualize/builder.go` (issue #76, PR #77)
-- ~~`update` always failed with a GitHub API 404~~ → the `v0.2.0` official release (PR #82, develop → main) made `/releases/latest` respond correctly. Resolved with no code change (the root cause was simply that no official release existed yet).
-- ~~`main.go`'s cobra-cli scaffold placeholder, dead code (`AnalyzeDatabase`/`HasGradle`/`nodeMap`/`nodeLabel`)~~ → cleaned up (issue #80, PR #81)
-- ~~Duplicated file-status logic in `generate`/`export`, duplicated language-mapping logic in `explain`/`recommend`~~ → consolidated into `generate.Result.StatusOf()`/`internal/ai/language.go` (PR #84)
-- ~~Comments were a mix of English and Korean~~ → unified to Korean throughout, applied a clarity checklist, cleaned up 10 files that weren't gofmt-clean + added a `gofmt -l` check to CI (PR #85)
-- ~~README had grown long enough that even someone who just wanted the contributing guide had to skim the whole thing~~ → split `CONTRIBUTING.md` out to the repo root (GitHub surfaces it automatically when opening an issue/PR), kept README focused on usage (issue #79)
-
-### Still Open (in priority order)
-
-1. **`update`'s version parser can't handle pseudo-versions** — hard-fails on the Go pseudo-version or pre-release tag you get from installing via `go install ...@branch` instead of an exact tag. Should be folded into the same graceful "dev" fallback as `(devel)`/`unknown`.
-2. **Dependency/database detection only reads the root build file** — neither Gradle nor Maven descends into child modules. A multi-module project whose real dependencies live in a child module can have its JPA/Kafka/DB detection missed. A pre-existing limitation, symmetric across both build tools.
-3. **GitHub Actions shorthand triggers (`on: push`, `on: [push, pull_request]`) parse as zero triggers** — only the multi-line mapping form is supported. Fails silently with no error.
-4. **`config` displays settings it can't actually change** — shows "Output Format"/"Auto Export" as if they were configurable, but no such flag exists, so they can never change. Only `--lang` actually works.
-5. **`doctor`'s rule YAML has no translation support** — needs a separate bilingual YAML field design.
-6. **`ui.Wrap` doesn't force-break a single word longer than the box** — a long unbroken token in AI-generated text (e.g. a URL) can break the box border alignment.
-7. **Test coverage gaps** — most of `cmd/*.go` (only doctor and generate have tests), `internal/utils`, and `internal/ai/openai` have no dedicated tests.
-
-### Not Yet Implemented
-
-- (None — `export` (#39), Maven support (#43), and `update`'s latest-version lookup (#41) are all implemented now. What remains is only the bugs/gaps listed under "Still Open" above.)
+Bug reports and other TODOs are tracked on [GitHub Issues](https://github.com/Team-Shell-We/infra-doctor/issues).
