@@ -104,7 +104,7 @@ Instead of running the above commands one at a time, `infra-doctor export` can c
    ...
 ```
 
-Build file (`build.gradle`/`pom.xml`) discovery only happens in the given `path` directory, while Docker/Compose/K8s/GitHub Actions/Profile file discovery recurses into subdirectories, excluding `.git`/`.gradle`/`.idea`/`build`/`node_modules`/`target`/`.infra-doctor` (`internal/analyzer/walk.go`). This applies identically to Gradle and Maven — however, dependency/database/framework detection itself only reads the single root build file for both build tools, so a multi-module project whose real dependencies are declared in a child module can have its detection missed.
+Build file (`build.gradle`/`pom.xml`) discovery only happens in the given `path` directory, while Docker/Compose/K8s/GitHub Actions/Profile file discovery recurses into subdirectories, excluding `.git`/`.gradle`/`.idea`/`build`/`node_modules`/`target`/`.infra-doctor` (`internal/analyzer/walk.go`). This applies identically to Gradle and Maven — however, dependency/database/framework detection itself only reads the single root build file for both build tools, so a multi-module project whose real dependencies are declared in a child module can have its detection missed (issue #100).
 
 ---
 
