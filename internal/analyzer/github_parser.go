@@ -44,8 +44,22 @@ func ParseWorkflow(path string, fileName string) (*project.WorkflowInfo, error) 
 		Path: path,
 	}
 
-	if wf.On.Kind == yaml.MappingNode {
+	switch wf.On.Kind {
 
+	// on: push
+	case yaml.ScalarNode:
+		workflow.Triggers = append(workflow.Triggers, project.TriggerInfo{Event: wf.On.Value})
+
+	// on: [push, pull_request]
+	case yaml.SequenceNode:
+		for _, event := range wf.On.Content {
+			if event.Kind == yaml.ScalarNode {
+				workflow.Triggers = append(workflow.Triggers, project.TriggerInfo{Event: event.Value})
+			}
+		}
+
+	// on: { push: { branches: [...] }, pull_request: {} }
+	case yaml.MappingNode:
 		for i := 0; i < len(wf.On.Content); i += 2 {
 
 			key := wf.On.Content[i]
