@@ -10,10 +10,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-/*
-CLI 명령을 정의하여 지정한 프로젝트 경로를 분석하고 요약 정보를 터미널에 출력
-*/
-
 var scanCmd = &cobra.Command{
 	Use:   "scan [path]",
 	Short: "Scan project structure",
@@ -38,10 +34,6 @@ var scanCmd = &cobra.Command{
 
 		ui.Header("🔍 " + i18n.Get(lang, "scan.title"))
 
-		// ---------------------------------------------------------------------
-		// Framework
-		// ---------------------------------------------------------------------
-
 		fmt.Println()
 		fmt.Println(" " + i18n.Get(lang, "scan.framework"))
 
@@ -54,10 +46,6 @@ var scanCmd = &cobra.Command{
 		if info.Framework.Java.Version != "" {
 			fmt.Printf("   ✓ Java %s\n", info.Framework.Java.Version)
 		}
-
-		// ---------------------------------------------------------------------
-		// Dependencies
-		// ---------------------------------------------------------------------
 
 		fmt.Println()
 		fmt.Println(" " + i18n.Get(lang, "scan.dependencies"))
@@ -90,10 +78,6 @@ var scanCmd = &cobra.Command{
 			fmt.Println("   ✓ SpringDoc OpenAPI")
 		}
 
-		// ---------------------------------------------------------------------
-		// Database
-		// ---------------------------------------------------------------------
-
 		fmt.Println()
 		fmt.Println(" " + i18n.Get(lang, "scan.database"))
 
@@ -106,14 +90,9 @@ var scanCmd = &cobra.Command{
 			fmt.Println("   ✓ Redis")
 		}
 
-		// ---------------------------------------------------------------------
-		// Infrastructure
-		// ---------------------------------------------------------------------
-
 		fmt.Println()
 		fmt.Println(" " + i18n.Get(lang, "scan.infrastructure"))
 
-		// Docker
 		if info.Infrastructure.Docker.Enabled {
 
 			fmt.Println("   ✓ Docker")
@@ -126,7 +105,6 @@ var scanCmd = &cobra.Command{
 			fmt.Println("   ✗ Docker")
 		}
 
-		// Docker Compose
 		if len(info.Infrastructure.Docker.Compose) > 0 {
 
 			fmt.Println("   ✓ Docker Compose")
@@ -139,7 +117,6 @@ var scanCmd = &cobra.Command{
 			fmt.Println("   ✗ Docker Compose")
 		}
 
-		// Kubernetes
 		if info.Infrastructure.Kubernetes.Enabled {
 
 			fmt.Println("   ✓ Kubernetes")
@@ -152,10 +129,6 @@ var scanCmd = &cobra.Command{
 
 			fmt.Println("   ✗ Kubernetes")
 		}
-
-		// ---------------------------------------------------------------------
-		// CI/CD
-		// ---------------------------------------------------------------------
 
 		fmt.Println()
 		fmt.Println(" " + i18n.Get(lang, "scan.cicd"))
@@ -195,10 +168,6 @@ var scanCmd = &cobra.Command{
 
 			fmt.Println("   ✗ GitHub Actions")
 		}
-
-		// ---------------------------------------------------------------------
-		// Profiles
-		// ---------------------------------------------------------------------
 
 		fmt.Println()
 		fmt.Println(" " + i18n.Get(lang, "scan.profiles"))

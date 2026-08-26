@@ -22,7 +22,7 @@ type Diagnosis struct {
 	Category Category `json:"category"`
 	Level    Level    `json:"level"`
 
-	// 감점
+	// 감점 폭 (음수로 저장, Score에 그대로 더함)
 	ScoreImpact int `json:"scoreImpact"`
 
 	Title   string `json:"title"`

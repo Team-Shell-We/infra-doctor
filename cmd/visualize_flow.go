@@ -65,8 +65,7 @@ var visualizeFlowCmd = &cobra.Command{
 	},
 }
 
-// findWorkflowRoot searches the current directory and its parents for
-// .github/workflows.
+// findWorkflowRoot : 현재 디렉터리부터 상위로 올라가며 .github/workflows를 찾는다
 func findWorkflowRoot(start string) (string, bool) {
 	current := filepath.Clean(start)
 

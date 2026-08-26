@@ -44,10 +44,6 @@ func ParseWorkflow(path string, fileName string) (*project.WorkflowInfo, error) 
 		Path: path,
 	}
 
-	// -----------------------------
-	// Trigger
-	// -----------------------------
-
 	if wf.On.Kind == yaml.MappingNode {
 
 		for i := 0; i < len(wf.On.Content); i += 2 {
@@ -81,10 +77,6 @@ func ParseWorkflow(path string, fileName string) (*project.WorkflowInfo, error) 
 			workflow.Triggers = append(workflow.Triggers, trigger)
 		}
 	}
-
-	// -----------------------------
-	// Jobs
-	// -----------------------------
 
 	for jobName, job := range wf.Jobs {
 

@@ -7,17 +7,8 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/ai"
 )
 
-// systemPrompt : topic과 무관하게 고정
-
-/*
-* 모델의 역할을 정하고 답변을 JSON 스키마로 강제하는 시스템 프롬프트. 이 프롬프트는
-* internal/ai/explain/result.go가 기대하는 JSON 형태로 강제함.
-* 사용자는 프롬프트를 전혀 쓰지 않고,
-* CLI가 모든 topic에 항상 같은 지시를 보낸다.
-* 이 섹션은 이제 Go 코드가
-* 결정론적으로 계산한다(status.go 참고), 모델은 관여하지 않는다.
- */
-
+// 시스템 프롬프트는 모델 역할을 정하고 응답을 result.go가 기대하는 JSON 스키마로 강제한다.
+// topic별 상태 정보는 모델이 아니라 status.go가 결정론적으로 계산한다.
 const systemPrompt = `You are Infra Doctor, a CLI tool that explains infrastructure concepts to backend developers strictly in the context of their own scanned project.
 
 Base every claim ONLY on the scanned project facts you are given in the user message. Do not invent technologies, files, or configuration that were not listed there.

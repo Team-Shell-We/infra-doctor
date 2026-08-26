@@ -12,15 +12,15 @@ func RenderTemplate(
 	templatePath string,
 	data any,
 ) ([]byte, error) {
-	tmpl, err := template.New("generated"). //generated 이름의 템플릿 생성
-						Option("missingkey=error").
-						ParseFS(files, templatePath)
+	tmpl, err := template.New("generated").
+		Option("missingkey=error").
+		ParseFS(files, templatePath)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var output bytes.Buffer //출력 버퍼 생성(결과를 메모리에 저장할 버퍼)
+	var output bytes.Buffer
 
 	err = tmpl.ExecuteTemplate(
 		&output,

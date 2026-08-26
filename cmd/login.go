@@ -116,8 +116,7 @@ func loginWithOpenAI(reader *bufio.Reader, out io.Writer, lang string) {
 	fmt.Fprintln(out, "OpenAI")
 }
 
-// readAPIKey : stdin이 실제 대화형 터미널일 때만 입력을 마스킹
-// 그 외엔 일반 버퍼 읽기로 대체(파이프 입력으로도 스크립팅/테스트 가능)
+// readAPIKey : 대화형 터미널에서만 입력을 마스킹하고, 그 외엔 일반 버퍼로 읽는다(파이프 입력으로 스크립팅·테스트 가능)
 func readAPIKey(reader *bufio.Reader) string {
 
 	if term.IsTerminal(int(os.Stdin.Fd())) {

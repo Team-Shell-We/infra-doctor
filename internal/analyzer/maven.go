@@ -10,8 +10,7 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 )
 
-// AnalyzeMaven은 pom.xml을 분석해 프레임워크, 주요 의존성,
-// 데이터베이스 정보를 반환한다.
+// AnalyzeMaven: pom.xml을 분석해 프레임워크, 주요 의존성, 데이터베이스 정보를 반환한다
 func AnalyzeMaven(buildFile string) (
 	*project.FrameworkInfo,
 	*project.DependencyInfo,
@@ -91,8 +90,7 @@ func extractMavenFramework(
 	result.Java.Version = findMavenJavaVersion(pom)
 }
 
-// extractSpringBoot: parent, dependencyManagement(BOM), dependency,
-// plugin 순서로 Spring Boot 사용 여부와 버전 확인
+// extractSpringBoot: parent → dependencyManagement(BOM) → dependency → plugin 순으로 확인해 Spring Boot 사용 여부와 버전을 판단한다
 func extractSpringBoot(
 	pom *mavenProject,
 	result *project.FrameworkInfo,
@@ -115,8 +113,7 @@ func extractSpringBoot(
 		)
 	}
 
-	// spring-boot-dependencies를 <dependencyManagement>로 import하는
-	// 프로젝트는 부모나 직접 의존성 없이도 Spring Boot 프로젝트임
+	// spring-boot-dependencies를 dependencyManagement로 import한 프로젝트는 parent나 직접 의존성 없이도 Spring Boot로 판단한다
 	for _, item := range pom.DependencyManagement.Dependencies {
 		groupID := resolveMavenValue(item.GroupID, pom.Properties)
 		artifactID := resolveMavenValue(item.ArtifactID, pom.Properties)
@@ -146,7 +143,6 @@ func extractSpringBoot(
 		if result.SpringBoot.Version == "" {
 			version := resolveMavenValue(item.Version, pom.Properties)
 			if version == "" {
-				// <version>이 없으면 BOM이 관리하는 버전
 				version = managedMavenVersion(pom, groupID, item.ArtifactID)
 			}
 			result.SpringBoot.Version = version
@@ -287,8 +283,7 @@ func isRedisDependency(groupID, artifactID string) bool {
 	}
 }
 
-// findMavenJavaVersion: properties와 maven-compiler-plugin에서
-// Java 버전을 찾음
+// findMavenJavaVersion: properties와 maven-compiler-plugin에서 Java 버전을 찾는다
 func findMavenJavaVersion(pom *mavenProject) string {
 	propertyNames := []string{
 		"java.version",
@@ -339,8 +334,7 @@ func findMavenJavaVersion(pom *mavenProject) string {
 	return ""
 }
 
-// managedMavenVersion: <dependencyManagement>에서 groupID/artifactID가 일치하는 항목의 버전을 찾음 
-// <version> 없이 BOM으로만 버전이 관리되는 의존성의 버전을 찾을 때 사용
+// managedMavenVersion: <version> 없이 BOM(dependencyManagement)으로만 관리되는 의존성의 버전을 groupID/artifactID로 찾는다
 func managedMavenVersion(pom *mavenProject, groupID, artifactID string) string {
 	artifactID = resolveMavenValue(artifactID, pom.Properties)
 

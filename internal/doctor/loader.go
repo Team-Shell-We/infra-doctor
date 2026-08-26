@@ -47,10 +47,7 @@ var (
 	once     sync.Once
 )
 
-// LoadRules : 모든 룰 파일을 딱 한 번만 로드. once.Do는 첫 호출에서만
-// 실행되므로, 로드 실패 시의 err도 loadErr에 저장해 이후 호출에서도
-// 계속 반환해야 한다 — 로컬 var err에만 담으면 두 번째 호출부터는
-// nil로 돌아가 실패를 숨긴다.
+// LoadRules: 룰 파일을 once.Do로 한 번만 로드한다. 실패한 err를 loadErr에도 저장해야 두 번째 호출부터도 실패가 반환된다(로컬 err만 쓰면 nil로 감춰짐)
 func LoadRules() (*RuleRegistry, error) {
 
 	once.Do(func() {

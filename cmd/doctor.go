@@ -1,10 +1,7 @@
 package cmd
 
-/*
-doctor 명령을 정의
-사용자로부터 경로인자를 받고, analyzer를 호출해 프로젝트 분석 결과를 받아 터미널에 요약을 출력
-출력내용: 프레임워크, 데이터베이스, docker, docker compose 파일, ci/cd, profiles 등
-*/
+// doctor 명령 : 경로를 분석해 준비도 점수·체크리스트(Docker/Compose/헬스체크/리버스프록시/모니터링/로그 로테이션/DB 백업)·추천·다음 단계를 출력한다
+
 import (
 	"encoding/json"
 	"fmt"
@@ -26,9 +23,7 @@ var (
 	doctorFailUnder int
 )
 
-// doctorCheckNameKeys : doctor.Checklist()가 반환하는 고정된 체크명(영어)을
-// i18n key로 매핑. internal/doctor 패키지 자체는 건드리지 않고 렌더링
-// 시점에만 매핑한다.
+// doctorCheckNameKeys : Checklist()가 반환하는 영어 체크명을 렌더링 시점에 i18n key로 매핑한다(internal/doctor는 그대로 둠)
 var doctorCheckNameKeys = map[string]string{
 	"Docker":         "doctor.check.docker",
 	"Docker Compose": "doctor.check.dockerCompose",
@@ -88,9 +83,7 @@ func writeDoctorJSON(w io.Writer, result *doctor.Result) error {
 	return err
 }
 
-// doctorShouldFail : --fail-under가 명시적으로 지정됐고 점수가 그보다
-// 낮으면 true. 플래그를 안 줬을 때는 기본값(0)과 무관하게 항상 false —
-// 안 그러면 아무도 안 원했는데 --fail-under 0으로 항상 게이트가 걸린다.
+// doctorShouldFail : --fail-under 지정 시에만 게이트를 켠다. 예: 미지정→false, "--fail-under 80"+score 75→true. 안 그러면 기본값 0 때문에 항상 게이트가 걸린다
 func doctorShouldFail(score, failUnder int, failUnderSet bool) bool {
 	return failUnderSet && score < failUnder
 }

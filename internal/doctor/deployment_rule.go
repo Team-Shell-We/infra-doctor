@@ -37,7 +37,7 @@ func (r DeploymentRule) Check(info *project.Info) []Diagnosis {
 		}
 
 	case hasDocker && hasGitHubActions:
-		// Deployment configuration looks good.
+		// 배포 설정이 정상이라 진단을 추가하지 않는다
 	}
 
 	return diagnoses
