@@ -144,7 +144,6 @@ func renderReport(info project.Info, diagnosis *doctor.Result) string {
 	var b strings.Builder
 	b.WriteString("# Infrastructure Analysis Report\n\n")
 
-	// scan command result
 	b.WriteString("## Scan Result\n\n### Framework\n\n")
 	fmt.Fprintf(&b, "- Spring Boot: %s\n- Java: %s\n- Build tool: %s\n", value(info.Framework.SpringBoot.Version), value(info.Framework.Java.Version), value(info.Framework.BuildTool.Type))
 
@@ -201,7 +200,6 @@ func renderReport(info project.Info, diagnosis *doctor.Result) string {
 		fmt.Fprintf(&b, "- %s (`%s`)\n", profile.Name, profile.File)
 	}
 
-	// doctor command result
 	fmt.Fprintf(&b, "\n## Doctor Result\n\n### Readiness\n\n- Score: %d%%\n\n### Infrastructure Checks\n\n", diagnosis.Score)
 	for _, check := range diagnosis.Checks {
 		mark := "❌"
@@ -253,27 +251,9 @@ func printResult(output io.Writer, result generate.Result) error {
 		}
 	}
 	for _, path := range result.Planned {
-		status := "created"
-		if result.DryRun {
-			status = "planned"
-		}
-		if contains(result.Skipped, path) {
-			status = "skipped"
-		} else if contains(result.Overwritten, path) {
-			status = "overwritten"
-		}
-		if _, err := fmt.Fprintf(output, "%s: %s\n", status, filepath.Join(OutputDirectory, path)); err != nil {
+		if _, err := fmt.Fprintf(output, "%s: %s\n", result.StatusOf(path), filepath.Join(OutputDirectory, path)); err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-func contains(values []string, target string) bool {
-	for _, value := range values {
-		if value == target {
-			return true
-		}
-	}
-	return false
 }

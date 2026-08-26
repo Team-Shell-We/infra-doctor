@@ -7,8 +7,6 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/generate"
 )
 
-//Dockerfile, .dockerignore 생성
-
 //go:embed templates/*
 var templates embed.FS
 

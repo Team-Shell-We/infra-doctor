@@ -131,23 +131,7 @@ func printGenerateResult(cmd *cobra.Command, result generate.Result) error {
 		}
 	}
 	for _, path := range result.Planned {
-		status := "created"
-		if result.DryRun {
-			status = "planned"
-		}
-		for _, skipped := range result.Skipped {
-			if path == skipped {
-				status = "skipped"
-				break
-			}
-		}
-		for _, overwritten := range result.Overwritten {
-			if path == overwritten {
-				status = "overwritten"
-				break
-			}
-		}
-		if _, err := fmt.Fprintf(cmd.OutOrStdout(), "%s: %s\n", status, path); err != nil {
+		if _, err := fmt.Fprintf(cmd.OutOrStdout(), "%s: %s\n", result.StatusOf(path), path); err != nil {
 			return err
 		}
 	}

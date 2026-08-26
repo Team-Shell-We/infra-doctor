@@ -16,9 +16,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// explainStatusLabelKeys : explain.BuildStatus()가 반환하는 고정된
-// 라벨(영어)을 i18n key로 매핑. Dockerfile/docker-compose.yml/PostgreSQL/
-// Redis처럼 고유명사/파일명인 라벨은 번역 대상이 아니라 여기 없음(그대로 둠).
+// explainStatusLabelKeys : BuildStatus()가 반환하는 영어 라벨을 렌더링 시점에 i18n key로 매핑한다
 var explainStatusLabelKeys = map[string]string{
 	"Dockerfile":                             "explain.status.dockerfile",
 	"Docker Compose":                         "explain.status.dockerCompose",
@@ -104,17 +102,13 @@ func renderExplainResult(lang, topic string, result *explain.Result, status []ex
 	ui.Header("💡 " + name + " " + i18n.Get(lang, "explain.suffix"))
 	ui.Blank()
 
-	// topic이 아직 이 프로젝트에 없으면(예: k8s) 아래 내용이 전부 가정
-	// 시나리오라는 걸 코드가 결정한 사실로 먼저 알려준다 — AI 문장 톤에만
-	// 의존하면 모델이 매번 일관되게 가정법을 쓴다는 보장이 없다.
+	// topic이 프로젝트에 없으면(예: k8s) 이후 내용이 가정 시나리오임을 코드가 먼저 알린다 — AI 응답 톤에만 의존하면 가정법이 항상 지켜진다는 보장이 없다
 	if !explain.TopicPresent(status) {
 		printWrapped(" ⚠ ", i18n.Get(lang, "explain.notAdopted"))
 		ui.Blank()
 	}
 
-	// "현재 상태"(결정론적 ✓/✗ 사실)를 AI가 만든 서술보다 먼저 보여준다.
-	// 순서가 반대였을 땐 아직 도입 안 한 기술(예: k8s)도 마치 이미 쓰고
-	// 있는 것처럼 읽혀서, 맨 아래 ✗를 보기 전까진 오해할 수 있었다.
+	// "현재 상태"(결정론적 ✓/✗)를 AI 서술보다 먼저 보여준다 — 순서가 반대면 미도입 기술(예: k8s)도 이미 쓰는 것처럼 오인할 수 있다
 	ui.Line(i18n.Get(lang, "explain.currentStatus"))
 	ui.Blank()
 
@@ -175,9 +169,7 @@ func printWrapped(prefix, text string) {
 	}
 }
 
-// explainArgs : 첫 번째 인자는 유효한 topic이어야 하고, 두 번째 인자(경로)는
-// 선택 — 생략하면 현재 디렉터리(doctor/scan의 [path]와 동일 패턴).
-// cobra.OnlyValidArgs는 경로까지 topic으로 검사해버려서 못 씀
+// explainArgs : 1번째 인자는 유효한 topic, 2번째(경로)는 생략 가능(기본값 현재 디렉터리, doctor/scan의 [path]와 동일). cobra.OnlyValidArgs는 경로도 topic으로 검사해 못 쓴다
 func explainArgs(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 1 || len(args) > 2 {

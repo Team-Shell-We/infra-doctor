@@ -11,7 +11,7 @@ type Result struct {
 	Reasons []string `json:"reasons"`
 }
 
-// Parse: 모델 응답을 디코딩하고 검증 
+// Parse: 모델 응답을 디코딩하고 검증
 // reasons가 비어있으면 렌더링할 문구가 없다는 뜻이므로 실패로 처리
 func Parse(raw string) (*Result, error) {
 

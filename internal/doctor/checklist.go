@@ -9,8 +9,7 @@ type Check struct {
 	Passed   bool     `json:"passed"`
 }
 
-// Checklist : "Infrastructure Check" 섹션에 표시되는 고정된 인프라 체크
-// 항목들의 현재 통과/실패 상태를 반환
+// Checklist: "Infrastructure Check" 섹션에 표시되는 고정 인프라 체크 항목들의 통과/실패 상태를 반환한다
 func Checklist(info *project.Info) []Check {
 
 	return []Check{

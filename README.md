@@ -1,73 +1,66 @@
 # 🩺 Infra Doctor
 
-> **AI-powered Infrastructure Analysis CLI for Spring Boot Projects**
+[English](README_EN.md) | **한국어**
 
-Infra Doctor is a CLI tool that analyzes the current infrastructure of Spring Boot projects and helps developers understand, diagnose, visualize, and improve their deployment environment.
+> **Spring Boot 프로젝트를 위한 AI 기반 인프라 분석 CLI**
 
-It scans project configurations, detects infrastructure components, and provides actionable insights for modern DevOps practices.
+Infra Doctor는 Spring Boot 프로젝트의 현재 인프라 구성을 분석해서, 개발자가 배포 환경을 이해하고 진단하고 시각화하고 개선할 수 있도록 돕는 CLI 도구입니다.
+
+프로젝트 설정을 스캔하고 인프라 구성 요소를 감지해서, 실제로 적용 가능한 인사이트를 제공합니다.
 
 ---
 
-## ✨ Features
+## ✨ 기능
 
-| Category | Command | Description | Status |
+| 분류 | 명령어 | 설명 | 상태 |
 | :------ | :------ | :---------- | :----: |
-| 🔍 Analysis | `scan` | Scan the project and collect framework, database, Docker, CI/CD, profile, and infrastructure information. | ✅ |
-| 🩺 Diagnosis | `doctor` | Diagnose deployment readiness (0–100%) against a rule-based checklist and suggest infrastructure improvements. | ✅ |
-| 🤖 AI | `explain <topic>` | Explain how a specific infrastructure technology is used within the current project. | ✅ |
-| 🤖 AI | `recommend` | Recommend a deployment strategy (Docker Compose vs. Kubernetes) based on detected infrastructure complexity. | ✅ |
-| 🏗 Visualization | `visualize architecture` | Generate an architecture diagram of the current infrastructure. | ✅ |
-| 🏗 Visualization | `visualize flow` | Visualize the build and deployment workflow. | ✅ |
-| ⚙️ Generator | `generate <target>` | Generate infrastructure configuration files from scan results. | ✅ |
-| 📄 Export | `export` | Export the full analysis (report, diagrams, generated configs) into one directory. | ✅ |
+| 🔍 분석 | `scan` | 프로젝트를 스캔해 프레임워크, 데이터베이스, Docker, CI/CD, 프로파일, 인프라 정보를 수집합니다. | ✅ |
+| 🩺 진단 | `doctor` | 규칙 기반 체크리스트로 배포 준비도(0~100%)를 진단하고 개선 방향을 제안합니다. | ✅ |
+| 🤖 AI | `explain <topic>` | 특정 인프라 기술이 현재 프로젝트에서 어떻게 쓰이는지 설명합니다. | ✅ |
+| 🤖 AI | `recommend` | 감지된 인프라 복잡도를 기반으로 배포 전략(Docker Compose vs Kubernetes)을 추천합니다. | ✅ |
+| 🏗 시각화 | `visualize architecture` | 현재 인프라의 아키텍처 다이어그램을 생성합니다. | ✅ |
+| 🏗 시각화 | `visualize flow` | 빌드·배포 워크플로를 시각화합니다. | ✅ |
+| ⚙️ 생성 | `generate <target>` | 스캔 결과를 바탕으로 인프라 설정 파일을 생성합니다. | ✅ |
+| 📄 내보내기 | `export` | 전체 분석 결과(리포트, 다이어그램, 생성 파일)를 디렉터리 하나로 내보냅니다. | ✅ |
 
-> **Status**
+> **상태**
 >
-> - ✅ Available
-> - 🚧 In Progress
-> - 📅 Planned
+> - ✅ 완료
+> - 🚧 진행 중
+> - 📅 예정
 
-`explain`/`recommend` require `login` first. Their AI-generated sections are always grounded in facts the scanner already verified deterministically — the AI never invents which files exist, it only explains why they matter (see [docs/기능명세서.md](docs/기능명세서.md) for the full design rationale).
+`explain`/`recommend`는 먼저 `login`이 필요합니다. AI가 생성하는 내용은 항상 스캐너가 이미 결정론적으로 확인한 사실에 근거합니다 — AI는 어떤 파일이 있는지 지어내지 않고, 왜 그게 중요한지만 설명합니다 (전체 설계 근거는 [docs/기능명세서.md](docs/기능명세서.md) 참고).
 
-Both Gradle (`build.gradle`/`build.gradle.kts`) and Maven (`pom.xml`) projects are detected as a build tool. **Known limitation:** for Maven projects, only framework/dependency/database detection currently runs — Docker/Compose/Kubernetes/CI/profile detection is Gradle-only right now, so `doctor`/`recommend`/`export` will under-report readiness on an otherwise well-configured Maven project. Tracked as a bug to fix; see [docs/기능명세서.md](docs/기능명세서.md) for details.
-
-### Using `doctor` as a CI gate
-
-`doctor --json` prints the same result as machine-readable JSON instead of the box UI, and `--fail-under <score>` exits non-zero when the readiness score is below the threshold — combine them to fail a CI pipeline on infrastructure regressions:
-
-```bash
-infra-doctor doctor --fail-under 70
-infra-doctor doctor --json > doctor-result.json
-```
+Gradle(`build.gradle`/`build.gradle.kts`)과 Maven(`pom.xml`) 프로젝트 모두 빌드 도구로 감지됩니다. **알려진 한계:** Maven 프로젝트는 현재 프레임워크/의존성/데이터베이스 감지만 동작합니다 — Docker/Compose/Kubernetes/CI/프로파일 감지는 아직 Gradle 전용이라, 잘 갖춰진 Maven 프로젝트도 `doctor`/`recommend`/`export`가 준비도를 실제보다 낮게 보고할 수 있습니다. 수정 예정인 버그로 추적 중입니다. 자세한 내용은 [docs/기능명세서.md](docs/기능명세서.md) 참고.
 
 ---
 
-## 🔧 Utilities
+## 🔧 유틸리티
 
-| Command | Description | Status |
+| 명령어 | 설명 | 상태 |
 | :------ | :---------- | :----: |
-| `init` | Initialize Infra Doctor configuration for the current project. | ✅ |
-| `config` | View or update CLI configuration (LLM provider, output language, output format, auto-export). | ✅ |
-| `login` | Authenticate with an OpenAI API key to enable AI-powered features. | ✅ |
-| `update` | Check for the latest CLI version. | ✅ |
-| `version` | Display the current CLI version. | ✅ |
-| `help` | Show available commands and usage information. | ✅ |
-| `about` | Display project information and credits. | ✅ |
-| `donate` | Support the Infra Doctor project. | ✅ |
+| `init` | 현재 프로젝트에 Infra Doctor 설정을 초기화합니다. | ✅ |
+| `config` | CLI 설정(LLM 제공자, 출력 언어, 출력 형식, 자동 내보내기)을 보거나 변경합니다. | ✅ |
+| `login` | OpenAI API 키로 인증해 AI 기능을 활성화합니다. | ✅ |
+| `update` | 최신 CLI 버전을 확인합니다. | ✅ |
+| `version` | 현재 CLI 버전을 표시합니다. | ✅ |
+| `help` | 사용 가능한 명령어와 사용법을 보여줍니다. | ✅ |
+| `about` | 프로젝트 정보와 크레딧을 표시합니다. | ✅ |
+| `donate` | Infra Doctor 프로젝트를 후원합니다. | ✅ |
 
-> `config --lang ko` switches every command's fixed CLI text (labels, headers, messages) to Korean, and `explain`/`recommend` generate their AI text in that language too. The one thing still English-only is `doctor`'s diagnostic rule text (the `message`/`reason`/`fix` in `internal/doctor/rules/*.yaml`) — translating those needs a bilingual YAML field design that hasn't been done yet.
+> `config --lang ko`는 모든 명령어의 고정 CLI 텍스트(라벨, 헤더, 메시지)를 한글로 바꾸고, `explain`/`recommend`의 AI 텍스트도 같은 언어로 생성합니다. 아직 영어로만 나오는 건 `doctor`의 진단 룰 텍스트(`internal/doctor/rules/*.yaml`의 `message`/`reason`/`fix`)뿐입니다 — 번역하려면 이중 언어 YAML 필드 설계가 필요한데 아직 안 돼 있습니다.
 
 ---
 
-## 🚀 Installation
+## 🚀 설치
 
-### Install via Go
+### Go로 설치
 
 ```bash
 go install github.com/Team-Shell-We/infra-doctor@latest
 ```
 
-### Build from Source
+### 소스에서 빌드
 
 ```bash
 git clone https://github.com/Team-Shell-We/infra-doctor.git
@@ -79,244 +72,45 @@ go build -o infra-doctor
 
 ---
 
-## 📖 Usage
+## 📖 사용법
 
-### Typical workflow
+### 일반적인 흐름
 
-A new Spring Boot project usually goes through these commands in order:
+신규 Spring Boot 프로젝트는 보통 이 순서로 명령어를 씁니다.
 
 ```bash
 cd ~/workspace/my-project
 
-infra-doctor init                 # create .infra-doctor/config.yaml
-infra-doctor scan                 # see what's detected
-infra-doctor doctor                # see what's missing, and get a readiness score
-infra-doctor login                 # one-time, needed for explain/recommend
-infra-doctor recommend             # Docker Compose vs Kubernetes, with reasons
-infra-doctor generate compose      # write the files recommend pointed to
-infra-doctor doctor                # re-run to confirm the score went up
+infra-doctor init                 # .infra-doctor/config.yaml 생성
+infra-doctor scan                 # 뭐가 감지됐는지 확인
+infra-doctor doctor                # 부족한 것 확인 + 준비도 점수
+infra-doctor login                 # explain/recommend 쓰려면 최초 1회 필요
+infra-doctor recommend             # Docker Compose vs Kubernetes 추천 + 이유
+infra-doctor generate compose      # recommend가 안내한 파일 생성
+infra-doctor doctor                # 점수가 올랐는지 재확인
 infra-doctor visualize architecture
 ```
 
-`[path]` is optional on every command below — it defaults to the current directory.
+아래 모든 명령어에서 `[path]`는 생략 가능하며, 생략하면 현재 디렉터리를 씁니다.
 
-### `scan [path]`
-
-Prints detected framework, dependencies, database, infrastructure, CI/CD, and profiles. No flags, no login required.
-
-```bash
-infra-doctor scan
-infra-doctor scan ~/workspace/my-project
-```
-
-### `doctor [path]`
-
-Diagnoses deployment readiness as a 0–100% score plus a fix-it list. No login required.
-
-| Flag | Default | Description |
+| 명령어 | 주요 플래그 | 설명 |
 | :--- | :--- | :--- |
-| `--json` | `false` | Print the result as JSON instead of the box UI |
-| `--fail-under <score>` | *(unset)* | Exit with code 1 if the score is below this threshold |
+| `scan [path]` | – | 감지된 프레임워크/의존성/DB/인프라/CI/프로파일 요약 |
+| `doctor [path]` | `--json`, `--fail-under <score>` | 준비도 점수 + 개선 목록. CI 게이트로 사용 가능 |
+| `login` | – | OpenAI API 키 등록 (`explain`/`recommend` 사전 조건) |
+| `explain <topic> [path]` | – | topic: compose·container·docker·github-actions·image·k8s·nginx·postgres·rds·redis |
+| `recommend [path]` | – | Docker Compose vs Kubernetes 추천 + 이유 |
+| `generate <target> [path]` | `-f/--force`, `--dry-run`, `-o/--output-dir`, `--config` | target: docker·compose·nginx·ci·k8s·architecture |
+| `visualize architecture\|flow [path]` | `--format`, `--output` | ascii/mermaid/markdown 다이어그램 |
+| `export [path]` | `-f/--force`, `--dry-run` | 위 결과 전체를 `infra-doctor/` 디렉터리 하나로 |
+| `config [--lang en\|ko]` | – | CLI 설정 조회/변경 |
+| `init` | – | `.infra-doctor/config.yaml` 생성 |
 
-```bash
-infra-doctor doctor ~/workspace/my-project
-
-# CI gate: fail the build if readiness drops below 70
-infra-doctor doctor --fail-under 70
-
-# machine-readable output for other tooling
-infra-doctor doctor --json > doctor-result.json
-```
-
-### `login`
-
-Interactive prompt to store an OpenAI API key at `~/.infra-doctor/config.json` (required once, before `explain` or `recommend`).
-
-```bash
-infra-doctor login
-```
-
-### `explain <topic> [path]`
-
-Explains what a technology means for *this* project — grounded in what `scan` actually found, not a generic tutorial. Requires `login`.
-
-Valid topics: `compose`, `container`, `docker`, `github-actions`, `image`, `k8s`, `nginx`, `postgres`, `rds`, `redis`.
-
-```bash
-infra-doctor explain docker ~/workspace/my-project
-infra-doctor explain k8s        # works even if you haven't adopted k8s yet — says so explicitly
-```
-
-### `recommend [path]`
-
-Recommends Docker Compose vs. Kubernetes based on detected complexity signals (Kafka, relational DB, Redis, CI workflow count, API endpoint count, multi-module Gradle), and suggests the `generate` command(s) to close the gap. Requires `login`.
-
-```bash
-infra-doctor recommend ~/workspace/my-project
-```
-
-### `generate <target> [path]`
-
-Writes real infrastructure config files based on the scan + `doctor` diagnosis, not generic boilerplate — port, health path, and database env vars are filled in from what was actually detected.
-
-| Target | Produces |
-| :--- | :--- |
-| `docker` | `Dockerfile` |
-| `compose` | `docker-compose.yml` |
-| `nginx` | `nginx.conf` |
-| `ci` | `.github/workflows/*.yml` |
-| `k8s` | Kubernetes deployment/service/configmap manifests |
-| `architecture` | Whichever of the above `doctor` says is currently missing, generated together |
-
-| Flag | Default | Description |
-| :--- | :--- | :--- |
-| `-f`, `--force` | `false` | Overwrite files that already exist |
-| `--dry-run` | `false` | Print what would be written without writing it |
-| `-o`, `--output-dir` | *(project root)* | Directory to write generated files into |
-| `--config` | `.infra-doctor/config.yaml` | Path to an alternate config file |
-
-```bash
-infra-doctor generate docker ~/workspace/my-project
-infra-doctor generate compose --dry-run
-infra-doctor generate k8s --force
-```
-
-Customize the generated content by adding a `generate:` section to `.infra-doctor/config.yaml` (created by `init`):
-
-```yaml
-project:
-  name: my-service
-
-generate:
-  applicationPort: 8080
-  healthPath: /actuator/health
-  serviceName: my-service
-  dockerImage: my-service:latest
-  namespace: default
-  replicas: 2
-
-output:
-  directory: .infra-doctor/generated   # set by `init`; omit to write into the project root instead
-  overwrite: false
-```
-
-### `visualize architecture [path]` / `visualize flow [path]`
-
-`architecture` diagrams the current runtime infrastructure; `flow` diagrams the build-to-deploy pipeline (GitHub Actions workflow is searched for in the current or a parent directory). Neither needs login — both are drawn straight from `scan` results.
-
-| Flag | Default | Description |
-| :--- | :--- | :--- |
-| `--format` | `ascii` | `ascii`, `mermaid`, or `markdown` |
-| `--output` | *(stdout)* | Write to a file instead of printing |
-
-```bash
-infra-doctor visualize architecture
-infra-doctor visualize flow --format mermaid --output flow.md
-```
-
-### `config [--lang en\|ko]`
-
-Shows the current LLM provider, language, output format, and auto-export setting. `--lang` switches and persists the CLI's output language.
-
-```bash
-infra-doctor config
-infra-doctor config --lang ko
-```
-
-### `export [path]`
-
-Writes the full analysis — report, architecture/flow diagrams, and every `generate` target — into one `infra-doctor/` directory in the project, so you don't have to run each command separately. No login required (the report and diagrams are all deterministic; there's no AI-generated content in `export`'s output).
-
-| Flag | Default | Description |
-| :--- | :--- | :--- |
-| `-f`, `--force` | `false` | Overwrite files that already exist |
-| `--dry-run` | `false` | Print what would be written without writing it |
-
-```bash
-infra-doctor export ~/workspace/my-project
-```
-
-Produces:
-```text
-infra-doctor/
-├── report.md              # scan + doctor results
-├── architecture.md
-├── architecture.mmd
-├── deployment-flow.md
-├── recommendations.md     # doctor's fix list, sorted
-├── docker/
-│   ├── Dockerfile
-│   ├── .dockerignore
-│   └── docker-compose.yml
-├── kubernetes/
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   └── configmap.yaml
-└── github/
-    └── ci.yml
-```
-
-### `init`
-
-Detects that the current directory is a Spring Boot project and creates `.infra-doctor/config.yaml` + `.infra-doctor/.gitignore`. Run this once per project, before `generate`, if you want to customize output.
-
-```bash
-infra-doctor init
-```
-
-### Everything else
-
-`version`, `update`, `help`, `about`, and `donate` take no arguments and need no login — run any of them with `--help` for details.
+`version`, `update`, `help`, `about`, `donate`는 인자·로그인 없이 바로 씁니다. 각 명령어의 상세 동작과 출력 예시, `generate`/`init`의 설정 파일 스키마는 [docs/기능명세서.md](docs/기능명세서.md)를, 플래그 전체 목록은 `infra-doctor <command> --help`를 참고하세요.
 
 ---
 
-## 🧪 Testing
-
-Example projects are **not included** in this repository.
-
-To test Infra Doctor, prepare any Spring Boot project and run:
-
-```bash
-go run . scan <project-path>
-```
-
-Example
-
-```bash
-go run . scan ../spring-project
-```
-
-For richer analysis, the project may contain:
-
-```text
-build.gradle
-pom.xml
-
-Dockerfile
-docker-compose.yml
-
-.github/workflows/
-
-application.yml
-application-dev.yml
-application-prod.yml
-```
-
-The following directories are automatically excluded from analysis:
-
-```text
-.git/
-.gradle/
-.idea/
-build/
-node_modules/
-target/
-.infra-doctor/
-```
-
----
-
-## 📂 Project Structure
+## 📂 프로젝트 구조
 
 ```text
 infra-doctor
@@ -325,6 +119,7 @@ infra-doctor
 ├── docs
 ├── internal
 ├── scripts
+├── CONTRIBUTING.md
 ├── go.mod
 ├── main.go
 └── README.md
@@ -332,129 +127,33 @@ infra-doctor
 
 ---
 
-## 🛣️ Roadmap
+## 🛣️ 로드맵
 
-- [x] Project Scanner
-- [x] Framework Detection (Gradle; Maven partially — see note above)
-- [x] Database Detection
-- [x] Docker Detection
-- [x] Profile Detection
-- [x] GitHub Actions Analysis
-- [x] Docker Compose Analysis
-- [x] Deployment Doctor
-- [x] AI-powered Explain
-- [x] AI-powered Recommendation
-- [x] Infrastructure Visualization
-- [x] Configuration Generator
-- [x] Export Reports
-- [ ] Kubernetes Deep Analysis
-- [ ] SSH / EC2 Analysis
-- [ ] Full Multi-language Output
-
----
-
-## 🤝 Contributing
-
-Contributions are always welcome.
-
-If you'd like to contribute, please read the **Contributor Guide** section below before opening an Issue or Pull Request. For specific kinds of contributions, see:
-
-- [internal/doctor/rules/README.md](internal/doctor/rules/README.md) — adding or changing a diagnostic rule
-- [internal/i18n/README.md](internal/i18n/README.md) — adding or changing a translated string
+- [x] 프로젝트 스캐너
+- [x] 프레임워크 감지 (Gradle; Maven은 일부만 — 위 안내 참고)
+- [x] 데이터베이스 감지
+- [x] Docker 감지
+- [x] 프로파일 감지
+- [x] GitHub Actions 분석
+- [x] Docker Compose 분석
+- [x] 배포 진단(Doctor)
+- [x] AI 기반 Explain
+- [x] AI 기반 추천
+- [x] 인프라 시각화
+- [x] 설정 파일 생성기
+- [x] 리포트 내보내기
+- [ ] Kubernetes 심층 분석
+- [ ] SSH / EC2 분석
+- [ ] 전 명령어 다국어 출력
 
 ---
 
-## 👩‍💻 Contributor Guide
+## 🤝 기여하기
 
-### 1. Configure Git
-
-After cloning the repository, run the setup script once.
-
-**Windows (PowerShell)**
-
-```powershell
-.\scripts\setup.ps1
-```
-
-This script automatically configures:
-
-- Git Hooks (`.githooks`)
-- Commit Message Template (`.gitmessage`)
-
-You should see:
-
-```text
-Configuring Git...
-
-Done!
-[OK] Git Hooks configured
-[OK] Commit template configured
-```
+기여는 언제나 환영합니다. 개발 환경 설정, 변경 사항 테스트 방법, 진단 룰·번역 추가 방법은 [CONTRIBUTING.md](CONTRIBUTING.md)를 참고하세요.
 
 ---
 
-### 2. Prepare a Test Project
+## 📄 라이선스
 
-For development, prepare a Spring Boot project under the `examples` directory.
-
-```text
-infra-doctor
-├── .github
-├── cmd
-├── docs
-├── examples
-│   └── spring-gradle
-│       ├── <your-project>
-│       └── ...
-├── internal
-└── ...
-```
-
-Copy your Spring Boot project into `examples/spring-gradle`.
-
-For example:
-
-```text
-examples
-└── spring-gradle
-    └── .github
-    └── <your-project-name>
-        ├── gradle
-        ├── src
-        ├── build.gradle
-        ├── settings.gradle
-        ├── gradlew
-        ├── gradlew.bat
-        └── ...
-```
-
-Before committing, remove the following directories from the copied project:
-
-```text
-.git/
-.gradle/
-.idea/
-build/
-node_modules/
-target/
-```
-
-The test project is intended **only for local development and testing**. Do not include sensitive source code or production configuration files in the repository.
-
----
-
-### 3. Adding a Diagnostic Rule
-
-`doctor` checks are defined as YAML, not Go code. See [internal/doctor/rules/README.md](internal/doctor/rules/README.md) for the rule schema and PR checklist.
-
----
-
-### 4. Adding a Translation
-
-CLI output supports English/Korean via `internal/i18n`. See [internal/i18n/README.md](internal/i18n/README.md) for how to add a new string and which strings should stay untranslated.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
+이 프로젝트는 MIT License를 따릅니다.

@@ -22,10 +22,6 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 			return err
 		}
 
-		// --------------------------------------------------------
-		// Directory
-		// --------------------------------------------------------
-
 		if fileInfo.IsDir() {
 			if shouldSkipDir(fileInfo.Name()) {
 				return filepath.SkipDir
@@ -33,15 +29,7 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 			return nil
 		}
 
-		// --------------------------------------------------------
-		// Infrastructure Files
-		// --------------------------------------------------------
-
 		switch fileInfo.Name() {
-
-		// ----------------------------
-		// Docker
-		// ----------------------------
 
 		case "Dockerfile":
 
@@ -61,10 +49,6 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 				info.HealthCheck.Enabled = true
 			}
 
-		// ----------------------------
-		// Docker Compose
-		// ----------------------------
-
 		case "docker-compose.yml",
 			"docker-compose.yaml":
 
@@ -81,10 +65,6 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 
 				info.HealthCheck.Enabled = true
 			}
-
-		// ----------------------------
-		// Kubernetes
-		// ----------------------------
 
 		case "Chart.yaml",
 			"deployment.yaml",
@@ -113,17 +93,9 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 				}
 			}
 
-		// ----------------------------
-		// Nginx
-		// ----------------------------
-
 		case "nginx.conf":
 
 			info.Nginx.Enabled = true
-
-		// ----------------------------
-		// Monitoring
-		// ----------------------------
 
 		case "prometheus.yml",
 			"prometheus.yaml",
@@ -131,17 +103,9 @@ func AnalyzeInfrastructure(root string) (*project.InfrastructureInfo, error) {
 
 			info.Monitoring.Enabled = true
 
-		// ----------------------------
-		// Log Rotation
-		// ----------------------------
-
 		case "logrotate.conf":
 
 			info.LogRotation.Enabled = true
-
-		// ----------------------------
-		// DB Backup
-		// ----------------------------
 
 		case "backup.sh":
 

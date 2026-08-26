@@ -8,10 +8,9 @@ import (
 
 func PrintDonateInfo(lang string) {
 	fmt.Printf(`
-        ❤️ %s
+❤️ %s
 
-		GitHub Sponsors
-
-		https://github.com/Team-Shell-We/infra-doctor
+Ko-fi
+https://ko-fi.com/shellwe
 `, i18n.Get(lang, "donate.thanks"))
 }

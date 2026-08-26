@@ -4,7 +4,6 @@ import "fmt"
 
 type Target string
 
-// 사용자가 입력한 값이 Target 타입에 정의된 값인지 확인하는 함수입니다.
 const (
 	TargetDocker       Target = "docker"
 	TargetCompose      Target = "compose"
@@ -25,6 +24,7 @@ func Targets() []Target {
 	}
 }
 
+// ParseTarget : 사용자가 입력한 값이 Target 타입에 정의된 값인지 확인
 func ParseTarget(value string) (Target, error) {
 	target := Target(value)
 

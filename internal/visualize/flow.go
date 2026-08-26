@@ -7,6 +7,7 @@ import (
 
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 )
+
 func BuildDeploymentFlow(root string, info project.Info) (Diagram, error) {
 	workflowText, err := workflowContents(
 		root,
@@ -57,7 +58,6 @@ func BuildDeploymentFlow(root string, info project.Info) (Diagram, error) {
 		Pipeline,
 	)
 
-	// 워크플로가 하나 이상이면 GitHub Actions를 사용하는 것으로 판단한다.
 	if len(info.Github.Workflows) > 0 {
 		addStep(
 			"github-actions",
@@ -66,7 +66,6 @@ func BuildDeploymentFlow(root string, info project.Info) (Diagram, error) {
 		)
 	}
 
-	// analyzer가 감지한 빌드 도구를 우선 사용한다.
 	if build := detectedBuild(root, info); build != "" {
 		addStep(
 			"build",
@@ -75,7 +74,6 @@ func BuildDeploymentFlow(root string, info project.Info) (Diagram, error) {
 		)
 	}
 
-	// analyzer 분석 결과 또는 프로젝트 루트의 Dockerfile로 판단한다.
 	hasDocker := info.Infrastructure.Docker.Enabled ||
 		fileExists(filepath.Join(root, "Dockerfile"))
 
@@ -127,7 +125,7 @@ func BuildDeploymentFlow(root string, info project.Info) (Diagram, error) {
 	return diagram, nil
 }
 
-// workflowContents reads all discovered GitHub Actions workflow files.
+// workflowContents는 발견된 GitHub Actions 워크플로 파일을 모두 읽는다.
 func workflowContents(
 	root string,
 	workflows []project.WorkflowInfo,
@@ -161,16 +159,14 @@ func workflowContents(
 	return strings.ToLower(contents.String()), nil
 }
 
-// detectedBuild returns the detected build-tool label.
+// detectedBuild : analyzer가 감지한 빌드 도구를 우선 쓰고, 없으면 대표 파일로 판단한다.
 func detectedBuild(root string, info project.Info) string {
-	// analyzer가 이미 감지한 정보가 있으면 우선 사용한다.
 	if build := strings.TrimSpace(
 		info.Framework.BuildTool.Type,
 	); build != "" {
 		return build
 	}
 
-	// 분석 결과가 없다면 대표 파일을 직접 확인한다.
 	candidates := []struct {
 		name  string
 		label string

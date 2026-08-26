@@ -5,7 +5,7 @@ import (
 	"errors"
 )
 
-// CompletionRequest: 단발성 요청. 
+// CompletionRequest: 단발성 요청.
 // 모든 AI 명령어는 미리 만든 system/user 프롬프트 하나씩 보내고 구조화된 답 하나만 받음
 type CompletionRequest struct {
 	Model        string // 비어있으면 provider 기본 모델

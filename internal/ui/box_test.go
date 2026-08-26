@@ -25,7 +25,6 @@ func TestCenterASCII(t *testing.T) {
 	}
 }
 
-
 func TestExportedLayoutHelpers(t *testing.T) {
 	if got := DisplayWidth(Center("한글", 10)); got != 10 {
 		t.Fatalf("Center display width = %d, want 10", got)
@@ -34,7 +33,6 @@ func TestExportedLayoutHelpers(t *testing.T) {
 		t.Fatalf("PadRight display width = %d, want 10", got)
 	}
 }
-
 
 func TestCenterTextLongerThanWidth(t *testing.T) {
 
@@ -74,6 +72,58 @@ func TestWrapUsesDisplayWidthNotByteLength(t *testing.T) {
 
 	if len(lines) != 2 {
 		t.Errorf("Wrap(\"한글 한글 한글\", 9) produced %d lines, want 2 (got %q)", len(lines), lines)
+	}
+}
+
+// 회귀 테스트: 공백 없는 긴 토큰(URL 등)이 박스 폭보다 넓으면 강제로
+// 끊어야 함 — 안 그러면 그 줄만 박스 테두리를 뚫고 나감
+func TestWrapForceSplitsTokenLongerThanWidth(t *testing.T) {
+
+	longURL := "https://example.com/very/long/path/that/exceeds/the/box/width/entirely"
+
+	lines := Wrap(longURL, 20)
+
+	for _, line := range lines {
+		if DisplayWidth(line) > 20 {
+			t.Errorf("Wrap line %q has display width %d, want <= 20", line, DisplayWidth(line))
+		}
+	}
+
+	if strings.Join(lines, "") != longURL {
+		t.Errorf("Wrap(%q, 20) lost or altered content, got %q", longURL, lines)
+	}
+}
+
+// 회귀 테스트: 긴 토큰 앞뒤에 짧은 단어가 있어도 각 줄이 폭을 넘지 않아야 함
+func TestWrapForceSplitsTokenWithSurroundingWords(t *testing.T) {
+
+	text := "see https://example.com/very/long/path/that/exceeds/the/box/width for details"
+
+	lines := Wrap(text, 20)
+
+	for _, line := range lines {
+		if DisplayWidth(line) > 20 {
+			t.Errorf("Wrap line %q has display width %d, want <= 20", line, DisplayWidth(line))
+		}
+	}
+}
+
+// 회귀 테스트: 와이드 문자(한글)로 된 긴 토큰을 강제로 끊을 때도
+// 글자 중간이 아니라 룬 경계에서 잘려야 함(깨진 문자 방지)
+func TestWrapForceSplitsWideCharTokenAtRuneBoundary(t *testing.T) {
+
+	longToken := "가나다라마바사아자차카타파하가나다라마바사아자차카타파하"
+
+	lines := Wrap(longToken, 10)
+
+	for _, line := range lines {
+		if DisplayWidth(line) > 10 {
+			t.Errorf("Wrap line %q has display width %d, want <= 10", line, DisplayWidth(line))
+		}
+	}
+
+	if strings.Join(lines, "") != longToken {
+		t.Errorf("Wrap(%q, 10) lost or altered content, got %q", longToken, lines)
 	}
 }
 
