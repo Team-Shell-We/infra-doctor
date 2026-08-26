@@ -74,9 +74,8 @@ go build -o infra-doctor
 
 ## 📖 사용법
 
-### 일반적인 흐름
+### Flow
 
-신규 Spring Boot 프로젝트는 보통 이 순서로 명령어를 씁니다.
 
 ```bash
 cd ~/workspace/my-project
@@ -150,10 +149,10 @@ infra-doctor
 
 ## 🤝 기여하기
 
-기여는 언제나 환영합니다. 개발 환경 설정, 변경 사항 테스트 방법, 진단 룰·번역 추가 방법은 [CONTRIBUTING.md](CONTRIBUTING.md)를 참고하세요.
+개발 환경 설정, 변경 사항 테스트 방법, 진단 룰·번역 추가 방법은 [CONTRIBUTING.md](CONTRIBUTING.md)를 참고하세요.
 
 ---
 
-## 📄 라이선스
+## 📄 License
 
 이 프로젝트는 MIT License를 따릅니다.
