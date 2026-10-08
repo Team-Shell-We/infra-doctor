@@ -27,12 +27,12 @@ var visualizeArchitectureCmd = &cobra.Command{
 
 		diagram := visualize.Build(*info)
 
-		return writeVisualization(
-			diagram,
-			architectureFormat,
-			architectureOutput,
-			cmd,
-		)
+		content, err := visualize.Render(diagram, visualize.Format(architectureFormat))
+		if err != nil {
+			return err
+		}
+
+		return writeVisualization(content, architectureOutput, cmd)
 	},
 }
 

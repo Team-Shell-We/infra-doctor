@@ -56,12 +56,12 @@ var visualizeFlowCmd = &cobra.Command{
 			return err
 		}
 
-		return writeVisualization(
-			diagram,
-			flowFormat,
-			flowOutput,
-			cmd,
-		)
+		content, err := visualize.Render(diagram, visualize.Format(flowFormat))
+		if err != nil {
+			return err
+		}
+
+		return writeVisualization(content, flowOutput, cmd)
 	},
 }
 
