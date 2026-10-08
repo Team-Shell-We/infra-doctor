@@ -8,6 +8,50 @@ type Info struct {
 	Github         GithubInfo
 	Profiles       []ProfileInfo
 	API            APIInfo
+	Schema         SchemaInfo
+}
+
+// SchemaInfo : JPA 엔티티/관계 정적 분석 결과
+type SchemaInfo struct {
+	Entities      []EntityInfo
+	Relationships []RelationshipInfo
+}
+
+// EntityInfo : @Entity 클래스 하나에 대한 정보
+type EntityInfo struct {
+	Name    string // 클래스명, 예: "FacilityReview"
+	Table   string // @Table(name=...), 없으면 ""
+	File    string // 표시용 상대 경로
+	Columns []ColumnInfo
+	Indexes []IndexInfo
+}
+
+type ColumnInfo struct {
+	Field     string
+	Column    string // @Column(name=...), 없으면 Field와 동일
+	Type      string // Java 필드 타입, 예: "Long", "String"
+	Nullable  bool
+	Unique    bool
+	IsID      bool
+	Inherited bool // @MappedSuperclass 부모 클래스에서 병합된 필드인지
+}
+
+// IndexInfo : @Table(indexes = {@Index(...)}) 항목 하나
+type IndexInfo struct {
+	Name    string
+	Columns []string
+}
+
+// RelationshipInfo : @OneToOne/@OneToMany/@ManyToOne/@ManyToMany 필드 하나에 대한 선언
+type RelationshipInfo struct {
+	From       string // 선언한 엔티티
+	To         string // 대상 엔티티(컬렉션 래퍼 제거한 타입)
+	Type       string // "OneToOne" | "OneToMany" | "ManyToOne" | "ManyToMany"
+	Field      string
+	JoinColumn string // 소유 측 @JoinColumn(name=...), 없으면 ""
+	MappedBy   string // 역방향 측 mappedBy 값, 없으면 ""
+	Fetch      string // "LAZY" | "EAGER" | "" (미지정)
+	Cascade    string // 원문 그대로, 예: "ALL" (CascadeType.ALL 포함 여부 판단용)
 }
 
 type FrameworkInfo struct {
@@ -29,13 +73,20 @@ type APIInfo struct {
 }
 
 type DependencyInfo struct {
-	Security SecurityInfo
-	JPA      JPAInfo
-	Kafka    KafkaInfo
-	AWS      AWSInfo
-	Lombok   LombokInfo
-	Actuator ActuatorInfo
-	OpenAPI  OpenAPIInfo
+	Security  SecurityInfo
+	JPA       JPAInfo
+	Kafka     KafkaInfo
+	AWS       AWSInfo
+	Lombok    LombokInfo
+	Actuator  ActuatorInfo
+	OpenAPI   OpenAPIInfo
+	Migration MigrationInfo
+}
+
+// MigrationInfo : 스키마 마이그레이션 도구(Flyway/Liquibase) 사용 여부
+type MigrationInfo struct {
+	Enabled bool
+	Tool    string // "Flyway" | "Liquibase"
 }
 
 // SecurityInfo : 프로젝트에서 사용하는 Spring Security 정보
