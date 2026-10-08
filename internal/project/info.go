@@ -9,6 +9,7 @@ type Info struct {
 	Profiles       []ProfileInfo
 	API            APIInfo
 	Schema         SchemaInfo
+	Caching        CachingInfo
 }
 
 // SchemaInfo : JPA 엔티티/관계 정적 분석 결과
@@ -52,6 +53,13 @@ type RelationshipInfo struct {
 	MappedBy   string // 역방향 측 mappedBy 값, 없으면 ""
 	Fetch      string // "LAZY" | "EAGER" | "" (미지정)
 	Cascade    string // 원문 그대로, 예: "ALL" (CascadeType.ALL 포함 여부 판단용)
+}
+
+// CachingInfo : 캐시 어노테이션·세션/토큰 저장 패턴 탐지 결과
+type CachingInfo struct {
+	CacheableCount  int      // @Cacheable/@CachePut/@CacheEvict 총 개수
+	HasCacheConfig  bool     // @CacheConfig 존재 여부
+	TokenCandidates []string // RefreshToken/Session류 클래스명
 }
 
 type FrameworkInfo struct {

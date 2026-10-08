@@ -59,6 +59,7 @@ func BuildStatus(topic string, info *project.Info) []StatusItem {
 	case "redis":
 		return []StatusItem{
 			{"Redis", info.Database.Redis != nil},
+			{"@Cacheable/@CachePut/@CacheEvict usage", info.Caching.CacheableCount > 0},
 		}
 	}
 
