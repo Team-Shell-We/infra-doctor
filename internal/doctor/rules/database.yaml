@@ -1,0 +1,83 @@
+database:
+  unindexed_foreign_key:
+
+    category: Database
+    level: Warning
+    score: -10
+
+    title: Foreign key columns are missing indexes
+
+    message: >
+      At least one @JoinColumn is not covered by a @Table(indexes = ...) entry
+      on its owning entity.
+
+    reason: >
+      Several databases (PostgreSQL among them) do not automatically index
+      foreign key columns, so joins and cascading deletes on those columns can
+      end up scanning the whole table.
+
+    fix: >
+      Add an explicit index for each foreign key column via
+      @Table(indexes = { @Index(columnList = "...") }).
+
+  eager_fetch_risk:
+
+    category: Database
+    level: Warning
+    score: -10
+
+    title: Relationships default to eager fetching
+
+    message: >
+      At least one @ManyToOne or @OneToOne relationship does not set
+      fetch = FetchType.LAZY.
+
+    reason: >
+      @ManyToOne and @OneToOne default to FetchType.EAGER, so every query for
+      the owning entity silently loads the related entity too, which adds up
+      to unnecessary joins and N+1 queries as the schema grows.
+
+    fix: >
+      Add fetch = FetchType.LAZY to every @ManyToOne and @OneToOne field.
+
+  cascade_all_on_many_to_one:
+
+    category: Database
+    level: Warning
+    score: -10
+
+    title: CascadeType.ALL on a child-to-parent relationship
+
+    message: >
+      At least one @ManyToOne or @OneToOne relationship declares
+      cascade = CascadeType.ALL.
+
+    reason: >
+      CascadeType.ALL on the child-to-parent side propagates persist/remove
+      operations upward, so saving or deleting a child can unintentionally
+      modify or delete the shared parent entity.
+
+    fix: >
+      Remove CascadeType.ALL from the @ManyToOne/@OneToOne side; keep cascading
+      ownership on the parent's @OneToMany/@OneToOne side instead.
+
+  no_migration_tool:
+
+    category: Database
+    level: Critical
+    score: -20
+
+    title: No schema migration tool is configured
+
+    message: >
+      A relational database is in use, but neither Flyway nor Liquibase was
+      detected.
+
+    reason: >
+      Without a migration tool, schema changes rely on Hibernate's
+      ddl-auto (or manual scripts), which makes production schema changes
+      unversioned and hard to roll back.
+
+    fix: >
+      Add Flyway (or Liquibase) and keep schema changes as versioned
+      migration scripts.

@@ -35,6 +35,7 @@ func TestRuleRegistrySchema(t *testing.T) {
 		"deployment": registry.Deployment,
 		"production": registry.Production,
 		"localdev":   registry.LocalDev,
+		"database":   registry.Database,
 	}
 
 	seenIDs := make(map[string]string)
