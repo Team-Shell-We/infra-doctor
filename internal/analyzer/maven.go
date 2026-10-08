@@ -215,6 +215,12 @@ func extractMavenDependencies(
 
 		case strings.Contains(artifactID, "springdoc-openapi"):
 			result.OpenAPI.Enabled = true
+
+		case artifactID == "flyway-core":
+			result.Migration = project.MigrationInfo{Enabled: true, Tool: "Flyway"}
+
+		case strings.Contains(artifactID, "liquibase"):
+			result.Migration = project.MigrationInfo{Enabled: true, Tool: "Liquibase"}
 		}
 	}
 }

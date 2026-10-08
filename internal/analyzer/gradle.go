@@ -86,6 +86,14 @@ func AnalyzeGradle(buildFile string) (
 	}
 
 	switch {
+	case strings.Contains(lowerText, "flyway"):
+		dependency.Migration = project.MigrationInfo{Enabled: true, Tool: "Flyway"}
+
+	case strings.Contains(lowerText, "liquibase"):
+		dependency.Migration = project.MigrationInfo{Enabled: true, Tool: "Liquibase"}
+	}
+
+	switch {
 	case strings.Contains(lowerText, "postgresql"):
 		database.Primary.Type = "PostgreSQL"
 

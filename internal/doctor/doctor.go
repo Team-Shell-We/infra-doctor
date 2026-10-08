@@ -12,6 +12,7 @@ func Analyze(info *project.Info) *Result {
 		DeploymentRule{},
 		LocalDevelopmentRule{},
 		ProductionRule{},
+		DatabaseRule{},
 	}
 
 	for _, rule := range rules {

@@ -72,6 +72,18 @@ func AnalyzeProject(root string) (*project.Info, error) {
 	}
 	info.API = *api
 
+	schema, err := AnalyzeEntities(root)
+	if err != nil {
+		return nil, err
+	}
+	info.Schema = *schema
+
+	caching, err := AnalyzeCaching(root)
+	if err != nil {
+		return nil, err
+	}
+	info.Caching = *caching
+
 	profiles, err := FindProfiles(root)
 	if err != nil {
 		return nil, err

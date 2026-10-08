@@ -35,10 +35,15 @@ type localDevRuleFile struct {
 	LocalDev map[string]RuleDefinition `yaml:"localdev"`
 }
 
+type databaseRuleFile struct {
+	Database map[string]RuleDefinition `yaml:"database"`
+}
+
 type RuleRegistry struct {
 	Deployment map[string]Diagnosis
 	Production map[string]Diagnosis
 	LocalDev   map[string]Diagnosis
+	Database   map[string]Diagnosis
 }
 
 var (
@@ -56,6 +61,7 @@ func LoadRules() (*RuleRegistry, error) {
 			Deployment: make(map[string]Diagnosis),
 			Production: make(map[string]Diagnosis),
 			LocalDev:   make(map[string]Diagnosis),
+			Database:   make(map[string]Diagnosis),
 		}
 
 		if loadErr = loadDeploymentRules(registry); loadErr != nil {
@@ -66,7 +72,11 @@ func LoadRules() (*RuleRegistry, error) {
 			return
 		}
 
-		loadErr = loadLocalDevRules(registry)
+		if loadErr = loadLocalDevRules(registry); loadErr != nil {
+			return
+		}
+
+		loadErr = loadDatabaseRules(registry)
 	})
 
 	return registry, loadErr
@@ -132,6 +142,26 @@ func loadLocalDevRules(registry *RuleRegistry) error {
 	return nil
 }
 
+func loadDatabaseRules(registry *RuleRegistry) error {
+
+	data, err := rulesFS.ReadFile("rules/database.yaml")
+	if err != nil {
+		return err
+	}
+
+	var file databaseRuleFile
+
+	if err := yaml.Unmarshal(data, &file); err != nil {
+		return err
+	}
+
+	for id, rule := range file.Database {
+		registry.Database[id] = toDiagnosis(rule)
+	}
+
+	return nil
+}
+
 func toDiagnosis(rule RuleDefinition) Diagnosis {
 
 	return Diagnosis{
@@ -172,6 +202,16 @@ func (r *RuleRegistry) LocalDevRule(id string) (Diagnosis, error) {
 	rule, ok := r.LocalDev[id]
 	if !ok {
 		return Diagnosis{}, fmt.Errorf("localdev rule '%s' not found", id)
+	}
+
+	return rule, nil
+}
+
+func (r *RuleRegistry) DatabaseRule(id string) (Diagnosis, error) {
+
+	rule, ok := r.Database[id]
+	if !ok {
+		return Diagnosis{}, fmt.Errorf("database rule '%s' not found", id)
 	}
 
 	return rule, nil

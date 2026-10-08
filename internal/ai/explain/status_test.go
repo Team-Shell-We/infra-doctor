@@ -54,8 +54,8 @@ func TestBuildStatusRedisAbsent(t *testing.T) {
 
 	status := BuildStatus("redis", &project.Info{})
 
-	if len(status) != 1 || status[0].Label != "Redis" || status[0].Present {
-		t.Errorf("expected exactly one absent Redis status item, got %+v", status)
+	if len(status) == 0 || status[0].Label != "Redis" || status[0].Present {
+		t.Errorf("expected the first Redis status item to be absent, got %+v", status)
 	}
 }
 
@@ -66,8 +66,21 @@ func TestBuildStatusRedisPresent(t *testing.T) {
 
 	status := BuildStatus("redis", info)
 
-	if len(status) != 1 || !status[0].Present {
+	if len(status) == 0 || !status[0].Present {
 		t.Errorf("expected Redis to be reported present, got %+v", status)
+	}
+}
+
+func TestBuildStatusRedisReportsCacheAnnotationUsage(t *testing.T) {
+
+	info := &project.Info{}
+	info.Database.Redis = &project.RedisInfo{Enabled: true}
+	info.Caching.CacheableCount = 3
+
+	status := BuildStatus("redis", info)
+
+	if len(status) != 2 || !status[1].Present {
+		t.Errorf("expected a second, present status item for cache annotation usage, got %+v", status)
 	}
 }
 
