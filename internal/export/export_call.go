@@ -18,6 +18,7 @@ import (
 	"github.com/Team-Shell-We/infra-doctor/internal/generate/nginx"
 	"github.com/Team-Shell-We/infra-doctor/internal/project"
 	"github.com/Team-Shell-We/infra-doctor/internal/visualize"
+	"github.com/Team-Shell-We/infra-doctor/internal/visualize/erd"
 )
 
 const OutputDirectory = "infra-doctor"
@@ -26,6 +27,7 @@ type Request struct {
 	Root   string
 	Force  bool
 	DryRun bool
+	Select bool
 	Lang   string
 }
 
@@ -39,7 +41,7 @@ func NewApplication() *Application {
 	return &Application{Analyze: analyzer.AnalyzeProject, Diagnose: doctor.Analyze, Writer: generate.Writer{}}
 }
 
-func (a *Application) Run(_ context.Context, request Request, output io.Writer) error {
+func (a *Application) Run(_ context.Context, request Request, input io.Reader, output io.Writer) error {
 	root := request.Root
 	if root == "" {
 		root = "."
@@ -58,6 +60,13 @@ func (a *Application) Run(_ context.Context, request Request, output io.Writer) 
 	files, warnings, err := buildFiles(root, *info, diagnosis, request.Lang)
 	if err != nil {
 		return err
+	}
+
+	if request.Select {
+		files, err = PromptSelection(input, output, Categorize(files), request.Lang)
+		if err != nil {
+			return err
+		}
 	}
 
 	result, err := a.Writer.Write(filepath.Join(root, OutputDirectory), files, generate.WriteOptions{Overwrite: request.Force, DryRun: request.DryRun})
@@ -87,10 +96,22 @@ func buildFiles(root string, info project.Info, diagnosis *doctor.Result, lang s
 		return nil, nil, err
 	}
 
+	erdDiagram := erd.Build(info)
+	erdMarkdown, err := erd.Render(erdDiagram, erd.Markdown)
+	if err != nil {
+		return nil, nil, err
+	}
+	erdMermaid, err := erd.Render(erdDiagram, erd.Mermaid)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	files := []generate.File{
 		textFile("report.md", renderReport(info, diagnosis)),
 		textFile("architecture.md", architectureMarkdown),
 		textFile("architecture.mmd", architectureMermaid),
+		textFile("erd.md", erdMarkdown),
+		textFile("erd.mmd", erdMermaid),
 		textFile("deployment-flow.md", flowMarkdown),
 		textFile("recommendations.md", renderRecommendations(diagnosis)),
 	}

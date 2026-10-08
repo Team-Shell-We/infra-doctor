@@ -9,7 +9,7 @@ import (
 )
 
 type ExportRunner interface {
-	Run(context.Context, exportapp.Request, io.Writer) error
+	Run(context.Context, exportapp.Request, io.Reader, io.Writer) error
 }
 
 func exportCommand(runner ExportRunner) *cobra.Command {
@@ -22,11 +22,12 @@ func exportCommand(runner ExportRunner) *cobra.Command {
 				request.Root = args[0]
 			}
 			request.Lang = currentLang()
-			return runner.Run(command.Context(), request, command.OutOrStdout())
+			return runner.Run(command.Context(), request, command.InOrStdin(), command.OutOrStdout())
 		},
 	}
 	command.Flags().BoolVarP(&request.Force, "force", "f", false, "overwrite existing export files")
 	command.Flags().BoolVar(&request.DryRun, "dry-run", false, "show export files without writing")
+	command.Flags().BoolVar(&request.Select, "select", false, "choose which export items to include interactively")
 	return command
 }
 

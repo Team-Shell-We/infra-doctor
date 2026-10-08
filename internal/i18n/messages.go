@@ -148,6 +148,21 @@ var messages = map[string]map[string]string{
 		// donate
 		"donate.thanks": "Thank you for supporting Infra Doctor!",
 
+		// export --select
+		"export.select.title":                    "Export Selection",
+		"export.select.instructions":             "Choose items to export (comma-separated numbers, or \"all\"):",
+		"export.select.prompt":                   "Select: ",
+		"export.select.invalidChoice":            "Invalid selection. Run 'infra-doctor export --select' again and choose valid numbers or \"all\".",
+		"export.select.empty":                    "Nothing was selected, so nothing was exported.",
+		"export.select.category.report":          "Analysis report (report.md)",
+		"export.select.category.architecture":    "Architecture diagram (architecture.md/.mmd)",
+		"export.select.category.erd":             "Entity-Relationship diagram (erd.md/.mmd)",
+		"export.select.category.flow":            "Deployment flow diagram (deployment-flow.md)",
+		"export.select.category.recommendations": "Recommendations (recommendations.md)",
+		"export.select.category.docker":          "Docker/Compose/Nginx config (docker/)",
+		"export.select.category.kubernetes":      "Kubernetes manifests (kubernetes/)",
+		"export.select.category.github":          "GitHub Actions workflow (github/)",
+
 		// common (모든 명령어에서 공유)
 		"common.notLoggedIn":  "You're not logged in. Run 'infra-doctor login' to set up your OpenAI API Key first.",
 		"common.openaiFailed": "Failed to reach OpenAI: %v",
@@ -295,6 +310,21 @@ var messages = map[string]map[string]string{
 
 		// donate
 		"donate.thanks": "Infra Doctor를 후원해주셔서 감사합니다!",
+
+		// export --select
+		"export.select.title":                    "내보내기 항목 선택",
+		"export.select.instructions":             "내보낼 항목을 선택하세요 (쉼표로 구분한 번호, 또는 \"all\"):",
+		"export.select.prompt":                   "선택: ",
+		"export.select.invalidChoice":            "선택이 올바르지 않습니다. 'infra-doctor export --select'를 다시 실행해 올바른 번호나 \"all\"을 입력하세요.",
+		"export.select.empty":                    "선택한 항목이 없어 아무것도 내보내지 않았습니다.",
+		"export.select.category.report":          "분석 리포트 (report.md)",
+		"export.select.category.architecture":    "아키텍처 다이어그램 (architecture.md/.mmd)",
+		"export.select.category.erd":             "ERD 다이어그램 (erd.md/.mmd)",
+		"export.select.category.flow":            "배포 플로우 다이어그램 (deployment-flow.md)",
+		"export.select.category.recommendations": "개선 권장사항 (recommendations.md)",
+		"export.select.category.docker":          "Docker/Compose/Nginx 설정 (docker/)",
+		"export.select.category.kubernetes":      "Kubernetes 매니페스트 (kubernetes/)",
+		"export.select.category.github":          "GitHub Actions 워크플로 (github/)",
 
 		// common (모든 명령어에서 공유)
 		"common.notLoggedIn":  "로그인이 필요합니다. 'infra-doctor login'으로 먼저 OpenAI API 키를 설정해주세요.",
