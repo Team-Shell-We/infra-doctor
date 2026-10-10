@@ -44,6 +44,7 @@ var messages = map[string]map[string]string{
 		"doctor.check.monitoring":    "Monitoring",
 		"doctor.check.logRotation":   "Log Rotation",
 		"doctor.check.dbBackup":      "DB Backup",
+		"doctor.aiAnalysis":          "AI Analysis",
 
 		// login
 		"login.title":              "Login",
@@ -207,6 +208,7 @@ var messages = map[string]map[string]string{
 		"doctor.check.monitoring":    "모니터링",
 		"doctor.check.logRotation":   "로그 로테이션",
 		"doctor.check.dbBackup":      "DB 백업",
+		"doctor.aiAnalysis":          "AI 분석",
 
 		// login
 		"login.title":              "로그인",
