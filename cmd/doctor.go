@@ -3,12 +3,18 @@ package cmd
 // doctor 명령 : 경로를 분석해 준비도 점수·체크리스트(Docker/Compose/헬스체크/리버스프록시/모니터링/로그 로테이션/DB 백업)·추천·다음 단계를 출력한다
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strings"
+	"time"
 
+	"github.com/Team-Shell-We/infra-doctor/internal/ai"
+	"github.com/Team-Shell-We/infra-doctor/internal/ai/openai"
+	"github.com/Team-Shell-We/infra-doctor/internal/ai/recommend"
 	"github.com/Team-Shell-We/infra-doctor/internal/analyzer"
 	"github.com/Team-Shell-We/infra-doctor/internal/doctor"
 	"github.com/Team-Shell-We/infra-doctor/internal/i18n"
@@ -21,6 +27,7 @@ import (
 var (
 	doctorJSON      bool
 	doctorFailUnder int
+	doctorAI        bool
 )
 
 // doctorCheckNameKeys : Checklist()가 반환하는 영어 체크명을 렌더링 시점에 i18n key로 매핑한다(internal/doctor는 그대로 둠)
@@ -64,12 +71,70 @@ var doctorCmd = &cobra.Command{
 			}
 		} else {
 			printDoctorBox(lang, info, result)
+
+			if doctorAI {
+				printDoctorAIAnalysis(lang, info)
+			}
 		}
 
 		if doctorShouldFail(result.Score, doctorFailUnder, cmd.Flags().Changed("fail-under")) {
 			os.Exit(1)
 		}
 	},
+}
+
+// printDoctorAIAnalysis : --ai가 있을 때만 호출된다. recommend 파이프라인(internal/ai/recommend)을
+// 그대로 재사용해 배포 전략 추천과 그 이유를 보여준다. 위의 점수·체크리스트·권장사항은 이미
+// 100% 결정론적으로 출력된 뒤라, 로그인이 안 돼 있거나 API 호출이 실패해도 그 결과는 전혀
+// 영향받지 않고 AI 섹션만 생략된다.
+func printDoctorAIAnalysis(lang string, info *project.Info) {
+
+	creds, err := ai.Load()
+	if err != nil {
+		if errors.Is(err, ai.ErrNotLoggedIn) {
+			fmt.Println(i18n.Get(lang, "common.notLoggedIn"))
+		} else {
+			fmt.Println(err)
+		}
+		return
+	}
+
+	summary := ai.BuildSummary(info)
+	decision := recommend.Decide(info)
+
+	req, err := recommend.BuildRequest(summary, decision, lang)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	client := openai.New(creds.APIKey)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+
+	resp, err := client.Complete(ctx, req)
+	if err != nil {
+		fmt.Printf(i18n.Get(lang, "common.openaiFailed")+"\n", err)
+		return
+	}
+
+	result, err := recommend.Parse(resp.Content)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	ui.Header("🤖 " + i18n.Get(lang, "doctor.aiAnalysis"))
+	ui.Blank()
+	ui.Line(" ⭐ " + decision.Recommended)
+	ui.Blank()
+
+	for _, reason := range result.Reasons {
+		printWrapped(" • ", reason)
+	}
+
+	ui.Footer()
 }
 
 func writeDoctorJSON(w io.Writer, result *doctor.Result) error {
@@ -157,5 +222,6 @@ func printDoctorBox(lang string, info *project.Info, result *doctor.Result) {
 func init() {
 	doctorCmd.Flags().BoolVar(&doctorJSON, "json", false, "output results as JSON")
 	doctorCmd.Flags().IntVar(&doctorFailUnder, "fail-under", 0, "exit non-zero if the score is below this threshold")
+	doctorCmd.Flags().BoolVar(&doctorAI, "ai", false, "include AI-generated deployment strategy reasoning (requires login, ignored with --json)")
 	rootCmd.AddCommand(doctorCmd)
 }

@@ -15,7 +15,7 @@ It scans project configurations, detects infrastructure components, and provides
 | Category | Command | Description | Status |
 | :------ | :------ | :---------- | :----: |
 | 🔍 Analysis | `scan` | Scan the project and collect framework, database, Docker, CI/CD, profile, and infrastructure information. | ✅ |
-| 🩺 Diagnosis | `doctor` | Diagnose deployment readiness (0–100%) against a rule-based checklist and suggest infrastructure improvements. | ✅ |
+| 🩺 Diagnosis | `doctor` | Diagnose deployment readiness (0–100%) against a rule-based checklist and suggest infrastructure improvements. Add `--ai` for an AI-generated deployment strategy explanation. | ✅ |
 | 🤖 AI | `explain <topic>` | Explain how a specific infrastructure technology is used within the current project. | ✅ |
 | 🤖 AI | `recommend` | Recommend a deployment strategy (Docker Compose vs. Kubernetes) based on detected infrastructure complexity. | ✅ |
 | 🏗 Visualization | `visualize architecture` | Generate an architecture diagram of the current infrastructure. | ✅ |
